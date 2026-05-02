@@ -1,0 +1,49 @@
+Payroll alignment: Spring (AdmissionService) and MySQL (SP_ProcessRegularPayroll)
+================================================================================
+
+SOURCE OF TRUTH
+--------------
+- Procedure body and payroll row shape: see employee/payroll.sql (or live DB).
+- Java only CALLs the procedure, then SELECTs the resulting payroll row.
+
+CURRENT FORMULA (as implemented in SP_ProcessRegularPayroll in payroll.sql)
+---------------------------------------------------------------------------
+- Earnings: period basic (from admin_pay and semi-month rules) plus honorarium,
+  longevity, OT (1.25x hourly), holiday pay, leave-with-pay, teaching total,
+  adjustment, and employee-level allowance, relocation, cash_gift, incentive
+  (read from the employee table inside the procedure).
+- Time deductions: late and undertime (full-time and similar), absent days,
+  leave-without-pay, using parameters passed from Java.
+- v_gross = total earnings minus time-based deductions (as coded in SP).
+- v_net (stored as net_pay): v_gross minus (SSS loan + HDMF loan parameters).
+- STATUTORY EMPLOYEE SHARES: The INSERT in the current procedure sets
+  sss_deduction, philhealth_deduction, pagibig_deduction, govt_contributions,
+  employer share columns, and withholding_tax to 0, then computes net
+  WITHOUT subtracting them. So the UI may show 0.00 for SSS/PHIC/HDMF even when
+  gross and net are non-zero, until the procedure is extended with official PH
+  contribution and tax rules (or a second update step).
+- To add real SSS/PhilHealth/Pag-IBIG/withholding: extend the same procedure
+  (or add a follow-up procedure) to compute and INSERT non-zero values, then
+  set v_net = v_gross - employee contributions - tax - loan_amort.
+
+JAVA APPLICATION
+----------------
+- getPayrollData() passes: employee id, pay period, loan amounts (from loans
+  table when email matches, split by loan_type keywords), attendance aggregates,
+  leave day counts, zero for holiday/tax/teaching if not used.
+- Read columns from payroll: gross, SSS, PHIC, HDMF, net, plus total_earnings,
+  taxable_income, withholding_tax, loan_deductions for the HR screen and PDF.
+- Database name: ensure spring.datasource.url points at the database that
+  contains the employee, payroll, and loans tables from your chosen dump.
+
+LOANS TABLE (payroll.sql)
+-------------------------
+- loans links to employee by email (no employee_id in loans in the dump). The
+  app sums active loans per employee email and classifies SSS vs HDMF by
+  substrings in loan_type. Rejected/cancelled statuses are excluded.
+
+SCHEMA vs JPA
+-------------
+- OfficialEmployee (Java) maps many fields to table "employee". A minimal SQL
+  dump may list fewer columns than Hibernate has created. Use SHOW CREATE on
+  the live DB to see the true schema.

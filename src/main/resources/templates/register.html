@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Register — Applicant portal')}"></th:block>
+</head>
+<body class="eac-surface eac-auth-shell--centered eac-portal-auth eac-portal-auth--register py-4">
+
+<div class="eac-portal-auth__bg" aria-hidden="true"></div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 eac-portal-auth__col eac-portal-auth__brand text-center mb-2">
+            <a th:href="@{/}" class="d-inline-block text-decoration-none" title="EAC home">
+                <img th:src="@{/image/logo.png}" alt="EAC" height="64" class="eac-portal-auth__logo mb-3" width="auto">
+            </a>
+            <p class="eac-portal-auth__eyebrow mb-1">Emilio Aguinaldo College</p>
+            <h1 class="h3 fw-bold text-dark m-0" style="letter-spacing: -0.02em;">Create your account</h1>
+            <p class="text-muted small mt-2 mb-0">One account to view jobs, apply, and track your status.</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center eac-portal-auth__card-wrap">
+        <div class="col-12 eac-portal-auth__col">
+            <div class="card eac-card-auth eac-portal-auth__card">
+                <div class="card-header eac-card-auth-header">
+                    <h2 class="h5 mb-0">Applicant sign-up</h2>
+                </div>
+                <div class="card-body p-4 p-md-4">
+
+                    <div th:if="${error}" class="alert alert-danger shadow-sm mb-3" role="alert">
+                        <span class="d-block text-center" th:text="${error}">Error</span>
+                    </div>
+
+                    <p class="text-muted small mb-4">
+                        Use a working email&mdash;you&rsquo;ll use it to sign in. We&rsquo;ll send a short welcome message (your password is never sent by email).
+                    </p>
+
+                    <form th:action="@{/register}" th:object="${newUser}" method="post" class="eac-portal-auth__form" id="eacRegForm">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1" for="regEmail">Email</label>
+                            <div class="eac-portal-auth__input-wrap">
+                                <svg class="eac-portal-auth__input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                <input type="email" class="form-control form-control-lg" id="regEmail" th:field="*{username}" placeholder="name@gmail.com" autocomplete="email" required autofocus>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1" for="regPw">Password</label>
+                            <div class="eac-portal-auth__input-wrap eac-portal-auth__input-wrap--pw">
+                                <svg class="eac-portal-auth__input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10z"/></svg>
+                                <input type="password" class="form-control form-control-lg eac-pw-input" id="regPw" th:field="*{password}" autocomplete="new-password" minlength="6" required>
+                                <button type="button" class="eac-portal-auth__pw-toggle" data-eac-toggle-pw="regPw" aria-label="Show password" title="Show or hide password">
+                                    <span class="eac-pw-ico-show" aria-hidden="true">&#128065;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="form-text small text-muted mb-4">At least 6 characters. Choose something you can remember&mdash;we don&rsquo;t store it in plain text.</p>
+                        <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold rounded-pill">Create account</button>
+                    </form>
+
+                    <div class="mt-4 text-center eac-portal-auth__footer-link">
+                        <p class="text-muted small mb-2">Already registered?</p>
+                        <a th:href="@{/applicant-login}" class="text-danger fw-bold text-decoration-none">Sign in to applicant portal &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-3">
+        <div class="col-12 eac-portal-auth__col text-center eac-portal-auth__quick">
+            <a th:href="@{/}" class="d-inline-block">&larr; Main portal</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+(function () {
+    function ready() {
+        document.body.classList.add('eac-portal-auth--ready');
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { requestAnimationFrame(ready); });
+    } else { requestAnimationFrame(ready); }
+
+    document.querySelectorAll('[data-eac-toggle-pw]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-eac-toggle-pw');
+            var input = id ? document.getElementById(id) : null;
+            if (!input) return;
+            var show = input.getAttribute('type') === 'password';
+            input.setAttribute('type', show ? 'text' : 'password');
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+            btn.setAttribute('title', show ? 'Hide password' : 'Show password');
+        });
+    });
+})();
+</script>
+</body>
+</html>

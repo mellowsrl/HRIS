@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Leave request')}"></th:block>
+</head>
+<body class="standalone-body bg-gradient-vertical flex-center">
+
+    <div class="form-container" style="max-width: 500px; width: 100%;">
+        <div class="text-center mb-4">
+            <img th:src="@{/image/logo.png}" class="logo-sm" alt="EAC Logo">
+            <h3 class="fw-bold" style="color: #333;">File a Leave</h3>
+            <p class="text-muted small">Submit your request to HR for approval</p>
+        </div>
+
+        <div th:if="${message}" class="alert alert-info fw-bold text-center shadow-sm" th:text="${message}"></div>
+
+        <form th:action="@{/leave/submit}" th:object="${leaveRequest}" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Employee ID</label>
+                <input type="number" class="form-control" th:field="*{employeeId}" placeholder="Enter your EAC ID Number" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold">Leave Type</label>
+                <select class="form-select" th:field="*{leaveType}" required>
+                    <option value="" disabled selected>Select a leave type...</option>
+                    <option value="Vacation (VL)">Vacation Leave (VL)</option>
+                    <option value="Sick (SL)">Sick Leave (SL)</option>
+                    <option value="Maternity (ML)">Maternity Leave (ML)</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Start Date</label>
+                    <input type="date" class="form-control" th:field="*{startDate}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">End Date</label>
+                    <input type="date" class="form-control" th:field="*{endDate}" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-submit w-100 mt-2">Submit Request</button>
+            <a href="/" class="btn btn-link w-100 mt-3 text-decoration-none text-secondary text-center d-block fw-bold">Back to Home</a>
+        </form>
+    </div>
+
+</body>
+</html>

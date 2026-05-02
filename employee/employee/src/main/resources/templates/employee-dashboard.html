@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Dashboard - EAC Portal</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm mb-5">
+    <div class="container-fluid">
+        <span class="navbar-brand fw-bold m-0 letter-spacing-1 text-uppercase">EAC Employee Portal</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white fw-bold" th:text="${employee.firstName + ' ' + employee.lastName + ' (' + employee.customEmployeeId + ')'}"></span>
+            <a th:href="@{/logout}" class="btn btn-sm btn-light fw-bold text-danger text-uppercase" style="letter-spacing: 1px;">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+    <div class="row mb-5">
+        <div class="col-md-5">
+            <h4 class="fw-bold text-dark mb-3 text-uppercase" style="letter-spacing: -0.5px;">Leave Balances</h4>
+            
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="card shadow-sm border-0 summary-card p-3 border-danger">
+                        <span class="small text-muted text-uppercase fw-bold letter-spacing-1">Vacation (VL)</span>
+                        <h3 class="text-danger m-0 fw-bold" th:text="${employee.vlBalance} + ' Days'"></h3>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow-sm border-0 summary-card p-3 border-dark">
+                        <span class="small text-muted text-uppercase fw-bold letter-spacing-1">Sick (SL)</span>
+                        <h3 class="text-dark m-0 fw-bold" th:text="${employee.slBalance} + ' Days'"></h3>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow-sm border-0 summary-card p-3 border-secondary">
+                        <span class="small text-muted text-uppercase fw-bold letter-spacing-1">Solo Parent</span>
+                        <h3 class="text-secondary m-0 fw-bold" th:text="${employee.splBalance} + ' Days'"></h3>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow-sm border-0 summary-card p-3 border-secondary">
+                        <span class="small text-muted text-uppercase fw-bold letter-spacing-1">Bereavement</span>
+                        <h3 class="text-secondary m-0 fw-bold" th:text="${employee.blBalance} + ' Days'"></h3>
+                    </div>
+                </div>
+                
+                <div class="col-12" th:if="${employee.gender == 'Female'}">
+                    <div class="card shadow-sm border-0 summary-card p-3 border-danger" style="background-color: #fde8e8;">
+                        <span class="small text-danger text-uppercase fw-bold letter-spacing-1">Maternity (ML)</span>
+                        <h3 class="text-danger m-0 fw-bold" th:text="${employee.mlBalance} + ' Days'"></h3>
+                    </div>
+                </div>
+                <div class="col-12" th:if="${employee.gender == 'Male'}">
+                    <div class="card shadow-sm border-0 summary-card p-3 border-danger" style="background-color: #fde8e8;">
+                        <span class="small text-danger text-uppercase fw-bold letter-spacing-1">Paternity Leave</span>
+                        <h3 class="text-danger m-0 fw-bold" th:text="${employee.plBalance} + ' Days'"></h3>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-3 text-uppercase mt-5" style="letter-spacing: -0.5px;">File a Leave</h4>
+            <div class="card shadow-sm border-0" style="border-radius: 12px; border-top: 5px solid var(--eac-red);">
+                <div class="card-body p-4">
+                    <form action="/employee/leave/submit" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1">Leave Type</label>
+                            <select name="leaveType" class="form-select bg-light" required>
+                                <option value="" disabled selected>Select Leave Type...</option>
+                                <option value="Vacation Leave">Vacation Leave (VL)</option>
+                                <option value="Sick Leave">Sick Leave (SL)</option>
+                                <option th:if="${employee.gender == 'Female'}" value="Maternity Leave">Maternity Leave (ML)</option>
+                                <option th:if="${employee.gender == 'Male'}" value="Paternity Leave">Paternity Leave</option>
+                                <option value="Solo Parent Leave">Solo Parent Leave</option>
+                                <option value="Bereavement Leave">Bereavement Leave</option>
+                                <option value="Service Incentive Leave">Service Incentive Leave (SIL)</option>
+                                <option value="Study Leave">Study Leave</option>
+                                <option value="Terminal (VL)">Terminal Leave (VL Cash Conversion)</option>
+                            </select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1">Start Date</label>
+                                <input type="date" name="startDate" class="form-control bg-light" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1">End Date</label>
+                                <input type="date" name="endDate" class="form-control bg-light" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1">Reason / Details</label>
+                            <textarea name="reason" class="form-control bg-light" rows="2" placeholder="Provide reason or upload link..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 py-3 fw-bold text-uppercase shadow-sm" style="letter-spacing: 1px;">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <h4 class="fw-bold text-dark mb-3 text-uppercase" style="letter-spacing: -0.5px;">My Leave History</h4>
+            <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                <table class="table table-hover table-custom text-center m-0">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="leave : ${myLeaves}">
+                            <td class="fw-bold text-dark" th:text="${leave.leaveType}"></td>
+                            <td class="text-secondary" th:text="${leave.startDate}"></td>
+                            <td class="text-secondary" th:text="${leave.endDate}"></td>
+                            <td>
+                                <span class="badge px-3 py-2" 
+                                      th:classappend="${leave.status == 'APPROVED' ? 'bg-success' : (leave.status == 'REJECTED' ? 'bg-danger' : 'bg-warning text-dark')}" 
+                                      th:text="${leave.status}">
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${myLeaves == null or myLeaves.empty}">
+                            <td colspan="4" class="text-muted p-5"><i>You have not submitted any leave requests yet.</i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

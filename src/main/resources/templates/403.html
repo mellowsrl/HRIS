@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Access denied')}"></th:block>
+</head>
+<body class="standalone-body bg-gradient-red flex-center">
+
+    <div class="msg-card shadow-lg p-5">
+        <img th:src="@{/image/logo.png}" class="logo-sm mx-auto d-block" alt="EAC Logo">
+        
+        <div class="error-code mt-3">403</div>
+        <h3 class="fw-bold mt-3 text-dark text-uppercase" style="letter-spacing: 1px;">Access Restricted</h3>
+        
+        <div style="width: 50px; height: 4px; background-color: var(--eac-red); margin: 15px auto; border-radius: 2px;"></div>
+        
+        <p class="text-muted mt-3 mb-4 fw-medium">
+            Your current security clearance does not permit access to this module. 
+            If you believe this is an error, please contact the System Administrator.
+        </p>
+        
+        <button onclick="history.back()" class="btn btn-danger w-100 fw-bold text-uppercase mt-2 py-3 shadow-sm" style="letter-spacing: 1.5px;">
+            Return to Safety
+        </button>
+    </div>
+
+</body>
+</html>

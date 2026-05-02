@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="fields">
+    <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2 mb-3">Required for payroll (SP total)</h6>
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6">
+            <label class="form-label small fw-bold">Employee <span class="text-danger">*</span></label>
+            <select th:field="*{employeeId}" class="form-select" required>
+                <option th:each="emp : ${employees}" th:value="${emp.id}"
+                        th:text="${(emp.customEmployeeId != null ? emp.customEmployeeId : '') + ' — ' + (emp.firstName != null ? emp.firstName : '') + ' ' + (emp.lastName != null ? emp.lastName : '')}"></option>
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small fw-bold">Period start <span class="text-danger">*</span></label>
+            <input type="date" th:field="*{periodStart}" class="form-control" required>
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small fw-bold">Period end <span class="text-danger">*</span></label>
+            <input type="date" th:field="*{periodEnd}" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small fw-bold">Total teaching pay (₱) <span class="text-danger">*</span></label>
+            <input type="number" th:field="*{totalTeachingPay}" class="form-control" step="0.01" min="0" required>
+            <div class="form-text">Same dates as the payroll run (semi-month, e.g. 1st–15th or 16th–EOM).</div>
+        </div>
+    </div>
+
+    <h6 class="text-secondary text-uppercase small fw-bold border-bottom pb-2 mb-3">Lecture / lab / rate</h6>
+    <div class="row g-2 mb-2">
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Hourly rate</label>
+            <input type="number" th:field="*{hourlyRate}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Lec pay</label>
+            <input type="number" th:field="*{lecPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Lab pay</label>
+            <input type="number" th:field="*{labPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Lab rate</label>
+            <input type="number" th:field="*{labRate}" class="form-control" step="0.01" min="0">
+        </div>
+    </div>
+
+    <h6 class="text-secondary text-uppercase small fw-bold border-bottom pb-2 mb-3 mt-3">Units &amp; hours</h6>
+    <div class="row g-2 mb-2">
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total lec units</label>
+            <input type="number" th:field="*{totalLecUnits}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total lab units</label>
+            <input type="number" th:field="*{totalLabUnits}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Excess lec units</label>
+            <input type="number" th:field="*{excessLecUnits}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Excess lab units</label>
+            <input type="number" th:field="*{excessLabUnits}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total lec hours</label>
+            <input type="number" th:field="*{totalLecHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total lab hours</label>
+            <input type="number" th:field="*{totalLabHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total hours</label>
+            <input type="number" th:field="*{totalHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Excess lec hours</label>
+            <input type="number" th:field="*{excessLecHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Excess lab hours</label>
+            <input type="number" th:field="*{excessLabHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total excess hours</label>
+            <input type="number" th:field="*{totalExcessHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Adjustment hours</label>
+            <input type="number" th:field="*{adjustmentHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Deduction hours</label>
+            <input type="number" th:field="*{deductionHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Absent deduction hours</label>
+            <input type="number" th:field="*{absentDeductionHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Excess RLE hours</label>
+            <input type="number" th:field="*{excessRleHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Total RLE hours</label>
+            <input type="number" th:field="*{totalRleHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">SGD hours</label>
+            <input type="number" th:field="*{sgdHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Substitute hours</label>
+            <input type="number" th:field="*{substituteHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Tutorial lec hours</label>
+            <input type="number" th:field="*{tutorialLecHours}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Tutorial lab hours</label>
+            <input type="number" th:field="*{tutorialLabHours}" class="form-control" step="0.01" min="0">
+        </div>
+    </div>
+
+    <h6 class="text-secondary text-uppercase small fw-bold border-bottom pb-2 mb-3 mt-3">Other pay (optional)</h6>
+    <div class="row g-2 mb-2">
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Holiday pay</label>
+            <input type="number" th:field="*{holidayPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Honorarium</label>
+            <input type="number" th:field="*{honorarium}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Suspension deduction</label>
+            <input type="number" th:field="*{suspensionDeduction}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Adjustment pay</label>
+            <input type="number" th:field="*{adjustmentPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Admin pay (teaching row)</label>
+            <input type="number" th:field="*{adminPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Supplemental pay</label>
+            <input type="number" th:field="*{supplementalPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Substitute pay</label>
+            <input type="number" th:field="*{substitutePay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">RLE pay</label>
+            <input type="number" th:field="*{rlePay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">RLE rate</label>
+            <input type="number" th:field="*{rleRate}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">SGD pay</label>
+            <input type="number" th:field="*{sgdPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Tutorial lec pay</label>
+            <input type="number" th:field="*{tutorialLecPay}" class="form-control" step="0.01" min="0">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small">Tutorial lab pay</label>
+            <input type="number" th:field="*{tutorialLabPay}" class="form-control" step="0.01" min="0">
+        </div>
+    </div>
+    <div class="row g-2 mb-4">
+        <div class="col-12 col-md-6">
+            <label class="form-label small">Workload classification</label>
+            <input type="text" th:field="*{workloadClassification}" class="form-control" maxlength="255" placeholder="e.g. Part-Time, Regular Full-Time">
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary fw-bold" th:text="${isEdit} ? 'Save changes' : 'Create'">Save</button>
+        <a th:href="@{/hr/teaching-pay}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</th:block>
+</html>

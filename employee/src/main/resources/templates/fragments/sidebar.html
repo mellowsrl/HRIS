@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <nav th:fragment="sidebar(activePage)" id="sidebar" class="sidebar">
+        <h3 class="text-center">EAC System</h3>
+        <ul class="nav flex-column mt-4">
+            <li class="sidebar-heading">HR Module</li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/dashboard" class="text-white text-decoration-none" 
+                   th:classappend="${activePage == 'dashboard'} ? 'fw-bold' : 'opacity-75'">Applicants</a>
+            </li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/employees" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'employees'} ? 'fw-bold' : 'opacity-75'">Employees</a>
+            </li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/biometrics" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'biometrics'} ? 'fw-bold' : 'opacity-75'">Biometrics Data</a>
+            </li>
+
+            <li class="nav-item mb-2">
+                <a href="/hr/attendance-board" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'attendance'} ? 'fw-bold' : 'opacity-75'">Attendance Calendar</a>
+            </li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/records" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'records'} ? 'fw-bold' : 'opacity-75'">Government & Emergency</a>
+            </li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/leaves" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'leaves'} ? 'fw-bold' : 'opacity-75'">Leave Approvals</a>
+            </li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/leave-history" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'history'} ? 'fw-bold' : 'opacity-75'">Leave History</a>
+            </li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/holidays" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'holidays'} ? 'fw-bold' : 'opacity-75'">Official Holidays</a>
+            </li>
+
+            <li class="sidebar-heading border-top pt-3 mt-3">Finance Module</li>
+            
+            <li class="nav-item mb-2">
+                <a href="/hr/payroll" class="text-white text-decoration-none"
+                   th:classappend="${activePage == 'payroll'} ? 'fw-bold' : 'opacity-75'">Payroll (Salary)</a>
+            </li>
+
+            <li class="nav-item mb-2 mt-5 pt-5">
+                <a th:href="@{/logout}" class="text-white text-decoration-none opacity-75 border-top pt-3 d-block text-uppercase small fw-bold">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+</body>
+</html>

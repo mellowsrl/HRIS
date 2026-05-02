@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <th:block th:fragment="content">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Identity &amp; contact</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td class="text-muted">Employee ID</td><td class="fw-bold" th:text="${employee.customEmployeeId}"></td></tr>
+                    <tr><td class="text-muted">Name</td><td class="fw-bold" th:text="${employee.firstName + ' ' + employee.lastName}"></td></tr>
+                    <tr><td class="text-muted">Email</td><td th:text="${employee.email}"></td></tr>
+                    <tr><td class="text-muted">Phone</td><td th:text="${employee.phone != null and !#strings.isEmpty(employee.phone) ? employee.phone : '—'}"></td></tr>
+                    <tr><td class="text-muted">Gender</td><td th:text="${employee.gender != null ? employee.gender : '—'}"></td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Employment</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td class="text-muted">Department</td><td class="fw-bold" th:text="${employee.department}"></td></tr>
+                    <tr><td class="text-muted">Position</td><td th:text="${employee.position != null ? employee.position : '—'}"></td></tr>
+                    <tr><td class="text-muted">Status</td><td th:text="${employee.status}"></td></tr>
+                    <tr><td class="text-muted">Employment type</td><td th:text="${employee.employmentType != null ? employee.employmentType : '—'}"></td></tr>
+                    <tr><td class="text-muted">Payment</td><td th:text="${employee.paymentType != null ? employee.paymentType : '—'}"></td></tr>
+                    <tr><td class="text-muted">Expected shift</td><td th:text="${employee.expectedShift != null ? employee.expectedShift : '—'}"></td></tr>
+                    <tr><td class="text-muted">Date hired</td><td th:text="${employee.dateHired != null ? #temporals.format(employee.dateHired, 'MMM d, yyyy') : '—'}"></td></tr>
+                    <tr><td class="text-muted">Probation ends</td><td th:text="${employee.probationEndDate != null ? #temporals.format(employee.probationEndDate, 'MMM d, yyyy') : '—'}"></td></tr>
+                    <tr><td class="text-muted">Contract ends</td><td th:text="${employee.contractEndDate != null ? #temporals.format(employee.contractEndDate, 'MMM d, yyyy') : '—'}"></td></tr>
+                    <tr><td class="text-muted">Separation / last day</td><td th:text="${employee.separationDate != null ? #temporals.format(employee.separationDate, 'MMM d, yyyy') : '—'}"></td></tr>
+                    <tr th:if="${employee.separationNote != null and !#strings.isEmpty(employee.separationNote)}">
+                        <td class="text-muted">Separation note</td>
+                        <td style="white-space:pre-wrap" th:text="${employee.separationNote}">—</td>
+                    </tr>
+                    <tr th:if="${recordMode == 'hr'}"><td class="text-muted">Biometric ID</td><td th:text="${employee.biometricId != null ? employee.biometricId : '—'}"></td></tr>
+                </table>
+            </div>
+            <div class="col-12">
+                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Government IDs</h6>
+                <div class="row">
+                    <div class="col-md-3 small"><span class="text-muted">SSS</span><div class="fw-bold" th:text="${employee.sssNumber != null and !#strings.isEmpty(employee.sssNumber) ? employee.sssNumber : '—'}"></div></div>
+                    <div class="col-md-3 small"><span class="text-muted">TIN</span><div class="fw-bold" th:text="${employee.tinNumber != null and !#strings.isEmpty(employee.tinNumber) ? employee.tinNumber : '—'}"></div></div>
+                    <div class="col-md-3 small"><span class="text-muted">PhilHealth</span><div class="fw-bold" th:text="${employee.philhealthNumber != null and !#strings.isEmpty(employee.philhealthNumber) ? employee.philhealthNumber : '—'}"></div></div>
+                    <div class="col-md-3 small"><span class="text-muted">Pag-IBIG</span><div class="fw-bold" th:text="${employee.pagibigNumber != null and !#strings.isEmpty(employee.pagibigNumber) ? employee.pagibigNumber : '—'}"></div></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Education &amp; experience</h6>
+                <table class="table table-sm table-borderless">
+                    <tr><td class="text-muted">Highest degree</td><td th:text="${employee.highestDegree != null ? employee.highestDegree : '—'}"></td></tr>
+                    <tr><td class="text-muted">Years experience</td><td th:text="${employee.yearsExperience}"></td></tr>
+                    <tr><td class="text-muted">Previous employer</td><td th:text="${employee.previousEmployer != null ? employee.previousEmployer : '—'}"></td></tr>
+                </table>
+                <div class="text-muted small text-uppercase fw-bold">Experience (summary)</div>
+                <p class="small mb-0" style="white-space: pre-wrap;" th:text="${employee.experienceText != null and !#strings.isEmpty(employee.experienceText) ? employee.experienceText : '—'}"></p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Emergency contact</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td class="text-muted">Name</td><td class="fw-bold" th:text="${employee.emergencyContactName != null ? employee.emergencyContactName : '—'}"></td></tr>
+                    <tr><td class="text-muted">Phone</td><td th:text="${employee.emergencyContactPhone != null ? employee.emergencyContactPhone : '—'}"></td></tr>
+                </table>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

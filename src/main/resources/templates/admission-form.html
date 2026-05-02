@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Apply — Emilio Aguinaldo College')}"></th:block>
+</head>
+<body class="eac-surface eac-auth-shell--form-scroll">
+
+<div class="container" style="max-width: 920px;">
+    <div class="row justify-content-center">
+        <div class="col-12">
+
+            <div class="text-center mb-4">
+                <img th:src="@{/image/logo.png}" alt="Emilio Aguinaldo College" height="64" class="mb-2">
+                <h1 class="h3 fw-bold text-dark mb-1">Work with EAC</h1>
+                <p class="text-muted small mb-0">Emilio Aguinaldo College &middot; Human Resource Management</p>
+                <p class="text-muted small fst-italic mt-1 mb-0" style="letter-spacing: 0.12em;">Virtus, Excelentia, Servitium</p>
+            </div>
+
+            <p class="text-center text-muted small mx-auto mb-4" style="max-width: 40rem;">
+                Use this form to apply for open faculty or non-faculty positions. Your information is used only for recruitment and, if you are hired, for HR and payroll set-up. Fields marked
+                <span class="text-danger">*</span> are required. Upload a current résumé in PDF.
+            </p>
+
+            <div class="card eac-card-auth shadow border-0">
+                <div class="card-header eac-card-auth-header">
+                    <h2 class="h5 mb-0">Online application</h2>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                <form th:action="@{/submit}" th:object="${applicant}" method="post" enctype="multipart/form-data">
+
+                    <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger mb-4 shadow-sm" role="alert">
+                        <strong>We could not save your application.</strong> Please review the items below.
+                    </div>
+                    <div th:if="${resumeError != null}" class="alert alert-danger mb-4 shadow-sm" role="alert" th:text="${resumeError}">Upload error</div>
+
+                    <input type="hidden" th:field="*{incentiveLeaveBalance}"/>
+                    <input type="hidden" th:field="*{studyLeaveBalance}"/>
+                    <input type="hidden" th:field="*{paymentType}"/>
+                    <input type="hidden" th:field="*{expectedShift}"/>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3">1. Personal &amp; contact</h3>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">First name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{firstName}" maxlength="50" autocomplete="given-name" placeholder="As on valid ID" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Last name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{lastName}" maxlength="50" autocomplete="family-name" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Gender <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{gender}" required>
+                                <option value="" disabled>Select&hellip;</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Email (we will use this to contact you) <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" th:field="*{email}" maxlength="100" placeholder="name@example.com" autocomplete="email" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Mobile number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{phone}" maxlength="30" placeholder="09XX XXX XXXX" autocomplete="tel" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3">2. Post applied for</h3>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Employment type <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{employmentType}" required>
+                                <option value="" disabled>Select&hellip;</option>
+                                <option value="Full-Time Faculty">Full-time faculty</option>
+                                <option value="Part-Time Faculty">Part-time faculty</option>
+                                <option value="Full-Time Non-Faculty">Full-time non-faculty</option>
+                                <option value="Part-Time Non-Faculty">Part-time non-faculty</option>
+                            </select>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('employmentType')}" th:errors="*{employmentType}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">School or unit (department) <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{department}" id="departmentDropdown" required>
+                                <option value="" disabled>Select school / unit&hellip;</option>
+                                <th:block th:if="${usePayrollDepartmentFallback}">
+                                    <option th:each="d : ${payrollDepartments}" th:value="${d.code}" th:text="${d.name}">Name</option>
+                                </th:block>
+                                <th:block th:unless="${usePayrollDepartmentFallback}">
+                                    <option th:each="d : ${eacDepartments}" th:value="${d.code}" th:text="${d.name}">Name</option>
+                                </th:block>
+                            </select>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Position / title you seek <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{positionApplied}" maxlength="100" placeholder="e.g. College instructor, IT support staff, Program coordinator" required>
+                            <div class="form-text">Match the language used in the job posting, if you are replying to one.</div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('positionApplied')}" th:errors="*{positionApplied}"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3">3. Proposed daily rate (PHP)</h3>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Daily rate <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">&#8369;</span>
+                                <input type="number" class="form-control" th:field="*{dailyWage}" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                            </div>
+                            <div class="form-text">Your expected rate. HR may adjust based on load and school policy before a formal offer.</div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('dailyWage')}" th:errors="*{dailyWage}"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3 mt-4">4. Education (optional at application)</h3>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label class="form-label small text-muted">Highest completed degree or credential</label>
+                            <input type="text" class="form-control" th:field="*{highestDegree}" maxlength="100" placeholder="e.g. B.S. Nursing, M.A. Education, TESDA NC II">
+                        </div>
+                    </div>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3">5. Government ID numbers (optional now)</h3>
+                    <p class="small text-muted mb-3">You may complete these before hiring. They help expedite SSS, PhilHealth, and Pag-IBIG registration.</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-lg-3">
+                            <label class="form-label small text-muted">SSS</label>
+                            <input type="text" class="form-control" th:field="*{sssNumber}" maxlength="32" placeholder="&mdash;" autocomplete="off">
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <label class="form-label small text-muted">TIN</label>
+                            <input type="text" class="form-control" th:field="*{tinNumber}" maxlength="32" placeholder="&mdash;" autocomplete="off">
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <label class="form-label small text-muted">PhilHealth</label>
+                            <input type="text" class="form-control" th:field="*{philhealthNumber}" maxlength="32" placeholder="&mdash;" autocomplete="off">
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <label class="form-label small text-muted">Pag-IBIG</label>
+                            <input type="text" class="form-control" th:field="*{pagibigNumber}" maxlength="32" placeholder="&mdash;" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3">6. Emergency contact</h3>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Full name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{emergencyContactName}" maxlength="100" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('emergencyContactName')}" th:errors="*{emergencyContactName}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Phone <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{emergencyContactPhone}" maxlength="30" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('emergencyContactPhone')}" th:errors="*{emergencyContactPhone}"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="h6 text-uppercase text-muted fw-bold letter-spacing-1 border-bottom pb-2 mb-3">7. Work experience &amp; résumé</h3>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Relevant work experience <span class="text-danger">*</span></label>
+                        <textarea class="form-control" th:field="*{experienceText}" rows="3" maxlength="500" placeholder="E.g. &quot;3 years OJT + 1 year teaching&quot; or &quot;None&quot; if you have no paid experience." required></textarea>
+                        <div class="form-text">Summarize years and context, or type <strong>None</strong> if you have no prior paid employment.</div>
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('experienceText')}" th:errors="*{experienceText}"></div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Previous or current employer <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{previousEmployer}" placeholder="Employer name, or N/A" required>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('previousEmployer')}" th:errors="*{previousEmployer}"></div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Résumé (PDF) <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="resumePdf" id="resumePdf" accept="application/pdf,.pdf" required>
+                        <div class="form-text">One file only, PDF, maximum 5 MB.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold rounded-pill py-3 mt-1">Submit application</button>
+                </form>
+
+                <div class="text-center mt-3 pb-1">
+                    <a href="/" class="text-muted small text-decoration-none fw-semibold">Back to home</a>
+                </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Employee overtime — EAC')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .eac-ot-empl-card h3 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; }
+        .eac-ot-empl-card .sub { font-size: 0.8rem; opacity: 0.9; }
+        .eac-ot-empl--ok { background: linear-gradient(135deg, #0d6e6a, #0a5250); color: #fff; }
+        .eac-ot-empl--pen { background: linear-gradient(135deg, #9b2346, #6b1530); color: #fff; }
+        .eac-ot-empl--rej { background: linear-gradient(135deg, #d9785c, #b84d2e); color: #fff; }
+        .eac-ot-empl-btn { background: linear-gradient(135deg, #1a4d4a, #0d6e6a); }
+    </style>
+</head>
+<body class="eac-surface min-vh-100 p-0">
+
+<div class="eac-emp-layout d-flex" th:if="${employee != null}">
+    <div th:replace="~{fragments/employee-sidebar :: sidebar(activePage='overtime')}"></div>
+    <div class="eac-emp-content flex-grow-1 p-3 p-md-4" style="max-height:100vh;overflow-y:auto;">
+<div class="container pb-5">
+    <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold" style="color:#1a2e2c;">Employee overtime</h1>
+            <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb" style="font-size:0.85rem;">
+                <a th:href="@{/}">Home</a><span class="sep">/</span>
+                <span>Attendance</span><span class="sep">/</span>
+                <span>Employee overtime</span>
+            </nav>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm text-white border-0 fw-bold px-3 eac-ot-empl-btn" data-bs-toggle="modal" data-bs-target="#empOtModal"
+                    onclick="document.getElementById('empOtMode').value='EMPLOYEE'">Manual overtime</button>
+            <button type="button" class="btn btn-sm text-white border-0 fw-bold px-3 eac-ot-empl-btn" data-bs-toggle="modal" data-bs-target="#empOtModal"
+                    onclick="document.getElementById('empOtMode').value='CLOCK_IN'">Clock-in overtime</button>
+            <button type="button" class="btn btn-sm text-white border-0 fw-bold px-3 eac-ot-empl-btn" data-bs-toggle="modal" data-bs-target="#empOtModal"
+                    onclick="document.getElementById('empOtMode').value='CLOCK_OUT'">Clock-out overtime</button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4" th:if="${otMonthStats != null}">
+        <div class="col-12 col-md-4">
+            <div class="eac-ot-empl-card eac-ot-empl--ok rounded-3 p-4 shadow-sm h-100">
+                <h3 th:text="${otMonthStats.approved}">0</h3>
+                <div class="sub">Approved requests (this month)</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="eac-ot-empl-card eac-ot-empl--pen rounded-3 p-4 shadow-sm h-100">
+                <h3 th:text="${otMonthStats.pending}">0</h3>
+                <div class="sub">Pending requests</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="eac-ot-empl-card eac-ot-empl--rej rounded-3 p-4 shadow-sm h-100">
+                <h3 th:text="${otMonthStats.rejected}">0</h3>
+                <div class="sub">Rejected requests</div>
+            </div>
+        </div>
+    </div>
+
+    <form method="get" th:action="@{/employee/overtime}" class="eac-empl-filters p-3 shadow-sm row g-2 align-items-end mb-3">
+        <div class="col-6 col-md-3">
+            <label class="form-label text-muted small mb-0">Date from</label>
+            <input type="date" name="dateFrom" class="form-control form-control-sm" th:value="${dateFrom}">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label text-muted small mb-0">Date to</label>
+            <input type="date" name="dateTo" class="form-control form-control-sm" th:value="${dateTo}">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label text-muted small mb-0">Status</label>
+            <select class="form-select form-select-sm" id="empOtFSt">
+                <option value="">All status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-auto d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-sm btn-dark">Apply</button>
+        </div>
+    </form>
+
+    <h6 class="fw-bold mb-2" style="color:#1a2e2c;">My overtime</h6>
+    <div class="bg-white p-3 border rounded-bottom shadow-sm" style="border-color:#e8ecec;">
+        <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+            <div>
+                <label class="form-label text-muted small mb-0" for="empOtSize">Row per page</label>
+                <select class="form-select form-select-sm" id="empOtSize" style="max-width:6rem"><option>10</option><option>25</option><option>50</option></select>
+            </div>
+            <div class="flex-grow-1" style="min-width:10rem;max-width:20rem">
+                <label class="form-label text-muted small mb-0" for="empOtSearch">Search</label>
+                <input type="search" id="empOtSearch" class="form-control form-control-sm" placeholder="Date, type, source…" autocomplete="off">
+            </div>
+        </div>
+        <div class="table-responsive" style="max-height:70vh">
+            <table class="table table-sm table-hover align-middle mb-0" id="empOtTable">
+                <thead class="table-light small text-uppercase text-muted" style="font-size:0.65rem;">
+                <tr>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Start / end</th>
+                    <th>OT hours</th>
+                    <th>Photo</th>
+                    <th>File</th>
+                    <th>Offset</th>
+                    <th>Approved by</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody id="empOtBody">
+                <tr th:each="r : ${otRows}" class="eac-emp-ot-row d-none"
+                    th:attr="data-st=${r.status},
+                             data-srch=${#strings.toLowerCase(#strings.toString(r.workDate) + ' ' + r.sourceLabel + ' ' + r.status + ' ' + r.otType)}">
+                    <td class="small" th:text="${r.sourceLabel}">—</td>
+                    <td th:text="${r.workDate}">—</td>
+                    <td class="small"><span th:text="${r.startTime}">—</span> – <span th:text="${r.endTime}">—</span></td>
+                    <td class="fw-bold" th:text="${r.overtimeHours}">—</td>
+                    <td class="text-muted small">—</td>
+                    <td>
+                        <a th:if="${r.attachmentUrl != null}" th:href="${r.attachmentUrl}" target="_blank" rel="noopener" class="small">View</a>
+                        <span th:unless="${r.attachmentUrl != null}">—</span>
+                    </td>
+                    <td th:text="${r.offsetDate}">—</td>
+                    <td class="small" th:text="${r.lastActionBy}">—</td>
+                    <td><span class="badge bg-light text-dark border" th:text="${r.status}">—</span></td>
+                </tr>
+                <tr th:if="${otRows == null or #lists.isEmpty(otRows)}">
+                    <td colspan="9" class="text-center text-muted p-4">No data in table for this range.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between small text-muted border py-2 px-2 bg-light rounded-bottom">
+        <span id="empOtInfo">—</span>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-light border" id="empOtPrev" disabled>‹</button>
+            <span class="text-muted" id="empOtNo">1</span>
+            <button type="button" class="btn btn-sm btn-light border" id="empOtNext" disabled>›</button>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<div class="modal fade" id="empOtModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form th:action="@{/employee/overtime/submit}" method="post" enctype="multipart/form-data" class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Submit overtime</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="dateFrom" th:value="${dateFrom}">
+                <input type="hidden" name="dateTo" th:value="${dateTo}">
+                <input type="hidden" name="requestMode" id="empOtMode" value="EMPLOYEE"/>
+                <div class="mb-2">
+                    <label class="form-label small">Work date <span class="text-danger">*</span></label>
+                    <input type="date" name="workDate" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Overtime hours <span class="text-danger">*</span></label>
+                    <input type="number" name="overtimeHours" class="form-control form-control-sm" min="0" max="16" value="1" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Type</label>
+                    <select name="otType" class="form-select form-select-sm">
+                        <option value="REGULAR">REGULAR</option>
+                        <option value="HOLIDAY">HOLIDAY</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Offset date (CTO / lieu)</label>
+                    <input type="date" name="offsetDate" class="form-control form-control-sm">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Notes</label>
+                    <textarea name="notes" class="form-control form-control-sm" rows="2" placeholder="Optional"></textarea>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label small">Attachment</label>
+                    <input type="file" name="attachment" class="form-control form-control-sm" accept=".pdf,image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sm text-white border-0 fw-bold eac-ot-empl-btn">Submit for HR</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    const body = document.getElementById('empOtBody');
+    if (!body) return;
+    const fS = document.getElementById('empOtFSt');
+    const size = document.getElementById('empOtSize');
+    const q = document.getElementById('empOtSearch');
+    const info = document.getElementById('empOtInfo');
+    const pageNo = document.getElementById('empOtNo');
+    const prev = document.getElementById('empOtPrev');
+    const next = document.getElementById('empOtNext');
+    let page = 0;
+    function rows() { return Array.prototype.slice.call(body.querySelectorAll('tr.eac-emp-ot-row')); }
+    function m(r) {
+        if (fS && fS.value) {
+            const st = (r.getAttribute('data-st') || '');
+            if (st.toLowerCase().indexOf(fS.value.toLowerCase()) < 0) return false;
+        }
+        if (q && q.value.trim()) {
+            if ((r.getAttribute('data-srch') || '').indexOf(q.value.trim().toLowerCase()) < 0) return false;
+        }
+        return true;
+    }
+    function run() {
+        const all = rows();
+        all.forEach(function (r) { r.classList.add('d-none'); });
+        const vis = all.filter(m);
+        const ps = size ? (parseInt(size.value, 10) || 10) : 10;
+        const L = vis.length;
+        let maxP = Math.max(0, Math.ceil(L / ps) - 1);
+        if (page > maxP) page = maxP;
+        if (L === 0) page = 0;
+        const start = page * ps;
+        vis.forEach(function (r, i) {
+            r.classList.toggle('d-none', i < start || i >= start + ps);
+        });
+        if (info) {
+            if (L === 0) info.textContent = 'Showing 0 to 0 of 0 entries';
+            else {
+                const from = start + 1, to = Math.min(L, start + ps);
+                info.textContent = 'Showing ' + from + ' to ' + to + ' of ' + L + ' entries';
+            }
+        }
+        if (pageNo) pageNo.textContent = String(page + 1);
+        if (prev) prev.disabled = page <= 0;
+        if (next) next.disabled = (start + ps >= L);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        rows().forEach(function (r) { r.classList.remove('d-none'); });
+        run();
+        [fS, size].forEach(function (el) { if (el) el.addEventListener('change', function () { page = 0; run(); }); });
+        if (q) q.addEventListener('input', function () { page = 0; run(); });
+        if (prev) prev.addEventListener('click', function () { if (page > 0) { page--; run(); } });
+        if (next) next.addEventListener('click', function () { page++; run(); });
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Single source of truth for this app: MySQL table `attendance` (JPA: AttendanceLog).
+Anything else that queries `attendance_logs` (reports, old PHP, Excel ODBC, ETL) should be
+switched to query `attendance` after a one-time migration (see sql/migrate_*.sql).
+
+If you must not rename all consumers at once, after RENAME of the physical legacy table
+to attendance_logs_backup, you may add a read-only view named `attendance_logs` that
+projects columns from `attendance` (see sql/legacy_compat_view_attendance_logs.sql). This
+only works if the old query expected the same column names and meanings as the current app.
+
+In this repository, a nested copy at employee/employee/... maps AttendanceLog to the wrong
+table name; do not use that build (see DO_NOT_USE_NESTED_EMPLOYEE_FOLDERS.txt in employee/).

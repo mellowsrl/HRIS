@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Finance & Payroll - EAC System</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+	<nav id="sidebar" class="sidebar">
+	        <h3 class="text-center">EAC System</h3>
+	        <ul class="nav flex-column mt-4">
+	            <li class="sidebar-heading">HR Module</li>
+	            <li class="nav-item mb-2"><a href="/hr/dashboard" class="text-white text-decoration-none opacity-75">Applicants</a></li>
+	            <li class="nav-item mb-2"><a href="/hr/employees" class="text-white text-decoration-none opacity-75">Employees</a></li>
+	            
+	            <li class="nav-item mb-2"><a href="/hr/biometrics" class="text-white ext-decoration-none opacity-75">Biometrics Data</a></li>
+	            
+	            <li class="nav-item mb-2"><a href="/hr/records" class="text-white text-decoration-none opacity-75">Government & Emergency</a></li>
+	            <li class="nav-item mb-2"><a href="/hr/leaves" class="text-white text-decoration-none opacity-75">Leave Approvals</a></li>
+
+	            <li class="sidebar-heading border-top pt-3 mt-3">Finance Module</li>
+	            <li class="nav-item mb-2"><a href="/hr/payroll" class="text-white text-decoration-none fw-bold text-warning">Payroll (Salary)</a></li>
+
+	            <li class="nav-item mb-2 mt-5 pt-5"><a th:href="@{/logout}" class="text-white text-decoration-none opacity-75 border-top pt-3 d-block text-uppercase small fw-bold">Logout</a></li>
+	        </ul>
+	    </nav>
+
+    <div id="content" class="main-content">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn-hamburger">☰</button>
+                <h2 class="text-danger fw-bold m-0" style="letter-spacing: -1px;">Payroll Generation</h2>
+            </div>
+            
+            <div class="d-flex gap-3 align-items-center">
+                <form action="/hr/biometrics/upload" method="post" enctype="multipart/form-data" class="d-flex align-items-center bg-white p-1 rounded shadow-sm border">
+                    <input type="file" name="file" accept=".csv" class="form-control form-control-sm border-0 bg-transparent" required style="max-width: 250px;">
+                    <button type="submit" class="btn btn-sm btn-dark fw-bold px-3">Upload TCMS</button>
+                </form>
+
+                <div class="bg-white p-2 px-3 rounded shadow-sm border text-end">
+                    <span class="small text-muted text-uppercase fw-bold d-block" style="font-size: 0.7rem;">Active Cutoff Period</span>
+                    <span class="text-dark fw-bold" th:text="${cutoffPeriod}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+        <div class="card p-4 border-top" style="border-width: 5px !important; border-color: var(--eac-dark-gray) !important;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Employee ID</th>
+                            <th class="text-start">Employee Details</th>
+                            <th>Base / Type</th>
+                            <th>Reg. Hours</th>
+                            <th>OT Hours</th>
+                            <th>Gross Pay</th>
+                            <th>Net Pay (Take-Home)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="emp : ${payrollList}">
+<td class="fw-bold text-primary" th:text="${emp.customEmployeeId}"></td>                            <td class="text-start">
+                                <div class="fw-bold text-dark" th:text="${emp.firstName + ' ' + emp.lastName}"></div>
+                                <div class="small fw-bold text-danger text-uppercase" style="font-size:0.7rem;" th:text="${emp.employmentType}"></div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark" th:text="'₱ ' + ${#numbers.formatDecimal(emp.dailyWage != null ? emp.dailyWage : 0, 1, 'COMMA', 2, 'POINT')}"></div>
+                                <div class="small text-muted text-uppercase" style="font-size:0.65rem;" th:text="${emp.paymentType}"></div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary fs-6" th:text="${#numbers.formatDecimal(emp.totalHours, 1, 'COMMA', 2, 'POINT')} + ' hrs'"></span>
+                            </td>
+                            <td>
+                                <span class="badge fs-6" th:classappend="${emp.otHours > 0 ? 'bg-danger' : 'bg-light text-muted border'}" th:text="${#numbers.formatDecimal(emp.otHours, 1, 'COMMA', 2, 'POINT')} + ' hrs'"></span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-secondary" th:text="'₱ ' + ${#numbers.formatDecimal(emp.grossPay, 1, 'COMMA', 2, 'POINT')}"></div>
+                            </td>
+                            <td>
+                                <h5 class="fw-bold text-success m-0" th:text="'₱ ' + ${#numbers.formatDecimal(emp.netPay, 1, 'COMMA', 2, 'POINT')}"></h5>
+                            </td>
+                            <td>
+                                <a th:href="@{/hr/payroll/download(id=${emp.id})}" class="btn btn-sm btn-outline-danger fw-bold text-uppercase" style="font-size: 0.7rem;">📄 PDF Payslip</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${payrollList.empty}">
+                            <td colspan="8" class="text-center text-muted p-4">No active employees found for payroll computation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

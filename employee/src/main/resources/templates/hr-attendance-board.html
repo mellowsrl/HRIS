@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Attendance Board - EAC System</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <style>
+        /* ==========================================
+           PREMIUM PASTEL CALENDAR THEME
+           ========================================== */
+        :root {
+            --fc-border-color: #e9ecef; /* Extra soft grid lines */
+            --fc-button-text-color: #fff;
+            --fc-button-bg-color: #212529; 
+            --fc-button-border-color: #212529;
+            --fc-button-hover-bg-color: #424649;
+            --fc-button-hover-border-color: #373b3e;
+            --fc-button-active-bg-color: #424649;
+        }
+
+        .fc-col-header-cell {
+            background-color: #ffffff !important;
+            border-bottom: 2px solid #212529 !important; 
+        }
+
+        .fc-col-header-cell-cushion {
+            color: #212529 !important; 
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-decoration: none !important;
+            padding: 12px 0 !important;
+        }
+
+        .fc-daygrid-day-number {
+            color: #6c757d !important;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none !important;
+            padding: 8px 10px !important;
+        }
+
+        .fc-daygrid-day.fc-day-today {
+            background-color: #f8f9fa !important; /* Very clean, subtle today highlight */
+        }
+
+        /* Modern, Soft Event Chips */
+        .fc-event { 
+            cursor: pointer; 
+            border: none !important; 
+            border-radius: 6px !important; /* Rounder edges */
+            padding: 4px 6px !important; 
+            font-weight: 700 !important; 
+            font-size: 0.75rem !important;
+            margin: 2px 6px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04) !important; /* Soft depth */
+            transition: transform 0.1s ease-in-out;
+        }
+        
+        .fc-event:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+
+        /* Flash Card Hover Effects */
+        .stat-card { border-radius: 12px; border-left: 5px solid; transition: transform 0.2s; background-color: #fff;}
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important; }
+        .legend-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='attendance')}"></div>
+
+    <div id="content" class="main-content bg-light">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn-hamburger me-3">☰</button>
+                <div>
+                    <h2 class="text-danger fw-bold m-0" style="letter-spacing: -1px;">Attendance Board</h2>
+                    <p class="text-muted m-0 small fw-bold text-uppercase letter-spacing-1">Visual DTR & Monthly Tracking</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: 14px;">
+                    <label class="fw-bold small text-muted text-uppercase mb-2">Select Employee</label>
+                    <select id="employeeSelect" class="form-select form-select-lg fw-bold shadow-sm border-0 bg-light" onchange="loadEmployeeData()">
+                        <option value="" disabled selected>-- Choose Personnel --</option>
+                        <option th:each="emp : ${employees}" 
+                                th:value="${emp.id}" 
+                                th:text="${emp.customEmployeeId + ' - ' + emp.firstName + ' ' + emp.lastName}"
+                                th:data-dept="${emp.department}"
+                                th:data-shift="${emp.expectedShift}">
+                        </option>
+                    </select>
+                    
+                    <div id="employeeProfile" class="mt-4 d-none">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 shadow-sm" style="width: 55px; height: 55px;" id="profileInitials"></div>
+                            <div class="ms-3">
+                                <h5 class="fw-bold text-dark m-0" id="profileName">Name</h5>
+                                <div class="small text-danger fw-bold text-uppercase letter-spacing-1" id="profileDept">Department</div>
+                            </div>
+                        </div>
+                        <div class="bg-light p-2 rounded shadow-sm border text-center small fw-bold text-secondary">
+                            Expected Shift: <span class="text-dark" id="profileShift">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-4" style="border-radius: 14px; background-color: #f8f9fa;">
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-dark text-uppercase small letter-spacing-1 px-2">Monthly Overview</h6>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #198754;">
+                                <div class="small text-muted fw-bold text-uppercase">Present</div>
+                                <h3 class="fw-bold text-success m-0" id="statPresent">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #dc3545;">
+                                <div class="small text-muted fw-bold text-uppercase">Absent</div>
+                                <h3 class="fw-bold text-danger m-0" id="statAbsent">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #ffc107;">
+                                <div class="small text-muted fw-bold text-uppercase">Late/Short</div>
+                                <h3 class="fw-bold text-warning m-0" id="statLate">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #0d6efd;">
+                                <div class="small text-muted fw-bold text-uppercase">Leaves</div>
+                                <h3 class="fw-bold text-primary m-0" id="statLeave">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 shadow-sm border-0" style="border-radius: 14px;">
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-dark text-uppercase small letter-spacing-1">Color Legend</h6>
+                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
+                        <span class="legend-dot" style="background-color: #d1e7dd; border: 1px solid #0f5132;"></span> Complete Shift (8+ hrs)
+                    </div>
+                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
+                        <span class="legend-dot" style="background-color: #fff3cd; border: 1px solid #664d03;"></span> Late / Undertime
+                    </div>
+                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
+                        <span class="legend-dot" style="background-color: #f8d7da; border: 1px solid #842029;"></span> Absent / No Data
+                    </div>
+                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
+                        <span class="legend-dot" style="background-color: #e2e3e5; border: 1px solid #41464b;"></span> Rest Day / Holiday
+                    </div>
+                    <div class="small fw-bold text-secondary mt-3 pt-3 border-top">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="legend-dot" style="background-color: #cfe2ff; border: 1px solid #0a58ca;"></span> Approved Leaves
+                        </div>
+                        <span class="text-muted fw-normal d-block ms-4" style="font-size: 0.75rem;">VL, SL, ML, PL, SPL, BL, SIL, STDL</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card p-4 shadow-sm border-0 h-100 bg-white" style="border-radius: 14px;">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
+      <div class="modal-header bg-dark text-white border-0 py-3">
+        <h6 class="modal-title fw-bold m-0 text-uppercase letter-spacing-1" id="modalDate">Date</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-4 bg-light">
+        <h4 id="modalStatus" class="fw-bold mb-3">Status</h4>
+        <div class="bg-white p-3 rounded shadow-sm border">
+            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                <span class="text-muted small fw-bold text-uppercase">Time In:</span>
+                <span class="text-dark fw-bold" id="modalIn">--:--</span>
+            </div>
+            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                <span class="text-muted small fw-bold text-uppercase">Time Out:</span>
+                <span class="text-dark fw-bold" id="modalOut">--:--</span>
+            </div>
+            <div class="d-flex justify-content-between pt-1">
+                <span class="text-muted small fw-bold text-uppercase">Credited:</span>
+                <span class="text-dark fw-bold" id="modalHours">0.00 hrs</span>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let calendar;
+    let globalLogs = [];
+    let globalHolidays = [];
+
+    // --- PASTEL COLOR PALETTE ---
+    const COLORS = {
+        PRESENT_BG: '#d1e7dd', PRESENT_TEXT: '#0f5132', // Soft Green
+        ABSENT_BG: '#f8d7da', ABSENT_TEXT: '#842029',   // Soft Red
+        LATE_BG: '#fff3cd', LATE_TEXT: '#664d03',       // Soft Yellow
+        LEAVE_BG: '#cfe2ff', LEAVE_TEXT: '#0a58ca',     // Soft Blue
+        REST_BG: '#e2e3e5', REST_TEXT: '#41464b',       // Soft Gray
+        ERROR_BG: '#f8d7da', ERROR_TEXT: '#842029'      // Soft Orange/Red
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('content').classList.toggle('expanded');
+        });
+
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth'
+            },
+            height: 750,
+            firstDay: 1, 
+            eventClick: function(info) {
+                document.getElementById('modalDate').innerText = info.event.startStr;
+                document.getElementById('modalStatus').innerText = info.event.title;
+                
+                // Map the pastel background back to a bootstrap text color for the modal
+                let modalColorClass = getTextColorClass(info.event.backgroundColor);
+                document.getElementById('modalStatus').className = "fw-bold mb-3 " + modalColorClass;
+                
+                document.getElementById('modalIn').innerText = info.event.extendedProps.timeIn || '--:--';
+                document.getElementById('modalOut').innerText = info.event.extendedProps.timeOut || '--:--';
+                document.getElementById('modalHours').innerText = (info.event.extendedProps.hours || 0) + ' hrs';
+                
+                new bootstrap.Modal(document.getElementById('eventModal')).show();
+            },
+            datesSet: function(info) {
+                calculateStats(info.start, info.end);
+            }
+        });
+        calendar.render();
+
+        fetch('/api/holidays')
+            .then(res => res.json())
+            .then(data => {
+                globalHolidays = data.map(h => ({
+                    title: 'Holiday: ' + h.name,
+                    start: h.date,
+                    backgroundColor: COLORS.REST_BG,
+                    textColor: COLORS.REST_TEXT,
+                    allDay: true,
+                    extendedProps: { timeIn: null, timeOut: null, hours: 0 }
+                }));
+                calendar.addEventSource(globalHolidays);
+            });
+    });
+
+    function loadEmployeeData() {
+        const select = document.getElementById('employeeSelect');
+        const empId = select.value;
+        const selectedOption = select.options[select.selectedIndex];
+
+        document.getElementById('employeeProfile').classList.remove('d-none');
+        let name = selectedOption.text.split(' - ')[1];
+        document.getElementById('profileName').innerText = name;
+        document.getElementById('profileInitials').innerText = name.charAt(0);
+        document.getElementById('profileDept').innerText = selectedOption.getAttribute('data-dept');
+        document.getElementById('profileShift').innerText = selectedOption.getAttribute('data-shift');
+
+        fetch(`/api/attendance/logs?employeeId=${empId}`)
+            .then(res => res.json())
+            .then(data => {
+                globalLogs = data; 
+                calendar.removeAllEventSources();
+                calendar.addEventSource(globalHolidays);
+
+                let events = data.map(log => {
+                    let bgColor = COLORS.ABSENT_BG;
+                    let txtColor = COLORS.ABSENT_TEXT;
+                    
+                    let title = log.status || 'ABSENT';
+                    let statusUpper = title.toUpperCase();
+
+                    let isLeave = statusUpper.includes('VL') || statusUpper.includes('SL') || 
+                                  statusUpper.includes('ML') || statusUpper.includes('PL') || 
+                                  statusUpper.includes('SPL') || statusUpper.includes('BL') || 
+                                  statusUpper.includes('SIL') || statusUpper.includes('STDL') || 
+                                  statusUpper.includes('PAID_') || statusUpper.includes('LEAVE');
+
+                    if (isLeave) {
+                        bgColor = COLORS.LEAVE_BG; txtColor = COLORS.LEAVE_TEXT;
+                        title = "LEAVE (" + title.replace("PAID_", "") + ")";
+                    }
+                    else if (statusUpper.includes('REST')) {
+                        bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT;
+                        title = "Rest Day";
+                    }
+                    else if (log.hoursWorked >= 8.0) {
+                        bgColor = COLORS.PRESENT_BG; txtColor = COLORS.PRESENT_TEXT;
+                        title = "Present";
+                    } 
+                    else if (log.hoursWorked > 0 && log.hoursWorked < 8.0) {
+                        bgColor = COLORS.LATE_BG; txtColor = COLORS.LATE_TEXT;
+                        title = "Short (" + log.hoursWorked.toFixed(1) + "h)";
+                    } 
+                    else if (statusUpper === 'INVALID_SHIFT') {
+                        bgColor = COLORS.ERROR_BG; txtColor = COLORS.ERROR_TEXT;
+                        title = "No Timeout";
+                    }
+
+                    return {
+                        title: title,
+                        start: log.logDate,
+                        backgroundColor: bgColor,
+                        borderColor: bgColor,
+                        textColor: txtColor,
+                        allDay: true,
+                        extendedProps: {
+                            timeIn: log.timeIn,
+                            timeOut: log.timeOut,
+                            hours: log.hoursWorked.toFixed(2),
+                            rawStatus: statusUpper
+                        }
+                    };
+                });
+
+                calendar.addEventSource(events);
+                let view = calendar.view;
+                calculateStats(view.activeStart, view.activeEnd);
+            });
+    }
+
+    function calculateStats(viewStart, viewEnd) {
+        if (!globalLogs || globalLogs.length === 0) return;
+
+        let present = 0, absent = 0, late = 0, leaves = 0;
+
+        globalLogs.forEach(log => {
+            let logDate = new Date(log.logDate);
+            if (logDate >= viewStart && logDate < viewEnd) {
+                let statusUpper = (log.status || '').toUpperCase();
+                
+                let isLeave = statusUpper.includes('VL') || statusUpper.includes('SL') || 
+                              statusUpper.includes('ML') || statusUpper.includes('PL') || 
+                              statusUpper.includes('SPL') || statusUpper.includes('BL') || 
+                              statusUpper.includes('SIL') || statusUpper.includes('STDL') || 
+                              statusUpper.includes('PAID_') || statusUpper.includes('LEAVE');
+
+                if (isLeave) {
+                    leaves++;
+                } 
+                else if (statusUpper.includes('REST')) {
+                    // Do nothing
+                }
+                else if (log.hoursWorked >= 8.0) {
+                    present++;
+                } else if (log.hoursWorked > 0 && log.hoursWorked < 8.0) {
+                    late++;
+                    present++; 
+                } else {
+                    absent++; 
+                }
+            }
+        });
+
+        document.getElementById('statPresent').innerText = present;
+        document.getElementById('statAbsent').innerText = absent;
+        document.getElementById('statLate').innerText = late;
+        document.getElementById('statLeave').innerText = leaves;
+    }
+
+    function getTextColorClass(bgColor) {
+        if(bgColor === COLORS.PRESENT_BG) return 'text-success';
+        if(bgColor === COLORS.LATE_BG) return 'text-warning';
+        if(bgColor === COLORS.LEAVE_BG) return 'text-primary';
+        if(bgColor === COLORS.REST_BG) return 'text-secondary';
+        return 'text-danger';
+    }
+</script>
+</body>
+</html>

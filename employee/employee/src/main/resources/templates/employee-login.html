@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee Portal - EAC</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=3.0}">
+    <style>
+        /* Premium Animated Light Background */
+        body.gateway-employee {
+            background: linear-gradient(-45deg, #ffffff, #f0f4f8, #fde8e8, #f4f7f6);
+            background-size: 400% 400%;
+            animation: gradientBGLight 15s ease infinite;
+        }
+        @keyframes gradientBGLight {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .eac-link { transition: transform 0.3s; text-decoration: none; display: inline-block; }
+        .eac-link:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="gateway-body gateway-employee">
+
+<div class="gateway-card shadow-lg" style="border-top: 5px solid #8b0000;">
+    <div class="gateway-header-employee text-center border-bottom pb-4 mb-4 pt-4">
+        <a href="https://www.eac.edu.ph/" target="_blank" class="eac-link">
+            <img th:src="@{/image/logo.png}" alt="EAC Logo" style="max-width: 80px; margin-bottom: 15px;">
+            <h1 class="fw-bold mb-1 text-dark" style="letter-spacing: -1px; font-size: 1.8rem;">Employee <span class="text-danger">Portal</span></h1>
+            <p class="fs-6 text-muted fw-bold text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.75rem !important;">Emilio Aguinaldo College</p>
+        </a>
+    </div>
+    
+    <div class="gateway-form-area px-5 pb-5 pt-2">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold text-dark mb-1" id="dynamicGreetingEmp">Welcome</h4>
+            <p class="text-muted small">Log in using your Official EAC ID.</p>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger p-3 small fw-bold text-center border-0 shadow-sm" style="border-radius: 10px;">
+            Invalid ID or Password.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 1px;">EAC Employee ID</label>
+                <input type="text" name="username" class="form-control" placeholder="e.g. 11001" required autofocus>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 1px;">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-gateway-employee w-100 mt-2 shadow-sm">Access Portal</button>
+        </form>
+        
+        <div class="text-center mt-4 pt-2">
+            <a href="/" class="text-decoration-none text-muted small fw-bold text-uppercase" style="letter-spacing: 1px; transition: 0.2s;">&larr; Return to Home</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Smart Time-Based Greeting
+    const hour = new Date().getHours();
+    const greetingElement = document.getElementById('dynamicGreetingEmp');
+    if (hour < 12) greetingElement.innerText = "Good Morning.";
+    else if (hour < 18) greetingElement.innerText = "Good Afternoon.";
+    else greetingElement.innerText = "Good Evening.";
+</script>
+
+</body>
+</html>

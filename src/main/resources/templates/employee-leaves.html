@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Leaves — EAC')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <style>
+        .eac-lv-empl-stat h3 { font-size: 2rem; font-weight: 800; }
+        .eac-lv-empl-stat .sub { font-size: 0.8rem; opacity: 0.95; }
+        .eac-lv-empl-ok { background: linear-gradient(135deg, #0d6e6a, #0a5250); color: #fff; }
+        .eac-lv-empl-rj { background: linear-gradient(135deg, #b84d7a, #7a2d4a); color: #fff; }
+        .eac-lv-empl-pen { background: linear-gradient(135deg, #e8a87c, #c56c3d); color: #fff; }
+        .eac-lv-empl-btn { background: linear-gradient(135deg, #1a4d4a, #0d6e6a); }
+        .eac-emp-lv-cal .fc-toolbar-title { font-weight: 800; color: #1a2e2c; text-transform: uppercase; font-size: 1.25rem !important; }
+        .eac-emp-lv-cal .fc-button-primary { background-color: #1a4d4a !important; border-color: #1a4d4a !important; }
+        .eac-emp-lv-cal .fc-button-primary:hover { background-color: #0d3d3a !important; }
+        .eac-emp-lv-cal .fc-day-today { background-color: #f0f7f6 !important; }
+        .eac-emp-lv-cal .fc-event { font-weight: 600; font-size: 0.8rem; border-radius: 4px; }
+        .eac-emp-lv-legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    </style>
+</head>
+<body class="eac-surface min-vh-100 p-0">
+
+<div class="eac-emp-layout d-flex" th:if="${employee != null}">
+    <div th:replace="~{fragments/employee-sidebar :: sidebar(activePage='leaves')}"></div>
+    <div class="eac-emp-content flex-grow-1 p-3 p-md-4" style="max-height:100vh;overflow-y:auto;">
+<div class="container pb-5">
+    <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold" style="color:#1a2e2c;">Leaves</h1>
+            <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb" style="font-size:0.85rem;">
+                <a th:href="@{/}">Home</a><span class="sep">/</span>
+                <span>Leaves</span><span class="sep">/</span>
+                <span>Employee leaves</span>
+            </nav>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light border shadow-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-label="Export">
+                    <i class="fas fa-file-export me-1"></i> Export
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end small">
+                    <li><button type="button" class="dropdown-item" id="empLvExportCsv">Download CSV (visible)</button></li>
+                </ul>
+            </div>
+            <button type="button" class="btn text-white border-0 fw-bold px-4 eac-lv-empl-btn" data-bs-toggle="modal" data-bs-target="#empLeaveModal">
+                <i class="fas fa-plus-circle me-1"></i> Request leave
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4" th:if="${leaveMonthStats != null}">
+        <div class="col-12 col-md-4">
+            <div class="eac-lv-empl-stat eac-lv-empl-ok rounded-3 p-4 shadow-sm h-100 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 th:text="${leaveMonthStats.approved}">0</h3>
+                    <div class="sub">Approved</div>
+                </div>
+                <i class="fas fa-user-check fa-2x opacity-50" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="eac-lv-empl-stat eac-lv-empl-pen rounded-3 p-4 shadow-sm h-100 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 th:text="${leaveMonthStats.pending}">0</h3>
+                    <div class="sub">Pending</div>
+                </div>
+                <i class="fas fa-hourglass-half fa-2x opacity-50" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="eac-lv-empl-stat eac-lv-empl-rj rounded-3 p-4 shadow-sm h-100 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 th:text="${leaveMonthStats.rejected}">0</h3>
+                    <div class="sub">Rejected</div>
+                </div>
+                <i class="fas fa-user-times fa-2x opacity-50" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 eac-emp-lv-cal" th:if="${allLeaves != null}">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h2 class="h5 fw-bold mb-2" style="color:#1a2e2c;">My leave calendar</h2>
+            <p class="text-muted small mb-3">This matches the list below. It does <strong>not</strong> pull from the DTR or TCMS import—only from leave requests you or HR have filed here.</p>
+            <div class="d-flex flex-wrap gap-3 mb-2 eac-emp-lv-legend small fw-semibold text-secondary">
+                <span><span class="dot" style="background:#d1e7dd;border:1px solid #0f5132;"></span> Approved</span>
+                <span><span class="dot" style="background:#e2e3e5;border:1px solid #383d41;"></span> Pending</span>
+                <span><span class="dot" style="background:#f8d7da;border:1px solid #842029;"></span> Rejected</span>
+            </div>
+        </div>
+        <div class="card-body pt-0">
+            <div id="empLeaveCalendar" class="w-100"></div>
+        </div>
+    </div>
+
+    <h6 class="fw-bold py-2 px-3 mb-0 text-white" style="background:linear-gradient(90deg,#0d6e6a,#0a5250);border-radius:6px 6px 0 0;">Leave list</h6>
+    <form method="get" th:action="@{/employee/leaves}" class="eac-empl-filters p-3 row g-2 align-items-end border border-top-0" style="border-color:#e8ecec !important;">
+        <div class="col-6 col-md-4 col-lg-3">
+            <label class="form-label text-muted small mb-0">Date from</label>
+            <input type="date" name="dateFrom" class="form-control form-control-sm" th:value="${dateFrom}">
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <label class="form-label text-muted small mb-0">Date to</label>
+            <input type="date" name="dateTo" class="form-control form-control-sm" th:value="${dateTo}">
+        </div>
+        <div class="col-6 col-md-4 col-lg-3" th:if="${allLeaveTypes != null}">
+            <label class="form-label text-muted small mb-0">Leave type</label>
+            <select class="form-select form-select-sm" id="empLvFType">
+                <option value="">All leave type</option>
+                <option th:each="t : ${allLeaveTypes}" th:value="${t}" th:text="${t}">—</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <label class="form-label text-muted small mb-0">Status</label>
+            <select class="form-select form-select-sm" id="empLvFSt">
+                <option value="">All status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-auto d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-sm btn-dark">Apply</button>
+        </div>
+    </form>
+
+    <div class="bg-white p-3 border border-top-0 shadow-sm" style="border-color:#e8ecec !important;border-radius:0 0 6px 6px;">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-2">
+            <div class="d-flex align-items-end gap-2">
+                <div>
+                    <label class="form-label text-muted small mb-0" for="empLvSize">Row per page</label>
+                    <select class="form-select form-select-sm d-inline-block" id="empLvSize" style="max-width:5rem"><option>10</option><option>25</option></select>
+                </div>
+                <span class="small text-muted pb-1">Entries</span>
+            </div>
+            <div class="flex-grow-1" style="min-width:10rem;max-width:20rem">
+                <label class="form-label text-muted small mb-0" for="empLvSearch">Search</label>
+                <input type="search" id="empLvSearch" class="form-control form-control-sm" placeholder="Type, status, dates…" autocomplete="off">
+            </div>
+        </div>
+        <div class="table-responsive" style="max-height:70vh">
+            <table class="table table-sm table-hover align-middle mb-0" id="empLvTable">
+                <thead class="table-light small text-uppercase text-muted" style="font-size:0.65rem;">
+                <tr>
+                    <th style="width:2rem"><input type="checkbox" class="form-check-input" disabled title="Reserved" aria-label="select all"></th>
+                    <th>Leave type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Approved by</th>
+                    <th>No of days</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="empLvBody">
+                <tr th:each="r : ${leaveRows}" class="eac-emp-lv-row d-none"
+                    th:attr="data-lt=${r.leaveType},
+                             data-st=${r.status},
+                             data-srch=${#strings.toLowerCase(r.leaveType + ' ' + r.status + ' ' + r.lastActionBy + ' ' + #strings.toString(r.fromDate) + ' ' + #strings.toString(r.toDate))}">
+                    <td><input type="checkbox" class="form-check-input" disabled aria-label="row"></td>
+                    <td><span class="badge bg-info text-dark" th:text="${r.leaveType}">—</span></td>
+                    <td th:text="${r.fromDate}">—</td>
+                    <td th:text="${r.toDate}">—</td>
+                    <td class="small" th:text="${r.lastActionBy}">—</td>
+                    <td class="fw-bold" th:text="${r.numberOfDays}">0</td>
+                    <td><span class="badge border bg-light text-dark" th:text="${r.status}">—</span></td>
+                    <td>—</td>
+                </tr>
+                <tr th:if="${leaveRows == null or #lists.isEmpty(leaveRows)}">
+                    <td colspan="8" class="text-center text-muted p-4">No data in table for this range.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between small text-muted border py-2 px-2 bg-light rounded-bottom">
+        <span id="empLvInfo">—</span>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-light border" id="empLvPrev" disabled>‹</button>
+            <span class="text-muted" id="empLvNo">1</span>
+            <button type="button" class="btn btn-sm btn-light border" id="empLvNext" disabled>›</button>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<div class="modal fade" id="empLeaveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <form th:action="@{/employee/leave/submit}" method="post" class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Request leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted">Balances and rules are the same as on your dashboard. HR will be notified for approval.</p>
+                <div class="form-floating mb-2">
+                    <select name="leaveType" class="form-select" id="empLeaveTypeSelect" required>
+                        <option value="" disabled selected>Select leave type…</option>
+                        <option value="Vacation Leave">Vacation Leave</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Service Incentive Leave">Service Incentive Leave</option>
+                        <option value="Study Leave">Study Leave</option>
+                        <option value="Bereavement Leave">Bereavement Leave</option>
+                        <option value="Solo Parent Leave">Solo Parent Leave</option>
+                        <option th:if="${employee.gender == 'Female'}" value="Maternity Leave">Maternity Leave</option>
+                        <option th:if="${employee.gender == 'Male'}" value="Paternity Leave">Paternity Leave</option>
+                    </select>
+                    <label for="empLeaveTypeSelect">Leave type</label>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6 form-floating">
+                        <input type="date" name="startDate" class="form-control" id="empLvStart" required>
+                        <label for="empLvStart">Start date</label>
+                    </div>
+                    <div class="col-md-6 form-floating">
+                        <input type="date" name="endDate" class="form-control" id="empLvEnd" required>
+                        <label for="empLvEnd">End date</label>
+                    </div>
+                </div>
+                <div class="form-floating mt-2">
+                    <textarea name="reason" class="form-control" id="empLvReason" style="min-height:100px" placeholder="Reason" required></textarea>
+                    <label for="empLvReason">Reason / details</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sm text-white border-0 fw-bold eac-lv-empl-btn">Submit request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var el = document.getElementById('empLeaveCalendar');
+        if (!el || typeof FullCalendar === 'undefined') return;
+        var rawEvents = [
+            /*[# th:each="leave : ${allLeaves}"]*/
+            {
+                title: /*[[${leave.leaveType + ' (' + leave.status + ')'}]]*/ 'Leave',
+                start: /*[[${leave.startDate != null ? leave.startDate.toString() : '1970-01-01'}]]*/ '2026-01-01',
+                end: /*[[${leave.endDate != null ? leave.endDate.toString() : '1970-01-01'}]]*/ '2026-01-02',
+                status: /*[[${leave.status}]]*/ 'PENDING'
+            },
+            /*[/]*/
+        ];
+        var formatted = rawEvents.map(function (evt) {
+            var eDate = new Date(evt.end);
+            eDate.setDate(eDate.getDate() + 1);
+            var st = (evt.status || '').toUpperCase();
+            var bg = '#e2e3e5', tx = '#383d41';
+            if (st === 'APPROVED') { bg = '#d1e7dd'; tx = '#0f5132'; }
+            else if (st === 'REJECTED') { bg = '#f8d7da'; tx = '#842029'; }
+            return {
+                title: evt.title,
+                start: evt.start,
+                end: eDate.toISOString().split('T')[0],
+                allDay: true,
+                backgroundColor: bg,
+                textColor: tx,
+                borderColor: bg,
+                extendedProps: { status: st }
+            };
+        });
+        new FullCalendar.Calendar(el, {
+            initialView: 'dayGridMonth',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
+            height: 'auto',
+            contentHeight: 520,
+            events: formatted,
+            eventClick: function (info) {
+                var t = info.event.title.split(' (')[0];
+                alert('Leave type: ' + t + '\nDate: ' + info.event.startStr);
+            }
+        }).render();
+    });
+</script>
+<script>
+(function () {
+    const body = document.getElementById('empLvBody');
+    if (!body) return;
+    const fS = document.getElementById('empLvFSt');
+    const fT = document.getElementById('empLvFType');
+    const size = document.getElementById('empLvSize');
+    const q = document.getElementById('empLvSearch');
+    const info = document.getElementById('empLvInfo');
+    const pageNo = document.getElementById('empLvNo');
+    const prev = document.getElementById('empLvPrev');
+    const next = document.getElementById('empLvNext');
+    let page = 0;
+    function rows() { return Array.prototype.slice.call(body.querySelectorAll('tr.eac-emp-lv-row')); }
+    function m(r) {
+        if (fT && fT.value) {
+            if ((r.getAttribute('data-lt') || '') !== fT.value) return false;
+        }
+        if (fS && fS.value) {
+            const st = (r.getAttribute('data-st') || '');
+            if (st.toLowerCase().indexOf(fS.value.toLowerCase()) < 0) return false;
+        }
+        if (q && q.value.trim()) {
+            if ((r.getAttribute('data-srch') || '').indexOf(q.value.trim().toLowerCase()) < 0) return false;
+        }
+        return true;
+    }
+    function run() {
+        const all = rows();
+        all.forEach(function (r) { r.classList.add('d-none'); });
+        const vis = all.filter(m);
+        const ps = size ? (parseInt(size.value, 10) || 10) : 10;
+        const L = vis.length;
+        let maxP = Math.max(0, Math.ceil(L / ps) - 1);
+        if (page > maxP) page = maxP;
+        if (L === 0) page = 0;
+        const start = page * ps;
+        vis.forEach(function (r, i) {
+            r.classList.toggle('d-none', i < start || i >= start + ps);
+        });
+        if (info) {
+            if (L === 0) info.textContent = 'Showing 0 to 0 of 0 entries';
+            else {
+                const from = start + 1, to = Math.min(L, start + ps);
+                info.textContent = 'Showing ' + from + ' to ' + to + ' of ' + L + ' entries';
+            }
+        }
+        if (pageNo) pageNo.textContent = String(page + 1);
+        if (prev) prev.disabled = page <= 0;
+        if (next) next.disabled = (start + ps >= L);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        rows().forEach(function (r) { r.classList.remove('d-none'); });
+        run();
+        [fS, fT, size].forEach(function (el) { if (el) el.addEventListener('change', function () { page = 0; run(); }); });
+        if (q) q.addEventListener('input', function () { page = 0; run(); });
+        if (prev) prev.addEventListener('click', function () { if (page > 0) { page--; run(); } });
+        if (next) next.addEventListener('click', function () { page++; run(); });
+    });
+    var ex = document.getElementById('empLvExportCsv');
+    if (ex) ex.addEventListener('click', function () {
+        var ths = document.querySelectorAll('#empLvTable thead th');
+        var headers = Array.prototype.map.call(ths, function (h) { return h.textContent.trim().replace(/Action/g,'Actions'); });
+        var vis = Array.prototype.filter.call(document.querySelectorAll('tr.eac-emp-lv-row'), function (r) { return !r.classList.contains('d-none'); });
+        var lines = [headers.join(',')];
+        vis.forEach(function (tr) {
+            var parts = Array.prototype.map.call(tr.querySelectorAll('td'), function (td) {
+                return '"' + (td.innerText || '').replace(/"/g, '""').replace(/\n/g, ' ').trim() + '"';
+            });
+            lines.push(parts.join(','));
+        });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+        a.download = 'my-leaves.csv';
+        a.click();
+    });
+})();
+</script>
+</body>
+</html>

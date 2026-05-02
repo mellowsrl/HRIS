@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Applicants')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100">
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='applicants')}"></div>
+
+    <div id="content" class="main-content eac-empl-page" style="background:#f5f7f7;">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn-hamburger me-3">☰</button>
+                <div>
+                    <a th:href="@{/hr/dashboard}" class="small text-muted text-decoration-none d-inline-block mb-1">← EAC home</a>
+                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c; letter-spacing:-.5px;">Applicants</h1>
+                    <p class="text-muted m-0 small">Review, schedule interviews, and hire for Emilio Aguinaldo College.</p>
+                </div>
+            </div>
+
+            <form method="get" th:action="@{/hr/applicants}" class="d-flex flex-wrap align-items-center gap-2 bg-white p-2 rounded shadow-sm border" style="border-left:4px solid #1a4d4a !important;">
+                <label class="fw-bold text-secondary text-nowrap mb-0 small text-uppercase">Filter</label>
+                <select name="status" class="form-select border-0 bg-light small fw-bold" onchange="this.form.submit()" style="min-width: 180px; font-size:0.85rem;">
+                    <option value="ALL" th:selected="${selectedStatus == 'ALL' || selectedStatus == null}">All applicants</option>
+                    <option value="PENDING" th:selected="${selectedStatus == 'PENDING'}">Pending (newest)</option>
+                    <option value="ACCEPTED" th:selected="${selectedStatus == 'ACCEPTED'}">Scheduled (accepted)</option>
+                    <option value="REJECTED" th:selected="${selectedStatus == 'REJECTED'}">Rejected</option>
+                    <option value="HIRED" th:selected="${selectedStatus == 'HIRED'}">Hired (active)</option>
+                </select>
+                <input type="search" name="search" class="form-control form-control-sm border-0 bg-light" style="min-width: 200px; max-width: 280px;" th:value="${searchKeyword}" placeholder="Search name, email, position...">
+                <button type="submit" class="btn btn-sm text-white fw-bold border-0" style="background:#1a4d4a;">Search</button>
+            </form>
+        </div>
+
+        <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle text-center m-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>APP-ID</th>
+                            <th class="text-start">Applicant details</th>
+                            <th class="text-start">Position &amp; experience</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="app : ${applicants}">
+                            <td class="fw-bold text-muted" th:text="'#' + ${app.id}"></td>
+                            <td class="text-start">
+                                <div class="fw-bold text-dark fs-6" th:text="${app.firstName + ' ' + app.lastName}"></div>
+                                <div class="small text-muted mb-1" th:text="${app.email}"></div>
+                                <a th:if="${app.resumeLink != null and !#strings.isEmpty(app.resumeLink)}"
+                                   th:href="${app.resumeLink}" target="_blank" rel="noopener"
+                                   class="badge bg-light text-dark border shadow-sm text-decoration-none px-2 py-1">View PDF résumé</a>
+                                <span th:unless="${app.resumeLink != null and !#strings.isEmpty(app.resumeLink)}" class="small text-muted">No résumé on file</span>
+                            </td>
+                            <td class="text-start">
+                                <div class="fw-bold text-dark" th:text="${app.positionApplied}"></div>
+                                <div class="small text-muted text-uppercase" style="font-size:0.70rem;" th:text="${app.department}"></div>
+                                <div class="small mt-1 text-dark">
+                                    <span th:if="${app.experienceText != null and !#strings.isEmpty(app.experienceText)}" th:text="${app.experienceText}">Experience</span>
+                                    <span th:if="${app.experienceText == null or #strings.isEmpty(app.experienceText)}"
+                                          th:text="${app.yearsExperience} + ' yr(s)'">0 yr</span>
+                                    <span> | Prev: </span>
+                                    <span th:text="${app.previousEmployer}">—</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:if="${app.status == 'HIRED'}" class="badge" style="background: linear-gradient(135deg, #198754 0%, #146c43 100%); color: white; padding: 8px 14px; font-size: 0.75rem; font-weight: 800; border-radius: 6px;">
+                                    <i class="fas fa-check-circle me-1"></i> HIRED
+                                </span>
+                                <span th:if="${app.status == 'PENDING'}" class="badge bg-warning text-dark" style="padding: 8px 14px; font-size: 0.75rem; font-weight: 800; border-radius: 6px;">
+                                    <i class="fas fa-hourglass-half me-1"></i> PENDING
+                                </span>
+                                <span th:if="${app.status == 'REJECTED'}" class="badge bg-danger" style="padding: 8px 14px; font-size: 0.75rem; font-weight: 800; border-radius: 6px;">
+                                    <i class="fas fa-times-circle me-1"></i> REJECTED
+                                </span>
+                            </td>
+                            <td>
+                                <div th:if="${app.status == 'PENDING'}" class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-success fw-bold text-uppercase shadow-sm px-3" data-bs-toggle="modal" th:data-bs-target="'#acceptModal-' + ${app.id}" style="font-size:0.75rem;">Accept</button>
+                                    <form th:action="@{/hr/reject}" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" th:value="${app.id}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger fw-bold text-uppercase px-3" style="font-size:0.75rem;" onclick="return confirm('Reject this applicant?');">Reject</button>
+                                    </form>
+                                </div>
+                                <div th:if="${app.status == 'ACCEPTED'}" class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-primary fw-bold text-uppercase shadow-sm px-3" data-bs-toggle="modal" th:data-bs-target="'#hireModal-' + ${app.id}" style="font-size:0.75rem;">Hire</button>
+                                    <form th:action="@{/hr/reject}" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" th:value="${app.id}">
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold text-uppercase px-3 shadow-sm" style="font-size:0.75rem;" onclick="return confirm('Mark as failed interview?');">Fail</button>
+                                    </form>
+                                </div>
+                                <div th:if="${app.status == 'HIRED'}"><span class="fw-bold text-success small text-uppercase">Employee active</span></div>
+                                <div th:if="${app.status == 'REJECTED'}"><span class="text-muted small text-uppercase">Application closed</span></div>
+
+                                <div class="modal fade" th:id="'acceptModal-' + ${app.id}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content card shadow text-start">
+                                            <form th:action="@{/hr/accept}" method="post">
+                                                <div class="modal-header bg-success text-white border-0">
+                                                    <h5 class="modal-title fw-bold">Schedule interview</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <p class="mb-4">Schedule interview for: <strong><span class="text-success" th:text="${app.firstName + ' ' + app.lastName}"></span></strong></p>
+                                                    <input type="hidden" name="id" th:value="${app.id}">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold small text-muted">Interview date</label>
+                                                        <input type="date" name="date" class="form-control bg-light" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold small text-muted">Interview time</label>
+                                                        <input type="time" name="time" class="form-control bg-light" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-light border-0">
+                                                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-success fw-bold text-uppercase shadow-sm px-4">Confirm invite</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" th:id="'hireModal-' + ${app.id}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content card shadow text-start">
+                                            <form th:action="@{/hr/hire}" method="post">
+                                                <div class="modal-header bg-primary text-white border-0">
+                                                    <h5 class="modal-title fw-bold">Final interview &amp; HR onboarding</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <p class="mb-2 text-muted small">Set the date and time for the candidate to report to <strong>HR (HRO)</strong> for the <strong>final interview</strong>, document check, and portal activation. When you submit, the applicant is <strong>hired</strong> and will receive the email below.</p>
+                                                    <p class="mb-4">Candidate: <strong><span class="text-primary" th:text="${app.firstName + ' ' + app.lastName}"></span></strong></p>
+                                                    <input type="hidden" name="id" th:value="${app.id}">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold small text-muted">Appointment date <span class="text-danger">*</span></label>
+                                                        <input type="date" name="date" class="form-control bg-light" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold small text-muted">Appointment time <span class="text-danger">*</span></label>
+                                                        <input type="time" name="time" class="form-control bg-light" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-light border-0">
+                                                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary fw-bold text-uppercase shadow-sm px-4">Hire &amp; notify</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${applicants.empty}">
+                            <td colspan="5" class="text-center text-muted p-5"><i>No applicants in this view.</i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

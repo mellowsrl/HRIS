@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('201 — Personnel record')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="eac-surface min-vh-100" th:classappend="${recordMode == 'hr'} ? ' p-0 hr-record-page' : ' p-0'">
+
+<th:block th:if="${recordMode == 'employee'}">
+    <div class="eac-emp-layout d-flex no-print" th:if="${employee != null}">
+        <div th:replace="~{fragments/employee-sidebar :: sidebar(activePage='record')}"></div>
+        <div class="eac-emp-content flex-grow-1 p-3 p-md-4" style="max-height:100vh;overflow-y:auto;">
+            <div class="container-xl">
+                <div th:if="${successMessage}" class="alert alert-success py-2 small fw-bold" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger py-2 small fw-bold" th:text="${errorMessage}"></div>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2 class="h4 mb-0 fw-bold" style="color:#1a2e2c;">201 — Personal data (read-only)</h2>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print</button>
+                </div>
+                <p class="text-muted small mb-3">This summary is drawn from your official personnel data on file.</p>
+
+                <div class="eac-dtr-card border-0 shadow-sm p-4 mb-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-sm-auto text-center text-sm-start">
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center border" style="width:120px;height:120px;overflow:hidden;">
+                                <img th:if="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}"
+                                     th:src="${employee.profilePhotoPath}" alt="Profile" class="w-100 h-100" style="object-fit:cover;">
+                                <i th:unless="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}" class="fas fa-user text-secondary fa-3x" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="small text-uppercase text-muted mb-1" style="font-size:0.65rem;letter-spacing:0.06em;">Profile photo</div>
+                            <form th:action="@{/employee/profile/photo}" method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2">
+                                <input type="file" name="photo" class="form-control form-control-sm" style="max-width:18rem" accept="image/jpeg,image/png,image/webp" required>
+                                <button type="submit" class="btn btn-sm btn-dark">Upload</button>
+                            </form>
+                            <p class="small text-muted mb-0 mt-2">JPEG, PNG, or WebP. Upload replaces your current photo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="eac-dtr-card border-0 shadow-sm p-4 mb-4">
+                    <th:block th:replace="~{fragments/personnel-record-content :: content}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:if="${recordMode == 'hr'}">
+    <div class="dashboard-wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar(activePage='employees')}"></div>
+        <div id="content" class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 no-print">
+                <div class="d-flex align-items-center">
+                    <button type="button" id="sidebarToggle" class="btn-hamburger me-2">☰</button>
+                    <div>
+                        <h2 class="text-danger fw-bold m-0">201 — Personnel record</h2>
+                        <p class="text-muted small mb-0" th:text="${employee != null ? (employee.firstName + ' ' + employee.lastName + ' — ' + employee.customEmployeeId) : ''}"></p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/hr/employees}" class="btn btn-sm btn-outline-secondary fw-bold">Back to list</a>
+                    <a th:if="${employee != null}" th:href="@{/hr/records}" class="btn btn-sm btn-outline-dark">Gov &amp; emergency (edit)</a>
+                    <button type="button" class="btn btn-sm btn-dark" onclick="window.print()">Print</button>
+                </div>
+            </div>
+            <div th:if="${successMessage}" class="alert alert-success py-2 small fw-bold no-print" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger py-2 small fw-bold no-print" th:text="${errorMessage}"></div>
+            <div class="card border-0 shadow-sm p-4 mb-4 no-print" th:if="${employee != null}">
+                <div class="row g-3 align-items-center">
+                    <div class="col-sm-auto text-center text-sm-start">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center border" style="width:120px;height:120px;overflow:hidden;">
+                            <img th:if="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}"
+                                 th:src="${employee.profilePhotoPath}" alt="Profile" class="w-100 h-100" style="object-fit:cover;">
+                            <i th:unless="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}" class="fas fa-user text-secondary fa-3x" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="small text-uppercase text-muted mb-1" style="font-size:0.65rem;letter-spacing:0.06em;">Profile photo</div>
+                        <div sec:authorize="hasAnyAuthority('ADMIN','HR')">
+                            <form th:action="@{/hr/employees/{id}/profile/photo(id=${employee.id})}" method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2">
+                                <input type="file" name="photo" class="form-control form-control-sm" style="max-width:18rem" accept="image/jpeg,image/png,image/webp" required>
+                                <button type="submit" class="btn btn-sm btn-danger">Upload</button>
+                            </form>
+                            <p class="small text-muted mb-0 mt-2">JPEG, PNG, or WebP. Same storage as the employee portal.</p>
+                        </div>
+                        <p sec:authorize="!hasAnyAuthority('ADMIN','HR')" class="small text-muted mb-0">Only <strong>HR</strong> or <strong>Admin</strong> can replace this employee’s photo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm p-4">
+                <th:block th:replace="~{fragments/personnel-record-content :: content}"></th:block>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('content').classList.toggle('expanded');
+        });
+    </script>
+</th:block>
+
+<script th:if="${recordMode == 'employee'}" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

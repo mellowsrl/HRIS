@@ -1,0 +1,29 @@
+Aligning the repository payroll.sql with your live MySQL / MariaDB
+====================================================================
+
+Your Spring app uses the datasource in src/main/resources/application.properties
+(typically database name eac_hr_db). The dump in employee/payroll.sql may use
+another database name (e.g. "payroll") at the top of the file. Use one source
+of truth: either import that dump into the DB your app points to, or re-export
+from the app DB and replace employee/payroll.sql.
+
+1) Show current definitions (run in MySQL client against your APP database):
+
+  USE eac_hr_db;
+  SHOW CREATE TABLE employee\G
+  SHOW CREATE TABLE payroll\G
+  SHOW CREATE TABLE loans\G
+  SHOW CREATE TABLE attendance\G
+  SHOW CREATE PROCEDURE SP_ProcessRegularPayroll\G
+
+2) Export fresh schema + routines (replace user/host/password and DB name):
+
+  mysqldump -u root -p --no-data --routines --triggers eac_hr_db > schema_refresh.sql
+  # Or for procedures only, pipe SHOW CREATE to a file from your client.
+
+3) Compare with the repo: diff schema_refresh.sql employee/payroll.sql
+   Resolve differences: column renames, extra Hibernate columns, procedure body.
+
+4) JPA (OfficialEmployee) may add columns to "employee" when spring.jpa.hibernate.ddl-auto=update
+   is set. The minimal employee table in an older dump may be missing those columns
+   in the file, while your live DB has them. Trust SHOW CREATE on the live DB.

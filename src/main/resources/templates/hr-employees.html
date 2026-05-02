@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Employees')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100">
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='employees')}"></div>
+
+    <div id="content" class="main-content eac-empl-page">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div class="d-flex align-items-start gap-3 min-w-0">
+                <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1 flex-shrink-0">☰</button>
+                <div>
+                    <h1 class="h4 fw-bold m-0" style="color: #1a2e2c; letter-spacing: -0.5px;">Employee</h1>
+                    <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
+                        <a th:href="@{/}">Home</a><span class="sep">/</span><a th:href="@{/hr/employees}">Employee</a><span class="sep">/</span><span>Employee list</span>
+                    </nav>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-sm btn-light border shadow-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 6rem;">Export</button>
+                    <ul class="dropdown-menu dropdown-menu-end small">
+                        <li><button type="button" class="dropdown-item" id="eacEmplExportCsv">Download CSV (visible rows)</button></li>
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-sm text-white shadow-sm border-0 fw-bold px-3" style="background: linear-gradient(135deg, #1a4d4a, #0d6e6a);" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                    <i class="fas fa-plus me-1"></i> Add employee
+                </button>
+                <a th:href="@{/hr/biometrics}" class="btn btn-sm btn-outline-secondary shadow-sm border fw-bold" title="Bulk attendance import (TCMS CSV)">
+                    <i class="fas fa-file-upload me-1"></i> Upload
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+        <div class="row g-3 mb-3" th:if="${employeeStats != null}">
+            <div class="col-6 col-md-3">
+                <div class="eac-empl-stat eac-empl-stat--total h-100">
+                    <h3 th:text="${#numbers.formatDecimal(employeeStats.total, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">Total</div>
+                    <div class="mt-1 small" style="opacity:.9;">Employees</div>
+                    <i class="fas fa-users ico" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="eac-empl-stat eac-empl-stat--active h-100">
+                    <h3 th:text="${#numbers.formatDecimal(employeeStats.active, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">Active</div>
+                    <div class="mt-1 small" style="opacity:.9;">Employees</div>
+                    <i class="fas fa-user-check ico" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="eac-empl-stat eac-empl-stat--inactive h-100">
+                    <h3 th:text="${#numbers.formatDecimal(employeeStats.inactive, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">Inactive</div>
+                    <div class="mt-1 small" style="opacity:.9;">Employees</div>
+                    <i class="fas fa-user-minus ico" aria-hidden="true"></i>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="eac-empl-stat eac-empl-stat--new h-100" title="Recent Active IDs (approximate)">
+                    <h3 th:text="${#numbers.formatDecimal(employeeStats.newJoiners, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">New joiners</div>
+                    <div class="mt-1 small" style="opacity:.9;">(recent IDs)</div>
+                    <i class="fas fa-user-plus ico" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav border-0 mb-0" role="tablist" th:with="qSearch=${searchKeyword != null ? searchKeyword : ''}, qDept=${selectedDept != null ? selectedDept : ''}">
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:classappend="${employeeTab == 'list' or employeeTab == null} ? ' eac-empl-nav-pill--active'"
+                   th:href="@{/hr/employees(tab='list',search=${qSearch},department=${qDept})}">Employee list</a>
+            </li>
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:classappend="${employeeTab == 'archive'} ? ' eac-empl-nav-pill--active'"
+                   th:href="@{/hr/employees(tab='archive',search=${qSearch},department=${qDept})}">Employee archive</a>
+            </li>
+        </ul>
+
+        <div class="eac-empl-filters p-3 shadow-sm">
+            <form method="get" th:action="@{/hr/employees}" class="row g-2 align-items-end" id="eacEmplServerForm">
+                <input type="hidden" name="tab" th:value="${employeeTab}"/>
+                <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                    <h6 class="m-0 fw-bold" style="color: #1a2e2c;" th:text="${isArchive} ? 'Employee archive' : 'Employee list'">Employee list</h6>
+                </div>
+                <div class="col-12 col-md-5 col-lg-3">
+                    <label class="form-label text-muted small mb-0">Search</label>
+                    <input type="search" name="search" class="form-control form-control-sm" th:value="${searchKeyword}" placeholder="Search employees" autocomplete="off">
+                </div>
+                <div class="col-6 col-md-4 col-lg-2" th:if="${allBranches != null and !#lists.isEmpty(allBranches)}">
+                    <label class="form-label text-muted small mb-0 d-none d-md-block">&nbsp;</label>
+                    <select class="form-select form-select-sm" id="eacEmplFilterBranch" title="Filter by branch (client-side)">
+                        <option value="">All branches</option>
+                        <option th:each="b : ${allBranches}" th:value="${b}" th:text="${'Campus ' + b}">1</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                    <label class="form-label text-muted small mb-0 d-none d-md-block">&nbsp;</label>
+                    <select name="department" class="form-select form-select-sm" id="eacEmplFilterDept">
+                        <option value="">All departments</option>
+                        <option th:each="d : ${eacDepartments}" th:value="${d.code}"
+                                th:selected="${selectedDept != null && #strings.equalsIgnoreCase(selectedDept, d.code)}"
+                                th:text="${d.name}"></option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                    <label class="form-label text-muted small mb-0">Designation</label>
+                    <select class="form-select form-select-sm" id="eacEmplFilterDesignation">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2" th:unless="${isArchive}">
+                    <label class="form-label text-muted small mb-0">Today (attendance)</label>
+                    <select class="form-select form-select-sm" id="eacEmplFilterAttendance">
+                        <option value="">All</option>
+                        <option value="Clocked In">Clocked in</option>
+                        <option value="Clocked Out">Clocked out</option>
+                        <option value="Absent">Absent</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2" th:if="${isArchive}">
+                    <label class="form-label text-muted small mb-0">Record status</label>
+                    <select class="form-select form-select-sm" id="eacEmplFilterStatus">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                    <label class="form-label text-muted small mb-0">Sort by</label>
+                    <select class="form-select form-select-sm" id="eacEmplSortBy">
+                        <option value="name">Name (A–Z)</option>
+                        <option value="id">Employee ID</option>
+                        <option value="dept">Department</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 col-lg-2 d-flex flex-wrap align-items-end gap-1 justify-content-md-end">
+                    <button type="submit" class="btn btn-sm btn-dark">Apply</button>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="View">
+                        <button type="button" class="btn btn-outline-secondary" id="eacEmplViewList" title="Table view" aria-pressed="true"><i class="fas fa-list"></i></button>
+                        <button type="button" class="btn btn-outline-secondary" id="eacEmplViewGrid" title="Grid view" aria-pressed="false"><i class="fas fa-grip"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="eac-empl-data-card p-0 mt-0 shadow-sm">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2 border-bottom bg-white">
+                <div class="d-flex flex-wrap align-items-center gap-2 small text-muted">
+                    <span>Row per page</span>
+                    <select class="form-select form-select-sm" id="eacEmplPageSize" style="width: auto; min-width: 4.5rem;">
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                    <span>Entries</span>
+                </div>
+                <div class="small text-muted" id="eacEmplPageInfo">Showing 0 to 0 of 0 entries</div>
+            </div>
+            <div class="table-responsive eac-empl-table-wrap">
+                <table class="table table-hover align-middle text-center m-0 mb-0" id="employeeTable" style="font-size: 0.9rem;">
+                    <thead class="text-white" style="background: #1a2e2c;">
+                        <tr>
+                            <th>Employee ID</th>
+                            <th class="text-start">Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Joining date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                        <tr th:each="emp : ${employees}" class="eac-empl-data-row"
+                            th:data-campus="${emp.campusCode != null ? emp.campusCode : ''}"
+                            th:data-today="${emp.todayStatus != null ? emp.todayStatus : ''}"
+                            th:data-hrstatus="${emp.status != null ? #strings.toLowerCase(emp.status) : ''}"
+                            th:data-name="${#strings.toLowerCase(emp.firstName + ' ' + emp.lastName)}"
+                            th:data-dept="${#strings.toLowerCase(emp.department != null ? emp.department : '')}"
+                            th:data-pos="${#strings.toLowerCase(emp.position != null ? emp.position : '')}"
+                            th:data-email="${#strings.toLowerCase(emp.email != null ? emp.email : '')}">
+                            <td class="search-id fw-bold text-primary" th:attr="data-eac-empl-label='Employee ID'" th:text="${emp.customEmployeeId}"></td>
+                            <td class="text-start search-name" th:attr="data-eac-empl-label='Name'">
+                                <div class="fw-bold text-dark" th:text="${emp.firstName + ' ' + emp.lastName}"></div>
+                                <div class="small text-uppercase text-muted" style="font-size:0.65rem; letter-spacing:0.3px" th:text="${emp.employmentType}"></div>
+                            </td>
+                            <td th:attr="data-eac-empl-label='Email'">
+                                <a th:if="${emp.email != null and !#strings.isEmpty(emp.email)}" th:href="@{|mailto:${emp.email}|}" th:text="${emp.email}" class="text-decoration-none small"></a>
+                                <span th:unless="${emp.email != null and !#strings.isEmpty(emp.email)}" class="text-muted">—</span>
+                            </td>
+                            <td th:attr="data-eac-empl-label='Department'" th:text="${@departmentCodeService.getDisplayName(emp.department)}"></td>
+                            <td th:attr="data-eac-empl-label='Designation'" th:text="${emp.position != null ? emp.position : '—'}"></td>
+                            <td th:attr="data-eac-empl-label='Joining date'" class="text-muted">
+                                <span th:if="${emp.dateHired != null}" th:text="${#temporals.format(emp.dateHired, 'MMM d, yyyy')}">Jan 1, 2025</span>
+                                <span th:if="${emp.dateHired == null}">—</span>
+                            </td>
+                            <td th:attr="data-eac-empl-label='Status'">
+                                <th:block th:if="${isArchive}">
+                                    <span class="badge" style="background: #4a4a4a; color: #fff;" th:text="${emp.status != null ? emp.status : '—'}"> </span>
+                                </th:block>
+                                <th:block th:unless="${isArchive}">
+                                    <div><span class="badge bg-dark mb-1" th:text="${emp.status != null ? emp.status : '—'}"> </span></div>
+                                    <div class="small" th:if="${emp.biometricId != null}"><i class="fas fa-fingerprint me-1 text-success"></i><span th:text="${emp.biometricId}"> </span></div>
+                                    <div class="small text-warning" th:unless="${emp.biometricId != null}">Unlinked</div>
+                                    <div class="mt-1" th:if="${emp.todayStatus == 'Clocked In'}"><span class="badge bg-success" style="font-size:0.65rem;">In</span></div>
+                                    <div class="mt-1" th:if="${emp.todayStatus == 'Clocked Out'}"><span class="badge bg-secondary" style="font-size:0.65rem;">Out</span></div>
+                                    <div class="mt-1" th:if="${emp.todayStatus == 'Absent'}"><span class="badge bg-danger" style="font-size:0.65rem;">Absent</span></div>
+                                </th:block>
+                            </td>
+                            <td th:attr="data-eac-empl-label='Action'">
+                                <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                    <button type="button" class="btn btn-sm btn-primary fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;" data-bs-toggle="modal" th:data-bs-target="'#editEmployeeModal-' + ${emp.id}">Edit</button>
+                                    <a th:href="@{/hr/attendance/record(id=${emp.id})}" class="btn btn-sm btn-outline-dark fw-bold text-uppercase shadow-sm bg-light" style="font-size: 0.70rem;" title="View daily time record (in-app)">DTR</a>
+                                    <a th:href="@{/hr/employees/{id}/record(id=${emp.id})}" class="btn btn-sm btn-outline-danger fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;">201</a>
+                                    <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/hr/employees/delete(id=${emp.id})}" class="btn btn-sm btn-danger fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;" onclick="return confirm('WARNING: Are you sure you want to permanently delete this employee?');">Delete</a>
+                                </div>
+
+                                <div class="modal fade" th:id="'editEmployeeModal-' + ${emp.id}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                                            <div class="modal-header bg-dark text-white px-4 py-3">
+                                                <h5 class="modal-title fw-bold m-0">
+                                                    Edit Employee: <span class="text-warning" th:text="${emp.firstName + ' ' + emp.lastName}"></span>
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+
+                                            <form action="/hr/employees/edit" method="POST">
+                                                <div class="modal-body p-4 text-start bg-light">
+                                                    <input type="hidden" name="customEmployeeId" th:value="${emp.customEmployeeId}">
+                                                    <input type="hidden" name="id" th:value="${emp.id}"> <div class="card p-3 mb-4 shadow-sm border-0">
+                                                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">Employment Configuration</h6>
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Classification</label>
+                                                                <select class="form-select form-select-sm employment-type-selector" name="employmentType" onchange="toggleDepartments(this)" required>
+                                                                    <option value="Full-Time" th:selected="${emp.employmentType == 'Full-Time'}">Full-Time</option>
+                                                                    <option value="Full-Time Non-Faculty" th:selected="${emp.employmentType == 'Full-Time Non-Faculty'}">Full-Time Non-Faculty</option>
+                                                                    <option value="Part-Time" th:selected="${emp.employmentType == 'Part-Time'}">Part-Time</option>
+                                                                    <option value="Part-Time Non-Faculty" th:selected="${emp.employmentType == 'Part-Time Non-Faculty'}">Part-Time Non-Faculty</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Dept / School</label>
+                                                                <select class="form-select form-select-sm department-selector" name="department" th:data-selected="${emp.department}" required>
+                                                                    <option value="" disabled>Select Type first...</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Position</label>
+                                                                <input type="text" class="form-control form-control-sm" name="positionApplied" th:value="${emp.position}" required>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted text-uppercase">Status</label>
+                                                                <select class="form-select form-select-sm" name="status" required>
+                                                                    <option value="Active" th:selected="${emp.status == 'Active'}">Active</option>
+                                                                    <option value="HIRED" th:selected="${emp.status == 'HIRED'}">HIRED</option>
+                                                                    <option value="PENDING" th:selected="${emp.status == 'PENDING'}">PENDING</option>
+                                                                    <option value="REJECTED" th:selected="${emp.status == 'REJECTED'}">REJECTED</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-danger text-uppercase">TCMS ID</label>
+                                                                <input type="number" class="form-control form-control-sm border-danger" name="biometricId" th:value="${emp.biometricId}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted text-uppercase">Pay Cycle</label>
+                                                                <select class="form-select form-select-sm" name="paymentType" required>
+                                                                    <option value="Semi-Monthly" th:selected="${emp.paymentType == 'Semi-Monthly'}">Semi-Monthly</option>
+                                                                    <option value="Monthly" th:selected="${emp.paymentType == 'Monthly'}">Monthly</option>
+                                                                    <option value="Weekly" th:selected="${emp.paymentType == 'Weekly'}">Weekly</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted text-uppercase">Shift</label>
+                                                                <input type="text" class="form-control form-control-sm" name="expectedShift" th:value="${emp.expectedShift}" required>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="row mt-3">
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Basic salary / month (₱)</label>
+                                                                <input type="number" step="0.01" min="0" class="form-control form-control-sm" name="basicSalary" placeholder="e.g. monthly rate (DOLE)" th:value="${emp.basicSalary != null ? emp.basicSalary : ''}">
+                                                                <div class="form-text small">Monthly rate; leave blank for part-time if using hourly only.</div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Daily Wage (₱)</label>
+                                                                <input type="number" step="0.01" class="form-control form-control-sm bg-light fw-bold" name="dailyWage" th:value="${emp.dailyWage}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-3">
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Date hired</label>
+                                                                <input type="date" class="form-control form-control-sm" name="dateHired"
+                                                                       th:value="${emp.dateHired != null ? #temporals.format(emp.dateHired, 'yyyy-MM-dd') : ''}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Probation ends</label>
+                                                                <input type="date" class="form-control form-control-sm" name="probationEndDate"
+                                                                       th:value="${emp.probationEndDate != null ? #temporals.format(emp.probationEndDate, 'yyyy-MM-dd') : ''}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Contract ends</label>
+                                                                <input type="date" class="form-control form-control-sm" name="contractEndDate"
+                                                                       th:value="${emp.contractEndDate != null ? #temporals.format(emp.contractEndDate, 'yyyy-MM-dd') : ''}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-3">
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Separation / last day</label>
+                                                                <input type="date" class="form-control form-control-sm" name="separationDate"
+                                                                       th:value="${emp.separationDate != null ? #temporals.format(emp.separationDate, 'yyyy-MM-dd') : ''}">
+                                                            </div>
+                                                            <div class="col-md-8">
+                                                                <label class="fw-bold small text-muted text-uppercase">Separation note (optional)</label>
+                                                                <input type="text" class="form-control form-control-sm" name="separationNote" maxlength="500"
+                                                                       th:value="${emp.separationNote}" placeholder="e.g. resignation accepted, COE pending">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card p-3 shadow-sm border-0">
+                                                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">Leave Balances</h6>
+                                                        <div class="row g-2 text-center mb-2">
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted">Vacation (VL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="vlBalance" th:value="${emp.vlBalance}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted">Sick (SL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="slBalance" th:value="${emp.slBalance}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted">Maternity (ML)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="mlBalance" th:value="${emp.mlBalance}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted">Paternity (PL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="plBalance" th:value="${emp.plBalance}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row g-2 text-center">
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted">Solo Parent (SPL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="splBalance" th:value="${emp.splBalance}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-muted">Bereavement (BL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="blBalance" th:value="${emp.blBalance}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-primary">Incentive (SIL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold border-primary" name="incentiveLeaveBalance" th:value="${emp.incentiveLeaveBalance}" required>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <label class="fw-bold small text-primary">Study (STDL)</label>
+                                                                <input type="number" class="form-control form-control-sm text-center fw-bold border-primary" name="studyLeaveBalance" th:value="${emp.studyLeaveBalance}" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="modal-footer bg-white border-top-0 px-4 py-3">
+                                                    <button type="button" class="btn btn-secondary shadow-sm fw-bold" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary shadow-sm fw-bold px-4">Save Profile</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(employees)}">
+                            <td colspan="8" class="text-center text-muted p-5" id="eacEmplEmptyRow"><i th:text="${isArchive} ? 'No archived employees match your filters.' : 'No employees found.'">No data</i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addEmployeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header bg-danger text-white px-4 py-3">
+                <h5 class="modal-title fw-bold m-0">Register F2F Employee</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="/hr/employees/add" method="POST">
+                <div class="modal-body p-4 text-start bg-light">
+                    
+                    <div class="card p-3 mb-4 shadow-sm border-0">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">1. Personal Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted text-uppercase">First Name</label>
+                                <input type="text" class="form-control form-control-sm" name="firstName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted text-uppercase">Last Name</label>
+                                <input type="text" class="form-control form-control-sm" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Gender</label>
+                                <select class="form-select form-select-sm" name="gender" required>
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Email</label>
+                                <input type="email" class="form-control form-control-sm" name="email" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Phone</label>
+                                <input type="text" class="form-control form-control-sm" name="phone" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-3 mb-4 shadow-sm border-0">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">2. Employment Details</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Classification</label>
+                                <select class="form-select form-select-sm employment-type-selector" name="employmentType" onchange="toggleDepartments(this)" required>
+                                    <option value="" disabled selected>Select Classification...</option>
+                                    <option value="Full-Time">Full-Time</option>
+                                    <option value="Full-Time Non-Faculty">Full-Time Non-Faculty</option>
+                                    <option value="Part-Time">Part-Time</option>
+                                    <option value="Part-Time Non-Faculty">Part-Time Non-Faculty</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Dept / School</label>
+                                <select class="form-select form-select-sm department-selector" name="department" data-selected="" required>
+                                    <option value="" disabled selected>Select Classification first...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Position</label>
+                                <input type="text" class="form-control form-control-sm" name="position" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted text-uppercase">Initial Status</label>
+                                <select class="form-select form-select-sm" name="status" required>
+                                    <option value="HIRED" selected>HIRED</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-danger text-uppercase">TCMS ID</label>
+                                <input type="number" class="form-control form-control-sm border-danger bg-white" name="biometricId" placeholder="e.g., 5" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted text-uppercase">Pay Cycle</label>
+                                <select class="form-select form-select-sm" name="paymentType" required>
+                                    <option value="Semi-Monthly" selected>Semi-Monthly</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Weekly">Weekly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted text-uppercase">Shift</label>
+                                <input type="text" class="form-control form-control-sm" name="expectedShift" placeholder="8:00 AM - 5:00 PM" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Basic salary / month (₱)</label>
+                                <input type="number" step="0.01" min="0" class="form-control form-control-sm" name="basicSalary" placeholder="Optional; monthly rate (DOLE)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Daily Wage (₱)</label>
+                                <input type="number" step="0.01" class="form-control form-control-sm fw-bold text-success" name="dailyWage" required>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Date hired</label>
+                                <input type="date" class="form-control form-control-sm" name="dateHired">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Probation ends</label>
+                                <input type="date" class="form-control form-control-sm" name="probationEndDate">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Contract ends</label>
+                                <input type="date" class="form-control form-control-sm" name="contractEndDate">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Separation / last day</label>
+                                <input type="date" class="form-control form-control-sm" name="separationDate">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="fw-bold small text-muted text-uppercase">Separation note (optional)</label>
+                                <input type="text" class="form-control form-control-sm" name="separationNote" maxlength="500" placeholder="Offboarding / clearance">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-3 shadow-sm border-0">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">4. Base Leave Balances</h6>
+                        <div class="row g-2 text-center mb-2">
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted">VL</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="vlBalance" value="15" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted">SL</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="slBalance" value="15" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted">ML</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="mlBalance" value="0" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted">PL</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="plBalance" value="0" required>
+                            </div>
+                        </div>
+                        <div class="row g-2 text-center">
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted">SPL</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="splBalance" value="7" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-muted">BL</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold" name="blBalance" value="3" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-primary">Incentive</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold border-primary" name="incentiveLeaveBalance" value="5" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold small text-primary">Study</label>
+                                <input type="number" class="form-control form-control-sm text-center fw-bold border-primary" name="studyLeaveBalance" value="0" required>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer bg-white border-top-0 px-4 py-3">
+                    <button type="button" class="btn btn-secondary shadow-sm fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger shadow-sm fw-bold px-4">Register Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const eacIsArchive = /*[[${isArchive}]]*/ false;
+    const EAC_DEPT_FAC = /*[[${deptFac}]]*/ [];
+    const EAC_DEPT_NF = /*[[${deptNonFac}]]*/ [];
+    /*]]>*/
+</script>
+<script>
+    (function () {
+        const body = document.getElementById('employeeTableBody');
+        const pageInfo = document.getElementById('eacEmplPageInfo');
+        const sizeSel = document.getElementById('eacEmplPageSize');
+        const fBranch = document.getElementById('eacEmplFilterBranch');
+        const fDesig = document.getElementById('eacEmplFilterDesignation');
+        const fAtt = document.getElementById('eacEmplFilterAttendance');
+        const fHr = document.getElementById('eacEmplFilterStatus');
+        const fSort = document.getElementById('eacEmplSortBy');
+        const viewList = document.getElementById('eacEmplViewList');
+        const viewGrid = document.getElementById('eacEmplViewGrid');
+        const mainContent = document.getElementById('content');
+        let page = 0;
+
+        function allDataRows() {
+            if (!body) return [];
+            return Array.prototype.slice.call(body.querySelectorAll('tr.eac-empl-data-row'));
+        }
+
+        function rowMatches(r) {
+            if (fBranch && fBranch.value) {
+                if ((r.getAttribute('data-campus') || '') !== fBranch.value) return false;
+            }
+            if (fDesig && fDesig.value) {
+                const p = (r.getAttribute('data-pos') || '');
+                if (p !== fDesig.value) return false;
+            }
+            if (typeof eacIsArchive !== 'undefined' && eacIsArchive) {
+                if (fHr && fHr.value) {
+                    if ((r.getAttribute('data-hrstatus') || '') !== fHr.value) return false;
+                }
+            } else {
+                if (fAtt && fAtt.value) {
+                    if ((r.getAttribute('data-today') || '') !== fAtt.value) return false;
+                }
+            }
+            return true;
+        }
+
+        function sortKey(r, by) {
+            if (by === 'id') {
+                const c = r.querySelector('td.search-id');
+                return (c && c.textContent) || '';
+            }
+            if (by === 'dept') return r.getAttribute('data-dept') || '';
+            return r.getAttribute('data-name') || '';
+        }
+
+        function runFilter() {
+            const all = allDataRows();
+            const rest = all.filter(function (r) { return !rowMatches(r); });
+            let vis = all.filter(rowMatches);
+            const by = fSort && fSort.value ? fSort.value : 'name';
+            vis.sort(function (a, b) {
+                const ka = sortKey(a, by).toString().toLowerCase();
+                const kb = sortKey(b, by).toString().toLowerCase();
+                if (ka < kb) return -1;
+                if (ka > kb) return 1;
+                return 0;
+            });
+            if (body) {
+                vis.forEach(function (r) { body.appendChild(r); });
+                rest.forEach(function (r) { body.appendChild(r); });
+            }
+            all.forEach(function (r) { r.classList.add('d-none'); });
+            const ps = sizeSel ? (parseInt(sizeSel.value, 10) || 10) : 10;
+            const L = vis.length;
+            const start = page * ps;
+            vis.forEach(function (r, i) {
+                r.classList.toggle('d-none', i < start || i >= start + ps);
+            });
+            if (pageInfo) {
+                if (L === 0) {
+                    pageInfo.textContent = 'Showing 0 to 0 of 0 entries';
+                } else {
+                    const from = start + 1;
+                    const to = Math.min(L, start + ps);
+                    pageInfo.textContent = 'Showing ' + from + ' to ' + to + ' of ' + L + ' entries (filtered list)';
+                }
+            }
+        }
+
+        function fillFromRows() {
+            if (!fDesig) return;
+            const pos = new Set();
+            allDataRows().forEach(function (r) {
+                const t = (r.getAttribute('data-pos') || '').trim();
+                if (t) pos.add(t);
+            });
+            const cur = fDesig.value;
+            fDesig.innerHTML = '<option value=\"\">All</option>';
+            Array.from(pos).sort().forEach(function (p) {
+                const o = document.createElement('option');
+                o.value = p;
+                o.textContent = p;
+                fDesig.appendChild(o);
+            });
+            fDesig.value = cur;
+            if (fHr) {
+                const st = new Set();
+                allDataRows().forEach(function (r) {
+                    const t = (r.getAttribute('data-hrstatus') || '').trim();
+                    if (t) st.add(t);
+                });
+                const cur2 = fHr.value;
+                fHr.innerHTML = '<option value=\"\">All</option>';
+                Array.from(st).sort().forEach(function (p) {
+                    const o = document.createElement('option');
+                    o.value = p;
+                    o.textContent = p;
+                    fHr.appendChild(o);
+                });
+                fHr.value = cur2;
+            }
+        }
+
+        function initEmplListUi() {
+            if (!body) return;
+            fillFromRows();
+            if (fBranch) fBranch.addEventListener('change', function () { page = 0; runFilter(); });
+            if (fDesig) fDesig.addEventListener('change', function () { page = 0; runFilter(); });
+            if (fAtt) fAtt.addEventListener('change', function () { page = 0; runFilter(); });
+            if (fHr) fHr.addEventListener('change', function () { page = 0; runFilter(); });
+            if (fSort) fSort.addEventListener('change', function () { page = 0; runFilter(); });
+            if (sizeSel) sizeSel.addEventListener('change', function () { page = 0; runFilter(); });
+            if (viewList && mainContent) {
+                viewList.addEventListener('click', function () {
+                    mainContent.classList.remove('eac-empl-page--grid');
+                });
+            }
+            if (viewGrid && mainContent) {
+                viewGrid.addEventListener('click', function () {
+                    mainContent.classList.add('eac-empl-page--grid');
+                });
+            }
+            const exp = document.getElementById('eacEmplExportCsv');
+            if (exp) {
+                exp.addEventListener('click', function () {
+                    const rows = allDataRows().filter(function (r) { return !r.classList.contains('d-none'); });
+                    const ths = document.querySelectorAll('#employeeTable thead th');
+                    const headers = Array.prototype.map.call(ths, function (h) { return h.textContent.trim().replace(/\\n/g, ' '); });
+                    let csv = headers.join(',') + '\n';
+                    rows.forEach(function (tr) {
+                        const tds = tr.querySelectorAll('td');
+                        const line = Array.prototype.map.call(tds, function (td) {
+                            return '"' + td.innerText.replace(/"/g, '""').trim().replace(/\s+/g, ' ') + '"';
+                        });
+                        csv += line.join(',') + '\n';
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'employees.csv';
+                    a.click();
+                });
+            }
+            runFilter();
+        }
+
+        document.addEventListener('DOMContentLoaded', initEmplListUi);
+    })();
+
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+
+    function toggleDepartments(selectElement) {
+        const form = selectElement.closest('form');
+        const deptSelect = form.querySelector('.department-selector');
+        const typeValue = selectElement.value;
+        const selectedDept = deptSelect.getAttribute('data-selected');
+
+        const facultySchools = (typeof EAC_DEPT_FAC !== 'undefined' && EAC_DEPT_FAC && EAC_DEPT_FAC.length) ? EAC_DEPT_FAC : [];
+        const nonFacultyDepts = (typeof EAC_DEPT_NF !== 'undefined' && EAC_DEPT_NF && EAC_DEPT_NF.length) ? EAC_DEPT_NF : [];
+
+        if (!typeValue) {
+            deptSelect.innerHTML = '<option value="" disabled selected>Select Classification first...</option>';
+            return;
+        }
+
+        const isFaculty = (typeValue === 'Full-Time' || typeValue === 'Part-Time');
+        const optionsList = isFaculty ? facultySchools : nonFacultyDepts;
+        const placeholderText = isFaculty ? 'Select School...' : 'Select Department...';
+        
+        deptSelect.innerHTML = `<option value="" disabled ${!selectedDept ? 'selected' : ''}>${placeholderText}</option>`;
+
+        optionsList.forEach(opt => {
+            let optionHTML = `<option value="${opt.code}"`;
+            if (opt.code === selectedDept || opt.name === selectedDept) {
+                optionHTML += ` selected`;
+            }
+            optionHTML += `>${opt.name}</option>`;
+            deptSelect.innerHTML += optionHTML;
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.employment-type-selector').forEach(select => {
+            if(select.value) {
+                toggleDepartments(select);
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Employee Masterlist - EAC System</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=3.1}">
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+    <nav id="sidebar" class="sidebar">
+        <h3 class="text-center">EAC System</h3>
+        <ul class="nav flex-column mt-4">
+            <li class="sidebar-heading">HR Module</li>
+            <li class="nav-item mb-2"><a href="/hr/dashboard" class="text-white text-decoration-none opacity-75">Applicants</a></li>
+            <li class="nav-item mb-2"><a href="/hr/employees" class="text-white text-decoration-none fw-bold text-warning">Employees</a></li>
+            <li class="nav-item mb-2"><a href="/hr/biometrics" class="text-white text-decoration-none opacity-75">Biometrics Data</a></li>
+            <li class="nav-item mb-2"><a href="/hr/records" class="text-white text-decoration-none opacity-75">Government & Emergency</a></li>
+            <li class="nav-item mb-2"><a href="/hr/leaves" class="text-white text-decoration-none opacity-75">Leave Approvals</a></li>
+            <li class="sidebar-heading border-top pt-3 mt-3">Finance Module</li>
+            <li class="nav-item mb-2"><a href="/hr/payroll" class="text-white text-decoration-none opacity-75">Payroll (Salary)</a></li>
+            <li class="nav-item mb-2 mt-5 pt-5"><a th:href="@{/logout}" class="text-white text-decoration-none opacity-75 border-top pt-3 d-block text-uppercase small fw-bold">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="content" class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn-hamburger me-3">☰</button>
+                <div>
+                    <h2 class="text-danger fw-bold m-0" style="letter-spacing: -1px;">Employee Masterlist</h2>
+                    <p class="text-muted m-0 small fw-bold text-uppercase letter-spacing-1">Manage Official EAC Personnel Data.</p>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-3 align-items-center">
+                <div class="card p-2 border-0 shadow-sm" style="width: 320px; border-left: 4px solid var(--eac-red) !important;">
+                    <div class="d-flex align-items-center px-2">
+                        <span class="text-muted small me-2">🔍</span>
+                        <input type="text" id="liveSearchInput" class="form-control form-control-sm border-0 shadow-none p-0" placeholder="Live Search ID, Name, Dept...">
+                    </div>
+                </div>
+                <button class="btn btn-danger fw-bold shadow-sm text-uppercase letter-spacing-1 py-2" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                    + Add F2F Hire
+                </button>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+        <div class="card p-4 shadow-sm border-0" style="border-radius: 12px;">
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle text-center m-0" id="employeeTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th class="text-start">Name & Type</th>
+                            <th>Role & Shift</th>
+                            <th>Base Wage / Type</th>
+                            <th>Biometric & Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="emp : ${employees}">
+                            <td class="fw-bold text-primary search-id" th:text="${emp.customEmployeeId}"></td>
+                            
+                            <td class="text-start search-name">
+                                <div class="fw-bold text-dark fs-6" th:text="${emp.firstName + ' ' + emp.lastName}"></div>
+                                <div class="small fw-bold text-danger text-uppercase letter-spacing-1" style="font-size:0.65rem;" th:text="${emp.employmentType}"></div>
+                            </td>
+                            
+                            <td class="search-role">
+                                <div class="fw-bold text-dark" th:text="${emp.positionApplied}"></div>
+                                <div class="small text-muted" th:text="${emp.department + ' | ' + emp.expectedShift}"></div>
+                            </td>
+                            
+                            <td>
+                                <div class="fw-bold text-dark" th:text="'₱ ' + ${#numbers.formatDecimal(emp.dailyWage != null ? emp.dailyWage : 0, 1, 'COMMA', 2, 'POINT')}"></div>
+                                <div class="small text-muted text-uppercase letter-spacing-1" style="font-size:0.65rem;" th:text="${emp.paymentType}"></div>
+                            </td>
+                            
+                            <td>
+                                <span th:if="${emp.todayStatus == 'Clocked In'}" class="badge bg-success shadow-sm d-block mb-1">Clocked In</span>
+                                <span th:if="${emp.todayStatus == 'Clocked Out'}" class="badge bg-secondary shadow-sm d-block mb-1">Clocked Out</span>
+                                <span th:if="${emp.todayStatus == 'Absent'}" class="badge bg-danger shadow-sm d-block mb-1">Absent</span>
+                                
+                                <span th:if="${emp.biometricId != null}" class="badge border border-success text-success bg-light shadow-sm" th:text="'TCMS ID: ' + ${emp.biometricId}"></span>
+                                <span th:if="${emp.biometricId == null}" class="badge border border-danger text-danger bg-light shadow-sm">Unlinked</span>
+                            </td>
+                            
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="button" class="btn btn-sm btn-primary fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;" data-bs-toggle="modal" th:data-bs-target="'#editEmployeeModal-' + ${emp.id}">Edit</button>
+                                    <a th:href="@{/hr/employees/biometrics(id=${emp.id})}" class="btn btn-sm btn-outline-dark fw-bold text-uppercase shadow-sm bg-light" style="font-size: 0.70rem;">DTR</a>
+                                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/hr/employees/delete(id=${emp.id})}" class="btn btn-sm btn-danger fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;" onclick="return confirm('WARNING: Are you sure you want to permanently delete this employee?');">Delete</a>
+                                </div>
+
+                                <div class="modal fade" th:id="'editEmployeeModal-' + ${emp.id}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content card text-start shadow-lg border-0">
+                                            <form th:action="@{/hr/employees/edit}" method="post">
+                                                <div class="modal-header bg-dark text-white border-0 py-3">
+                                                    <h5 class="modal-title fw-bold m-0" style="letter-spacing: -0.5px;">Edit Profile: <span class="text-warning" th:text="${emp.firstName + ' ' + emp.lastName}"></span></h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-4 bg-light">
+                                                    <input type="hidden" name="id" th:value="${emp.id}">
+                                                    
+                                                    <div class="bg-white p-4 rounded shadow-sm mb-4 border-top border-danger border-3">
+                                                        <h6 class="fw-bold text-danger border-bottom pb-2 text-uppercase small letter-spacing-1 mb-3">Job Details & Scanner Integration</h6>
+                                                        <div class="row g-3">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">Employment Type</label>
+                                                                <select name="employmentType" class="form-select bg-light">
+                                                                    <option value="Full-Time Faculty" th:selected="${emp.employmentType == 'Full-Time Faculty'}">Full-Time Faculty</option>
+                                                                    <option value="Part-Time Faculty" th:selected="${emp.employmentType == 'Part-Time Faculty'}">Part-Time Faculty</option>
+                                                                    <option value="Full-Time Non-Faculty" th:selected="${emp.employmentType == 'Full-Time Non-Faculty'}">Full-Time Non-Faculty</option>
+                                                                    <option value="Part-Time Non-Faculty" th:selected="${emp.employmentType == 'Part-Time Non-Faculty'}">Part-Time Non-Faculty</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">Expected Shift</label>
+                                                                <input type="text" name="expectedShift" class="form-control bg-light" th:value="${emp.expectedShift}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-bold small text-danger text-uppercase">TCMS Hardware ID</label>
+                                                                <input type="number" name="biometricId" class="form-control border-danger bg-light" th:value="${emp.biometricId}" placeholder="Leave blank if unlinked">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">Department / School</label>
+                                                                <input type="text" name="department" class="form-control bg-light" th:value="${emp.department}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">Official Position</label>
+                                                                <input type="text" name="positionApplied" class="form-control bg-light" th:value="${emp.positionApplied}">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="bg-white p-4 rounded shadow-sm mb-4 border-top border-dark border-3">
+                                                        <h6 class="fw-bold text-dark border-bottom pb-2 text-uppercase small letter-spacing-1 mb-3">Payroll & Status Control</h6>
+                                                        <div class="row g-3">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">Payment Type</label>
+                                                                <select name="paymentType" class="form-select bg-light">
+                                                                    <option value="Hourly Rate" th:selected="${emp.paymentType == 'Hourly Rate'}">Hourly Rate</option>
+                                                                    <option value="Fixed Monthly" th:selected="${emp.paymentType == 'Fixed Monthly'}">Fixed Monthly</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">Base Wage (PHP)</label>
+                                                                <input type="number" step="0.01" name="dailyWage" class="form-control bg-light fw-bold" th:value="${emp.dailyWage}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label fw-bold small text-muted text-uppercase">System Status</label>
+                                                                <select name="status" class="form-select bg-light fw-bold text-dark border-dark">
+                                                                    <option value="HIRED" th:selected="${emp.status == 'HIRED'}">Active</option>
+                                                                    <option value="RESIGNED" th:selected="${emp.status == 'RESIGNED'}">Resigned / Inactive</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="bg-white p-4 rounded shadow-sm border-top border-secondary border-3">
+                                                        <h6 class="fw-bold text-secondary border-bottom pb-2 text-uppercase small letter-spacing-1 mb-3">Leave Balances Editor</h6>
+                                                        <div class="row g-3">
+                                                            <div class="col-md-4"><label class="form-label fw-bold small text-muted text-uppercase">Vacation (VL)</label><input type="number" name="vlBalance" class="form-control bg-light" th:value="${emp.vlBalance}"></div>
+                                                            <div class="col-md-4"><label class="form-label fw-bold small text-muted text-uppercase">Sick (SL)</label><input type="number" name="slBalance" class="form-control bg-light" th:value="${emp.slBalance}"></div>
+                                                            <div class="col-md-4"><label class="form-label fw-bold small text-muted text-uppercase">Bereavement (BL)</label><input type="number" name="blBalance" class="form-control bg-light" th:value="${emp.blBalance}"></div>
+                                                            <div class="col-md-4"><label class="form-label fw-bold small text-info text-uppercase">Solo Parent</label><input type="number" name="splBalance" class="form-control border-info bg-light" th:value="${emp.splBalance}"></div>
+                                                            
+                                                            <div class="col-md-4" th:if="${emp.gender == 'Female'}">
+                                                                <label class="form-label fw-bold small text-danger text-uppercase">Maternity (ML)</label>
+                                                                <input type="number" name="mlBalance" class="form-control border-danger bg-light" th:value="${emp.mlBalance}">
+                                                                <input type="hidden" name="plBalance" th:value="${emp.plBalance}">
+                                                            </div>
+                                                            <div class="col-md-4" th:if="${emp.gender == 'Male'}">
+                                                                <label class="form-label fw-bold small text-primary text-uppercase">Paternity (PL)</label>
+                                                                <input type="number" name="plBalance" class="form-control border-primary bg-light" th:value="${emp.plBalance}">
+                                                                <input type="hidden" name="mlBalance" th:value="${emp.mlBalance}">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-white border-top">
+                                                    <button type="button" class="btn btn-light fw-bold border shadow-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-dark fw-bold text-uppercase shadow-sm px-4">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${employees.empty}">
+                            <td colspan="6" class="text-center text-muted p-5"><i>No employees found in the masterlist.</i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addEmployeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content card shadow-lg border-0">
+            <form th:action="@{/hr/employees/add}" method="post">
+                <div class="modal-header bg-danger text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold m-0" style="letter-spacing: -0.5px;">Add Manual Walk-in Hire</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light text-start">
+                    
+                    <div class="bg-white p-4 rounded shadow-sm mb-4 border-top border-dark border-3">
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label fw-bold small text-muted text-uppercase">First Name</label><input type="text" name="firstName" class="form-control bg-light" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold small text-muted text-uppercase">Last Name</label><input type="text" name="lastName" class="form-control bg-light" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold small text-muted text-uppercase">Email</label><input type="email" name="email" class="form-control bg-light" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold small text-muted text-uppercase">Phone</label><input type="text" name="phone" class="form-control bg-light" required></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded shadow-sm border-top border-danger border-3">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Gender</label>
+                                <select name="gender" class="form-select bg-light" required><option value="Male">Male</option><option value="Female">Female</option></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Employment Type</label>
+                                <select name="employmentType" class="form-select bg-light" required>
+                                    <option value="Full-Time Faculty">Full-Time Faculty</option>
+                                    <option value="Part-Time Faculty">Part-Time Faculty</option>
+                                    <option value="Full-Time Non-Faculty">Full-Time Non-Faculty</option>
+                                    <option value="Part-Time Non-Faculty">Part-Time Non-Faculty</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4"><label class="form-label fw-bold small text-muted text-uppercase">Position</label><input type="text" name="positionApplied" class="form-control bg-light" required></div>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" name="yearsExperience" value="0">
+                    <input type="hidden" name="previousEmployer" value="N/A">
+                    <input type="hidden" name="resumeLink" value="N/A">
+                    <input type="hidden" name="paymentType" value="Hourly Rate">
+                    <input type="hidden" name="expectedShift" value="08:00 AM - 05:00 PM">
+                </div>
+                <div class="modal-footer bg-white border-top">
+                    <button type="button" class="btn btn-light fw-bold border shadow-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-bold text-uppercase shadow-sm px-4">Register Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('liveSearchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#employeeTable tbody tr');
+        
+        rows.forEach(row => {
+            if(row.children.length === 1) return;
+            let textData = row.textContent.toLowerCase();
+            if (textData.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

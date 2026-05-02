@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Payslip — EAC')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100 p-0">
+<div class="eac-emp-layout d-flex" th:if="${employee != null}">
+    <div th:replace="~{fragments/employee-sidebar :: sidebar(activePage='payslip')}"></div>
+    <div class="eac-emp-content flex-grow-1 p-3 p-md-4" style="max-height:100vh;overflow-y:auto;">
+        <div th:if="${successMessage}" class="alert alert-success fw-bold py-2" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger fw-bold py-2" th:text="${errorMessage}"></div>
+        <div th:if="${employee != null and employee.payrollWarning != null and !#strings.isEmpty(employee.payrollWarning)}"
+             class="alert alert-warning small mb-3" role="alert" th:text="${employee.payrollWarning}"></div>
+
+        <h1 class="h4 fw-bold" style="color:#1a2e2c;">Payslip</h1>
+        <nav class="eac-empl-breadcrumb mt-1 small text-muted mb-3" aria-label="Breadcrumb">
+            <a th:href="@{/employee/dashboard}">Home</a><span class="sep">/</span>
+            <span>Payslip</span>
+        </nav>
+
+        <div class="d-flex flex-wrap align-items-end gap-3 mb-2">
+            <form method="get" th:action="@{/employee/payslip}" class="d-flex flex-wrap align-items-end gap-2" id="eacPayslipPresetForm">
+                <div>
+                    <label class="form-label text-muted small mb-0">Preset period</label>
+                    <select name="cutoffPeriod" class="form-select form-select-sm" style="min-width:16rem" onchange="this.form.submit()">
+                        <option th:if="${isCustomRangeCutoff}" th:value="${selectedCutoff}" th:selected="true"
+                                th:text="${'Custom: ' + cutoffRangeLabel}">Custom</option>
+                    <option th:each="e : ${cutoffOptions}" th:value="${e.key}" th:text="${e.value}"
+                            th:selected="${(isCustomRangeCutoff == null or !isCustomRangeCutoff) and e.key == selectedCutoff}">—</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-sm btn-dark">Refresh</button>
+            </form>
+            <form method="get" th:action="@{/employee/payslip}" class="d-flex flex-wrap gap-1 align-items-end border-start ps-3">
+                <span class="small text-muted me-1">or custom</span>
+                <div>
+                    <label class="form-label text-muted small mb-0">From</label>
+                    <input type="date" name="customFrom" class="form-control form-control-sm" th:value="${customRangeFrom}" required>
+                </div>
+                <div>
+                    <label class="form-label text-muted small mb-0">To</label>
+                    <input type="date" name="customTo" class="form-control form-control-sm" th:value="${customRangeTo}" required>
+                </div>
+                <input type="hidden" name="applyMode" value="custom">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
+            </form>
+        </div>
+        <p class="small text-muted mb-3" th:if="${cutoffRangeLabel != null}">Showing: <span class="fw-bold" th:text="${cutoffRangeLabel}">—</span></p>
+
+        <div class="eac-payroll-shell eac-dtr-card">
+            <div class="eac-py-head d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <div class="small text-uppercase text-muted mb-0" style="font-size:0.65rem;letter-spacing:0.08em;">Employee</div>
+                    <div class="fw-bold" th:text="${employee.firstName + ' ' + employee.lastName}">—</div>
+                    <div class="small text-muted" th:text="${employee.customEmployeeId}">—</div>
+                </div>
+                <a class="btn btn-sm btn-outline-secondary" th:href="@{/employee/payslip/download(cutoffPeriod=${selectedCutoff})}">
+                    <i class="fas fa-file-pdf me-1"></i> Download PDF
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <tbody>
+                    <tr>
+                        <th class="text-muted" style="width:40%">Regular hours (period)</th>
+                        <td class="fw-bold" th:text="${#numbers.formatDecimal(employee.totalHours, 1, 'COMMA', 2, 'POINT')} + ' h'">—</td>
+                    </tr>
+                    <tr th:if="${employee.otHours > 0}">
+                        <th class="text-muted">Overtime (approved)</th>
+                        <td class="fw-bold text-dark" th:text="${#numbers.formatDecimal(employee.otHours, 1, 'COMMA', 2, 'POINT')} + ' h'">—</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Gross pay</th>
+                        <td class="fw-bold" th:text="'₱ ' + ${#numbers.formatDecimal(employee.grossPay, 1, 'COMMA', 2, 'POINT')}">—</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">SSS / PHIC / HDMF</th>
+                        <td>
+                            <span th:text="'₱ ' + ${#numbers.formatDecimal(employee.sssDeduction, 1, 'COMMA', 2, 'POINT')}">—</span>
+                            <span class="text-muted"> / </span>
+                            <span th:text="'₱ ' + ${#numbers.formatDecimal(employee.philhealthDeduction, 1, 'COMMA', 2, 'POINT')}">—</span>
+                            <span class="text-muted"> / </span>
+                            <span th:text="'₱ ' + ${#numbers.formatDecimal(employee.pagibigDeduction, 1, 'COMMA', 2, 'POINT')}">—</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${employee.payrollWithholdingTax > 0}">
+                        <th class="text-muted">Withholding tax</th>
+                        <td th:text="'₱ ' + ${#numbers.formatDecimal(employee.payrollWithholdingTax, 1, 'COMMA', 2, 'POINT')}">—</td>
+                    </tr>
+                    <tr th:if="${employee.payrollLoanDeductions > 0}">
+                        <th class="text-muted">Loans</th>
+                        <td th:text="'₱ ' + ${#numbers.formatDecimal(employee.payrollLoanDeductions, 1, 'COMMA', 2, 'POINT')}">—</td>
+                    </tr>
+                    <tr class="table-light">
+                        <th class="text-dark">Net pay</th>
+                        <td class="h5 text-success m-0 fw-bold" th:text="'₱ ' + ${#numbers.formatDecimal(employee.netPay, 1, 'COMMA', 2, 'POINT')}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p class="small text-muted mt-3 mb-0">Figures follow the same payroll run as HR. If something looks wrong, contact HR with your EAC ID and cutoff.</p>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

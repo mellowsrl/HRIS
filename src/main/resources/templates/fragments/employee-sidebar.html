@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  Employee portal sidebar. Param activePage: dashboard | dtr | attendance | overtime | ob | leaves | payslip | record
+-->
+<aside th:fragment="sidebar (activePage)" class="eac-emp-sidebar d-flex flex-column flex-shrink-0">
+    <div class="eac-emp-sidebar__brand px-3 py-4 border-bottom border-white border-opacity-10">
+        <a th:href="@{/employee/dashboard}" class="text-white text-decoration-none fw-bold text-uppercase small letter-spacing-1">EAC Portal</a>
+    </div>
+    <nav class="eac-emp-sidebar__nav flex-grow-1 py-2 px-2 overflow-y-auto small">
+        <a th:href="@{/employee/dashboard}" class="eac-emp-side-link" th:classappend="${activePage == 'dashboard'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-house-chimney me-2 w-1"></i> Dashboard
+        </a>
+        <a th:href="@{/employee/dtr}" class="eac-emp-side-link" th:classappend="${activePage == 'dtr'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-table me-2 w-1"></i> DTR
+        </a>
+        <a th:href="@{/employee/attendance}" class="eac-emp-side-link" th:classappend="${activePage == 'attendance'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-fingerprint me-2 w-1"></i> Attendance
+        </a>
+        <a th:href="@{/employee/overtime}" class="eac-emp-side-link" th:classappend="${activePage == 'overtime'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-business-time me-2 w-1"></i> Overtime
+        </a>
+        <a th:href="@{/employee/official-business}" class="eac-emp-side-link" th:classappend="${activePage == 'ob'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-briefcase me-2 w-1"></i> Official business
+        </a>
+        <a th:href="@{/employee/leaves}" class="eac-emp-side-link" th:classappend="${activePage == 'leaves'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-umbrella-beach me-2 w-1"></i> Leaves
+        </a>
+        <a th:href="@{/employee/payslip}" class="eac-emp-side-link" th:classappend="${activePage == 'payslip'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-file-invoice-dollar me-2 w-1"></i> Payslip
+        </a>
+        <a th:href="@{/employee/my-record}" class="eac-emp-side-link" th:classappend="${activePage == 'record'} ? ' eac-emp-side-link--active' : ''">
+            <i class="fas fa-id-card me-2 w-1"></i> 201 / Personal data
+        </a>
+    </nav>
+    <div class="eac-emp-sidebar__foot border-top border-white border-opacity-10 p-3 mt-auto small">
+        <a th:href="@{/logout}" class="btn btn-sm btn-light text-danger w-100 fw-bold">Logout</a>
+    </div>
+</aside>
+</body>
+</html>

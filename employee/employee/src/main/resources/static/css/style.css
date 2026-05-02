@@ -1,0 +1,285 @@
+/* ==========================================
+   EAC HR System - Master Premium Stylesheet
+   (STRICTLY EAC Red, White, and Corporate Gray)
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    /* Core Brand Colors */
+    --eac-red: #D60000;
+    --eac-dark: #A30000;
+    
+    /* Grays */
+    --eac-bg-gray: #f4f7f6; 
+    --eac-border-gray: #e1e5eb;
+    --eac-dark-gray: #2d3436;
+    --eac-mid-gray: #636e72;
+    --eac-light-gray: #edf2f6;
+
+    /* Shadows */
+    --shadow-soft: 0 10px 40px rgba(0,0,0,0.03);
+    --shadow-hover: 0 15px 50px rgba(214,0,0,0.1);
+}
+
+body {
+    background-color: var(--eac-bg-gray);
+    font-family: 'Inter', sans-serif;
+    color: var(--eac-dark-gray);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+}
+
+/* ------------------------------------------
+   1. BOOTSTRAP COLOR OVERRIDES (PURGE ALL COLORS)
+   ------------------------------------------ */
+.btn-primary { background-color: var(--eac-red) !important; border: none !important; color: white !important; }
+.btn-primary:hover { background-color: var(--eac-dark) !important; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+.btn-danger { background-color: var(--eac-dark) !important; border: none !important; color: white !important; }
+.btn-danger:hover { background-color: #800000 !important; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+.btn-success { background-color: var(--eac-dark-gray) !important; border: none !important; color: white !important; }
+.btn-success:hover { background-color: #1a1e1f !important; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transform: translateY(-2px); }
+
+.btn-warning { background-color: var(--eac-border-gray) !important; color: var(--eac-dark-gray) !important; border: none !important; }
+.btn-info { background-color: var(--eac-light-gray) !important; color: var(--eac-dark-gray) !important; border: none !important; }
+
+/* Outlines */
+.btn-outline-danger { color: var(--eac-red) !important; border-color: var(--eac-red) !important; }
+.btn-outline-danger:hover { background-color: var(--eac-red) !important; color: white !important; }
+
+.btn-outline-success { color: var(--eac-dark-gray) !important; border-color: var(--eac-dark-gray) !important; }
+.btn-outline-success:hover { background-color: var(--eac-dark-gray) !important; color: white !important; }
+
+/* Badges & Backgrounds */
+.bg-primary { background-color: var(--eac-red) !important; color: white !important; }
+.bg-danger { background-color: var(--eac-dark) !important; color: white !important; }
+.bg-success { background-color: var(--eac-dark-gray) !important; color: white !important; }
+.bg-warning { background-color: var(--eac-border-gray) !important; color: var(--eac-dark-gray) !important; }
+.bg-info { background-color: var(--eac-light-gray) !important; color: var(--eac-dark-gray) !important; }
+
+/* Text Colors */
+.text-primary { color: var(--eac-red) !important; }
+.text-danger { color: var(--eac-dark) !important; }
+.text-success { color: var(--eac-dark-gray) !important; }
+.text-warning { color: var(--eac-mid-gray) !important; }
+.text-info { color: var(--eac-mid-gray) !important; }
+
+/* ------------------------------------------
+   2. DASHBOARD LAYOUT & SIDEBAR
+   ------------------------------------------ */
+.dashboard-wrapper { display: flex; width: 100%; min-height: 100vh; overflow-x: hidden; }
+
+.sidebar {
+    min-width: 300px; max-width: 300px; height: 100vh; position: fixed; top: 0; left: 0;
+    background: linear-gradient(180deg, var(--eac-red) 0%, var(--eac-dark) 100%);
+    color: white; padding: 25px 20px; box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+    z-index: 1000; transition: all 0.3s ease; overflow-y: auto; 
+}
+.sidebar.hidden { margin-left: -300px; }
+.sidebar h3 { font-size: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 0; letter-spacing: 1px; color: white; }
+.sidebar-heading { font-size: 0.70rem; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-top: 2rem; margin-bottom: 0.8rem; font-weight: 800; }
+.sidebar .nav-item a { display: block; padding: 12px 15px; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; font-weight: 500; font-size: 0.95rem; text-decoration: none; color: rgba(255,255,255,0.8) !important; }
+.sidebar .nav-item a:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); color: white !important; }
+.sidebar .nav-item a.fw-bold { color: white !important; font-weight: 700 !important; background: rgba(255,255,255,0.15); }
+
+.main-content { width: calc(100% - 300px); margin-left: 300px; padding: 40px; transition: all 0.3s ease; }
+.main-content.expanded { width: 100%; margin-left: 0; }
+
+.btn-hamburger { background: white; color: var(--eac-red); border: 2px solid var(--eac-border-gray); font-size: 20px; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; margin-right: 15px; box-shadow: var(--shadow-soft); }
+.btn-hamburger:hover { background: var(--eac-red); color: white; border-color: var(--eac-red); box-shadow: var(--shadow-hover); }
+
+/* Employee Navbar */
+.navbar-custom { background: linear-gradient(135deg, var(--eac-dark) 0%, var(--eac-red) 100%); padding: 15px 30px; }
+
+/* ------------------------------------------
+   3. CARDS, FORMS & TABLES
+   ------------------------------------------ */
+.card { border: none; border-radius: 12px; box-shadow: var(--shadow-soft); background-color: white; }
+.card h2 { color: var(--eac-dark); font-weight: 800; }
+.summary-card { border-radius: 12px; border-left: 5px solid; transition: transform 0.2s; }
+.summary-card:hover { transform: translateY(-3px); }
+
+.filter-bar { background: white; padding: 15px; border-radius: 10px; box-shadow: var(--shadow-soft); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.02); }
+.form-control, .form-select { border: 2px solid var(--eac-border-gray); border-radius: 8px; padding: 10px 15px; font-weight: 500; color: var(--eac-dark-gray); }
+.form-control:focus, .form-select:focus { border-color: var(--eac-red); box-shadow: 0 0 0 4px rgba(214, 0, 0, 0.05); outline: none; }
+.btn { border-radius: 8px; font-weight: 700; letter-spacing: 0.5px; transition: all 0.2s; text-transform: uppercase; font-size: 0.8rem; padding: 10px 20px; }
+
+.table { margin-bottom: 0; }
+.table-custom th, .table thead th { background-color: var(--eac-dark-gray) !important; color: white !important; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px; font-weight: 600; }
+.table tbody td { padding: 15px; vertical-align: middle; border-bottom: 1px solid var(--eac-light-gray); color: var(--eac-dark-gray); font-size: 0.95rem; }
+.table-hover tbody tr:hover { background-color: #fafafa; }
+.badge { font-size: 0.75em; padding: 6px 10px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+
+/* ------------------------------------------
+   4. PREMIUM LOGIN GATEWAYS (MODERN OVERHAUL)
+   ------------------------------------------ */
+.gateway-body { 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a subtle geometric background pattern to make it feel premium */
+.gateway-body::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(214,0,0,0.03) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(163,0,0,0.05) 0%, transparent 40%);
+    z-index: -1;
+    animation: rotateBg 60s linear infinite;
+}
+@keyframes rotateBg { 100% { transform: rotate(360deg); } }
+
+.gateway-admin { background-color: #fcfcfc; }
+.gateway-employee { background-color: #f8f9fa; }
+
+/* The Modern Centered Card */
+.gateway-card { 
+    border-radius: 24px; 
+    overflow: hidden; 
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02); 
+    width: 100%; 
+    max-width: 480px; /* Much more compact and focused! */
+    display: flex; 
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.98); 
+    backdrop-filter: blur(20px);
+    z-index: 10;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gateway-card:hover { transform: translateY(-5px); }
+
+/* The Top Branding Area */
+.gateway-header-admin { 
+    background: linear-gradient(135deg, var(--eac-red) 0%, var(--eac-dark) 100%); 
+    color: white; 
+    padding: 40px 40px 30px 40px; 
+    text-align: center;
+    position: relative;
+}
+.gateway-header-admin::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://www.transparenttextures.com/patterns/cubes.png') opacity(0.1); pointer-events: none;
+}
+
+.gateway-header-employee { 
+    background: white; 
+    padding: 40px 40px 20px 40px; 
+    text-align: center;
+    border-bottom: 2px solid var(--eac-bg-gray);
+}
+
+.gateway-form-area { padding: 40px; }
+
+/* Gateway Inputs */
+.gateway-form-area .form-control {
+    background-color: var(--eac-bg-gray);
+    border: 1px solid transparent;
+    padding: 15px 20px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+}
+.gateway-form-area .form-control:focus {
+    background-color: white;
+    border-color: var(--eac-red);
+    box-shadow: 0 0 0 4px rgba(214,0,0,0.08);
+}
+
+/* Gateway Buttons */
+.btn-gateway-admin { 
+    background: linear-gradient(135deg, var(--eac-red) 0%, var(--eac-dark) 100%);
+    border: none; 
+    border-radius: 12px; 
+    padding: 16px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    color: white;
+    box-shadow: 0 10px 20px rgba(163,0,0,0.2);
+    transition: all 0.3s;
+}
+.btn-gateway-admin:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 15px 25px rgba(163,0,0,0.3); 
+    color: white;
+}
+
+.btn-gateway-employee { 
+    color: var(--eac-red); 
+    border: 2px solid var(--eac-red); 
+    border-radius: 12px; 
+    padding: 15px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    transition: all 0.3s; 
+    background: transparent;
+}
+.btn-gateway-employee:hover { 
+    background-color: var(--eac-red); 
+    color: white; 
+    transform: translateY(-2px); 
+    box-shadow: 0 10px 20px rgba(214,0,0,0.15); 
+}
+
+/* ------------------------------------------
+   5. PUBLIC PAGES & STANDALONE UTILITIES
+   ------------------------------------------ */
+.standalone-body { margin: 0; }
+.bg-gradient-red { background: linear-gradient(135deg, var(--eac-dark) 0%, var(--eac-bg-gray) 100%); background-attachment: fixed; min-height: 100vh; }
+.bg-gradient-vertical { background: linear-gradient(180deg, var(--eac-red) 0%, var(--eac-bg-gray) 100%); background-attachment: fixed; min-height: 100vh; }
+.flex-center { display: flex; align-items: center; justify-content: center; min-height: 100vh; position: relative; }
+
+.top-banner { 
+    position: absolute; top: 0; left: 0; width: 100%; 
+    background: linear-gradient(135deg, var(--eac-dark) 0%, var(--eac-red) 100%); 
+    padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 1000; 
+    border-bottom: 3px solid #800000; 
+}
+.top-banner a { text-decoration: none; font-weight: 700; font-size: 0.85rem; transition: 0.3s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;}
+.link-eac { color: #ffffff; }
+.link-eac:hover { color: var(--eac-border-gray); }
+
+.hero-card { background: rgba(255, 255, 255, 0.99); padding: 60px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; max-width: 600px; margin-top: 60px; }
+.btn-eac { background: var(--eac-red); color: white; padding: 16px 45px; font-size: 1.1rem; border-radius: 50px; text-transform: uppercase; font-weight: 800; transition: all 0.3s; text-decoration: none; display: inline-block; margin-top: 25px; box-shadow: 0 10px 20px rgba(214,0,0,0.1); }
+.btn-eac:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(214,0,0,0.2); color: white; background-color: var(--eac-dark); }
+.logo-sm { display: block; margin: 0 auto 25px auto; max-width: 100px; }
+
+/* ------------------------------------------
+   6. KIOSK & FORMS
+   ------------------------------------------ */
+.kiosk-card { background: rgba(255, 255, 255, 0.99); padding: 50px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 100%; max-width: 550px; text-align: center; border-top: 6px solid var(--eac-dark-gray); }
+.clock { font-size: 4.5rem; font-weight: 800; margin-bottom: 5px; color: var(--eac-dark-gray); letter-spacing: -3px; }
+.date-display { font-size: 1rem; color: var(--eac-red); margin-bottom: 35px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+.kiosk-input { text-align: center; font-size: 1.8rem; letter-spacing: 4px; border: 2px solid var(--eac-border-gray); border-radius: 10px; font-weight: 700; height: 60px; color: var(--eac-dark-gray); }
+
+.form-container { background: white; border-radius: 16px; box-shadow: var(--shadow-soft); padding: 50px; margin: 60px 0; border-top: 6px solid var(--eac-red); }
+.form-container h2 { color: var(--eac-dark-gray); font-weight: 800; border-bottom: 2px solid var(--eac-light-gray); padding-bottom: 20px; margin-bottom: 35px; }
+.form-label { font-weight: 600; color: var(--eac-dark-gray); font-size: 0.90rem; }
+.btn-submit { background: var(--eac-red); color: white; font-weight: 700; font-size: 1.1rem; padding: 15px; border-radius: 10px; margin-top: 20px; border: none;}
+.btn-submit:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); color: white; background: var(--eac-dark); }
+.section-header { background-color: var(--eac-bg-gray); padding: 12px 20px; border-left: 6px solid var(--eac-red); border-radius: 6px; margin: 35px 0 20px 0; font-weight: 700; color: var(--eac-dark-gray); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1.5px; }
+
+/* ------------------------------------------
+   7. MODALS, ALERTS & MESSAGES
+   ------------------------------------------ */
+.modal-content { border: none !important; border-radius: 12px; overflow: hidden; }
+.modal-header { border-bottom: none; }
+.modal-footer { border-top: 1px solid var(--eac-border-gray); background-color: var(--eac-bg-gray); }
+
+.alert-info { background-color: var(--eac-border-gray); color: var(--eac-dark-gray); border: none; border-left: 4px solid var(--eac-mid-gray); }
+.alert-danger { background-color: #fee2e2; color: var(--eac-dark); border: none; border-left: 4px solid var(--eac-red); }
+
+.msg-container { text-align: center; padding-top: 80px; background-color: var(--eac-bg-gray); min-height: 100vh; }
+.msg-card { background: white; max-width: 500px; margin: auto; padding: 50px; border-radius: 16px; box-shadow: var(--shadow-soft); text-align: center; border-top: 6px solid var(--eac-red); }
+.error-code { font-size: 100px; font-weight: 800; color: var(--eac-red); line-height: 1; margin-bottom: 10px; }

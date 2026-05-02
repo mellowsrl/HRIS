@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Attendance admin')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100">
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='attendanceAdmin')}"></div>
+    <div id="content" class="main-content eac-empl-page">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div class="d-flex align-items-start gap-3 min-w-0">
+                <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
+                <div>
+                    <h1 class="h4 fw-bold m-0" style="color: #1a2e2c;">Attendance admin</h1>
+                    <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
+                        <a th:href="@{/}">Home</a><span class="sep">/</span><span>Attendance admin</span>
+                    </nav>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border shadow-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Export</button>
+                    <ul class="dropdown-menu dropdown-menu-end small">
+                        <li><button type="button" class="dropdown-item" id="eacAttAdminCsv">Download CSV (visible rows)</button></li>
+                    </ul>
+                </div>
+                <a th:href="@{/hr/biometrics}" class="btn btn-sm text-white border-0 fw-bold px-3" style="background: linear-gradient(135deg, #1a4d4a, #0d6e6a);">
+                    <i class="fas fa-file-upload me-1"></i> Import attendance
+                </a>
+            </div>
+        </div>
+        <p class="text-muted small mb-2">Stats use the <strong>end date</strong> of the range. Logs include TCMS / biometrics import for the selected range.</p>
+
+        <div class="row g-3 mb-3" th:if="${dayStats != null}">
+            <div class="col-6 col-md-4">
+                <div class="eac-att-stat eac-att-stat--ok h-100">
+                    <h3 th:text="${#numbers.formatDecimal(dayStats.present, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">Present</div>
+                    <div class="small" style="opacity:.9">Employees (in range day)</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="eac-att-stat eac-att-stat--late h-100">
+                    <h3 th:text="${#numbers.formatDecimal(dayStats.late, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">Late login</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="eac-att-stat eac-att-stat--abs h-100">
+                    <h3 th:text="${#numbers.formatDecimal(dayStats.absent, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                    <div class="sub">Absent</div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav border-0 mb-0" role="tablist">
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:classappend="${adminTab == 'attendance' or adminTab == null} ? ' eac-empl-nav-pill--active'"
+                   th:href="@{/hr/attendance(tab='attendance',dateFrom=${dateFrom},dateTo=${dateTo})}">Attendance</a>
+            </li>
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:classappend="${adminTab == 'requests'} ? ' eac-empl-nav-pill--active'"
+                   th:href="@{/hr/attendance(tab='requests',dateFrom=${dateFrom},dateTo=${dateTo})}">Overtime requests (pending)</a>
+            </li>
+        </ul>
+
+        <th:block th:if="${adminTab == 'requests'}">
+            <div class="eac-empl-filters p-3 shadow-sm">
+                <h6 class="fw-bold" style="color:#1a2e2c;">Pending OT in current payroll period</h6>
+                <p class="small text-muted mb-0">For approvals use <a th:href="@{/hr/overtime}">Overtime</a>.</p>
+            </div>
+            <div class="table-responsive eac-empl-data-card mt-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light small"><tr>
+                        <th>Employee</th><th>Date</th><th>Reported OT (h)</th><th>Status</th>
+                    </tr></thead>
+                    <tbody>
+                    <tr th:each="p : ${otPending}">
+                        <td th:text="${p.customEmployeeId + ' — ' + p.employeeName}">—</td>
+                        <td th:text="${p.workDate}">—</td>
+                        <td th:text="${p.reportedOtHours}">0</td>
+                        <td class="text-warning">Pending</td>
+                    </tr>
+                    <tr th:if="${otPending == null or #lists.isEmpty(otPending)}">
+                        <td colspan="4" class="text-center text-muted p-4">No pending rows for this period.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </th:block>
+
+        <th:block th:unless="${adminTab == 'requests'}">
+        <form method="get" th:action="@{/hr/attendance}" class="eac-empl-filters p-3 shadow-sm row g-2 align-items-end">
+            <input type="hidden" name="tab" value="attendance"/>
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label text-muted small mb-0">Date from</label>
+                <input type="date" name="dateFrom" class="form-control form-control-sm" th:value="${dateFrom}">
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label text-muted small mb-0">Date to</label>
+                <input type="date" name="dateTo" class="form-control form-control-sm" th:value="${dateTo}">
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" th:if="${allBranches != null and !#lists.isEmpty(allBranches)}">
+                <label class="form-label text-muted small mb-0 d-none d-md-block">&nbsp;</label>
+                <select class="form-select form-select-sm" id="eacAttFBranch" title="Branch">
+                    <option value="">All branches</option>
+                    <option th:each="b : ${allBranches}" th:value="${b}" th:text="${'Campus ' + b}">1</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" th:if="${allDepartments != null}">
+                <label class="form-label text-muted small mb-0 d-none d-md-block">&nbsp;</label>
+                <select class="form-select form-select-sm" id="eacAttFDept">
+                    <option value="">All departments</option>
+                    <option th:each="d : ${allDepartments}" th:value="${d}" th:text="${d}">—</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2" th:if="${allDesignations != null}">
+                <label class="form-label text-muted small mb-0">Designation</label>
+                <select class="form-select form-select-sm" id="eacAttFPos">
+                    <option value="">All</option>
+                    <option th:each="p : ${allDesignations}" th:value="${p}" th:text="${p}">—</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <label class="form-label text-muted small mb-0">Status</label>
+                <select class="form-select form-select-sm" id="eacAttFSt">
+                    <option value="">All</option>
+                    <option value="Present">Present</option>
+                    <option value="Late">Late</option>
+                    <option value="Open shift">Open shift</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-auto d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-sm btn-dark">Apply</button>
+            </div>
+        </form>
+
+        <div class="bg-white p-3 border border-top-0 rounded-bottom" style="border-color:#e8ecec;">
+            <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                <div>
+                    <label class="form-label text-muted small mb-0" for="eacAttSize">Row per page</label>
+                    <select class="form-select form-select-sm" id="eacAttSize" style="max-width:6rem"><option>10</option><option>25</option><option>50</option></select>
+                </div>
+                <div class="flex-grow-1" style="min-width:10rem;max-width:20rem">
+                    <label class="form-label text-muted small mb-0" for="eacAttSearch">Search</label>
+                    <input type="search" id="eacAttSearch" class="form-control form-control-sm" placeholder="Name, ID, code…" autocomplete="off">
+                </div>
+            </div>
+            <div class="table-responsive" style="max-height:70vh">
+                <table class="table table-sm table-hover align-middle mb-0" id="eacAttTable">
+                    <thead class="table-light small text-uppercase text-muted" style="font-size:0.65rem;">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Date</th>
+                        <th>Shift</th>
+                        <th>Status</th>
+                        <th>Clock in</th>
+                        <th>Break</th>
+                        <th>Clock out</th>
+                        <th>Late</th>
+                        <th>Worked</th>
+                        <th>Location</th>
+                        <th>Device</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="eacAttBody">
+                    <tr th:each="r : ${attendanceRows}" class="eac-att-row d-none"
+                        th:attr="data-camp=${r.campusCode},
+                                 data-dept=${r.department},
+                                 data-pos=${r.position},
+                                 data-st=${r.statusLabel},
+                                 data-srch=${#strings.toLowerCase(r.eacId + ' ' + r.name)}">
+                        <td>
+                            <div class="fw-semibold" th:text="${r.name}">Name</div>
+                            <div class="small text-muted" th:text="${r.eacId}">EAC</div>
+                        </td>
+                        <td th:text="${r.workDate}">—</td>
+                        <td th:text="${r.shift}">—</td>
+                        <td><span class="badge bg-light text-dark border" th:text="${r.statusLabel}">—</span></td>
+                        <td th:text="${r.timeIn}">—</td>
+                        <td th:text="${r.breakInfo}">—</td>
+                        <td th:text="${r.timeOut}">—</td>
+                        <td th:text="${r.lateInfo}">—</td>
+                        <td th:text="${r.workedHours}">—</td>
+                        <td th:text="${r.location}">—</td>
+                        <td class="small" th:text="${r.device}">—</td>
+                        <td><a th:href="@{/hr/attendance/record(id=${r.employeeId})}" class="btn btn-sm btn-outline-primary py-0">DTR</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted border-top pt-2 mt-2" style="border-color:#e8ecec;">
+                <div id="eacAttInfo">—</div>
+                <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="eacAttPrev">«</button>
+                    <span class="badge rounded-pill align-self-center" style="background:#1a4d4a" id="eacAttNo">1</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="eacAttNext">»</button>
+                </div>
+            </div>
+        </div>
+        </th:block>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript" th:unless="${adminTab == 'requests'}">
+    /*<![CDATA[*/
+    (function() {
+        const body = document.getElementById('eacAttBody');
+        if (!body) return;
+        const fB = document.getElementById('eacAttFBranch');
+        const fD = document.getElementById('eacAttFDept');
+        const fP = document.getElementById('eacAttFPos');
+        const fS = document.getElementById('eacAttFSt');
+        const size = document.getElementById('eacAttSize');
+        const q = document.getElementById('eacAttSearch');
+        const info = document.getElementById('eacAttInfo');
+        const pageNo = document.getElementById('eacAttNo');
+        const prev = document.getElementById('eacAttPrev');
+        const next = document.getElementById('eacAttNext');
+        let page = 0;
+        function rows() { return Array.prototype.slice.call(body.querySelectorAll('tr.eac-att-row')); }
+        function m(r) {
+            if (fB && fB.value) {
+                if ((r.getAttribute('data-camp') || '') !== fB.value) return false;
+            }
+            if (fD && fD.value) {
+                if ((r.getAttribute('data-dept') || '') !== fD.value) return false;
+            }
+            if (fP && fP.value) {
+                if ((r.getAttribute('data-pos') || '') !== fP.value) return false;
+            }
+            if (fS && fS.value) {
+                if ((r.getAttribute('data-st') || '') !== fS.value) return false;
+            }
+            if (q && q.value.trim()) {
+                var t = (r.getAttribute('data-srch') || '');
+                if (t.indexOf(q.value.trim().toLowerCase()) < 0) return false;
+            }
+            return true;
+        }
+        function run() {
+            var all = rows();
+            all.forEach(function(r) { r.classList.add('d-none'); });
+            var vis = all.filter(m);
+            var ps = size ? (parseInt(size.value, 10) || 10) : 10;
+            var L = vis.length;
+            var maxP = Math.max(0, Math.ceil(L / ps) - 1);
+            if (page > maxP) page = maxP;
+            if (L === 0) page = 0;
+            var start = page * ps;
+            vis.forEach(function(r, i) {
+                r.classList.toggle('d-none', i < start || i >= start + ps);
+            });
+            if (info) {
+                if (L === 0) info.textContent = 'Showing 0 to 0 of 0 entries';
+                else {
+                    var from = start + 1, to = Math.min(L, start + ps);
+                    info.textContent = 'Showing ' + from + ' to ' + to + ' of ' + L + ' entries';
+                }
+            }
+            if (pageNo) pageNo.textContent = String(page + 1);
+            if (prev) prev.disabled = page <= 0;
+            if (next) next.disabled = (start + ps >= L);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            rows().forEach(function(r) { r.classList.remove('d-none'); });
+            run();
+            [fB,fD,fP,fS,size].forEach(function(el) { if (el) el.addEventListener('change', function() { page = 0; run(); }); });
+            if (q) q.addEventListener('input', function() { page = 0; run(); });
+            if (prev) prev.addEventListener('click', function() { if (page > 0) { page--; run(); } });
+            if (next) next.addEventListener('click', function() { page++; run(); });
+        });
+    })();
+    var exp = document.getElementById('eacAttAdminCsv');
+    if (exp) exp.addEventListener('click', function() {
+        var body = document.getElementById('eacAttBody');
+        if (!body) return;
+        var ths = document.querySelectorAll('#eacAttTable thead th');
+        var headers = Array.prototype.map.call(ths, function(h) { return h.textContent.trim(); });
+        var vis = Array.prototype.filter.call(body.querySelectorAll('tr.eac-att-row'), function(r) { return !r.classList.contains('d-none'); });
+        var lines = [headers.join(',')];
+        vis.forEach(function(tr) {
+            var cells = tr.querySelectorAll('td');
+            var parts = Array.prototype.map.call(cells, function(td) { return '"' + (td.innerText || '').replace(/"/g,'""').replace(/\n/g,' ').trim() + '"'; });
+            lines.push(parts.join(','));
+        });
+        var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'attendance-admin.csv';
+        a.click();
+    });
+    /*]]>*/
+</script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Job dashboard (ATS)')}"></th:block>
+</head>
+<body class="eac-surface min-vh-100 py-4">
+
+<div class="container mt-5">
+    <h2 class="mb-4">Applicant Tracking System - HR Dashboard</h2>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Post a New Job</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/hr/jobs/create}" th:object="${newJob}" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" class="form-control" th:field="*{title}" placeholder="e.g., Senior IT Instructor" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Department</label>
+                        <input type="text" class="form-control" th:field="*{department}" placeholder="e.g., Computer Science" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Employment Type</label>
+                        <select class="form-select" th:field="*{employmentType}">
+                            <option value="Full-Time Faculty">Full-Time Faculty</option>
+                            <option value="Part-Time Faculty">Part-Time Faculty</option>
+                            <option value="Full-Time Non-Faculty">Full-Time Non-Faculty</option>
+                            <option value="Contract">Contract</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Job Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="3" placeholder="What will this person do?" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Requirements</label>
+                        <textarea class="form-control" th:field="*{requirements}" rows="3" placeholder="Required degrees, skills, etc." required></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">Publish Job Posting</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Current Job Postings</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Department</th>
+                        <th>Date Posted</th>
+                        <th>Status</th>
+                        <th>Applicants</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="job : ${jobs}">
+                        <td th:text="${job.id}"></td>
+                        <td class="fw-bold" th:text="${job.title}"></td>
+                        <td th:text="${job.department}"></td>
+                        <td th:text="${job.datePosted}"></td>
+                        
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${job.status == 'OPEN'} ? 'bg-success' : 'bg-secondary'" 
+                                  th:text="${job.status}"></span>
+                        </td>
+                        
+                        <td>
+                            <span class="badge bg-info text-dark rounded-pill" 
+                                  th:text="${#lists.size(job.applicants)} + ' Applications'"></span>
+                        </td>
+                        
+                        <td>
+                            <a th:href="@{/hr/jobs/{id}/applicants(id=${job.id})}" class="btn btn-sm btn-primary">View Applicants</a>
+                            
+                            <form th:if="${job.status == 'OPEN'}" th:action="@{/hr/jobs/{id}/close(id=${job.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to close this job post?');">Close Job</button>
+                            </form>
+                        </td>
+                    </tr>
+                    
+                    <tr th:if="${#lists.isEmpty(jobs)}">
+                        <td colspan="7" class="text-center text-muted py-4">No job postings found. Create one above!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Management portal')}"></th:block>
+</head>
+<body class="d-flex align-items-center justify-content-center eac-gateway-animated overflow-hidden" style="min-height: 100vh;">
+
+<div class="gateway-card shadow-lg" style="border-top: 5px solid var(--eac-red);">
+    
+    <div class="text-center border-bottom pb-4 mb-4 pt-4 px-4">
+        <a href="https://www.eac.edu.ph/" target="_blank" rel="noopener" class="eac-link-brand">
+            <img th:src="@{/image/logo.png}" alt="EAC" class="d-block mx-auto mb-2" style="max-width: 80px;">
+            <h1 class="fw-bold mb-1 text-dark" style="letter-spacing: -1px; font-size: 1.8rem;">Management <span style="color: var(--eac-dark);">Portal</span></h1>
+            <p class="fs-6 text-muted fw-bold text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.75rem !important;">Emilio Aguinaldo College</p>
+        </a>
+    </div>
+    
+    <div class="px-5 pb-5 pt-2">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold text-dark mb-1" id="dynamicGreetingAdmin">Welcome</h4>
+            <p class="text-muted small">Please sign in with your system credentials.</p>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger p-3 small fw-bold text-center border-0 shadow-sm rounded-3">
+            Invalid credentials. Please try again.
+        </div>
+        <div th:if="${param.logout}" class="alert alert-success p-3 small fw-bold text-center border-0 shadow-sm rounded-3">
+            You have been securely logged out.
+        </div>
+
+		<form th:action="@{/process-login}" method="post">
+		    <div class="mb-3">
+		        <label class="form-label text-muted small fw-bold">USERNAME</label>
+		        <input type="text" class="form-control form-control-lg bg-light" name="username" required autofocus>
+		    </div>
+		    
+		    <div class="mb-4">
+		        <label class="form-label text-muted small fw-bold">PASSWORD</label>
+		        <input type="password" class="form-control form-control-lg bg-light" name="password" required>
+		    </div>
+		    
+		    <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold rounded-pill">Admin Sign In</button>
+		</form>
+        
+        <div class="text-center mt-4 pt-2">
+            <a href="/" class="text-decoration-none text-muted small fw-bold text-uppercase" style="letter-spacing: 1px; transition: 0.2s;">&larr; Return to Home</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Smart Time-Based Greeting
+    const hour = new Date().getHours();
+    const greetingElement = document.getElementById('dynamicGreetingAdmin');
+    if (hour < 12) greetingElement.innerText = "Good Morning.";
+    else if (hour < 18) greetingElement.innerText = "Good Afternoon.";
+    else greetingElement.innerText = "Good Evening.";
+</script>
+
+</body>
+</html>

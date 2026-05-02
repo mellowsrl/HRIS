@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Biometrics')}"></th:block>
+</head>
+<body class="eac-surface min-vh-100">
+
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='biometrics')}"></div>
+
+    <div id="content" class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn-hamburger me-3">☰</button>
+                <div>
+                    <h2 class="text-danger fw-bold m-0" style="letter-spacing: -1px;">Biometrics Integration (TCMS)</h2>
+                    <p class="text-muted m-0 small fw-bold text-uppercase letter-spacing-1">Sync physical scanner data with the EAC Database.</p>
+                </div>
+            </div>
+            
+			<div class="d-flex flex-wrap align-items-end gap-2 bg-white p-2 rounded shadow-sm border" style="border-left: 4px solid var(--eac-dark-gray) !important;">
+			            <form method="get" th:action="@{/hr/biometrics}" class="d-flex flex-wrap align-items-end gap-2" id="eacBiometricPresetForm">
+			                <label class="fw-bold text-secondary text-nowrap mb-0 ms-2 small text-uppercase letter-spacing-1">Cutoff</label>
+			                <select name="cutoffPeriod" class="form-select border-0 bg-light small fw-bold" onchange="this.form.requestSubmit()" style="min-width: 220px; font-size: 0.85rem;" title="Semi-monthly presets">
+			                    <option th:if="${isCustomRangeCutoff != null and isCustomRangeCutoff}" th:value="${selectedCutoff}" th:selected="true" th:text="${'Custom: ' + cutoffRangeLabel}">Custom</option>
+			                    <option th:each="cutoff : ${cutoffOptions}" 
+			                            th:value="${cutoff.key}" 
+			                            th:text="${cutoff.value}" 
+			                            th:selected="${(isCustomRangeCutoff == null or !isCustomRangeCutoff) and selectedCutoff == cutoff.key}">
+			                    </option>
+			                </select>
+			                <input type="search" name="search" class="form-control form-control-sm border-0 bg-light" style="min-width: 200px; max-width: 260px;" th:value="${searchKeyword}" placeholder="Search employee...">
+			                <button type="submit" class="btn btn-sm btn-dark">Search</button>
+			            </form>
+			            <form method="get" th:action="@{/hr/biometrics}" class="d-flex flex-wrap align-items-end gap-1 border-start ps-2">
+			                <input type="hidden" name="search" th:value="${searchKeyword}">
+			                <span class="small text-muted mb-1">or</span>
+			                <input type="date" name="customFrom" class="form-control form-control-sm border-0 bg-light" style="width:auto" th:value="${customRangeFrom}" title="From (inclusive)">
+			                <input type="date" name="customTo" class="form-control form-control-sm border-0 bg-light" style="width:auto" th:value="${customRangeTo}" title="To (inclusive)">
+			                <input type="hidden" name="applyMode" value="custom">
+			                <button type="submit" class="btn btn-sm btn-outline-secondary">Custom range</button>
+			            </form>
+			            </div>
+            <p class="small text-muted mb-0 w-100 ms-2" th:if="${cutoffRangeLabel != null}">Pay window: <span class="fw-bold" th:text="${cutoffRangeLabel}">—</span></p>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card p-4 border-0 shadow-sm" style="border-left: 5px solid var(--eac-red);">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="fw-bold text-dark small text-uppercase m-0 letter-spacing-1">Upload Auto-Sync CSV Data</label>
+                        <div class="text-end">
+                            <span class="badge bg-light text-muted border px-2 py-1 shadow-sm d-block mb-1" style="font-size: 0.65rem;">
+                                Last Upload: <span class="fw-bold text-danger" th:text="${lastTime}"></span>
+                            </span>
+                            <span class="small text-muted" style="font-size: 0.70rem;" th:text="'File: ' + ${lastFile}"></span>
+                        </div>
+                    </div>
+                    
+                    <form th:action="@{/hr/biometrics/upload}" method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-stretch">
+                        <input type="file" name="file" accept=".csv,.txt" class="form-control flex-grow-1" required style="border: 2px solid var(--eac-border-gray); min-width: 200px;">
+                        <button type="submit" class="btn btn-danger fw-bold px-4 text-uppercase shadow-sm">Import data</button>
+                    </form>
+                    <div class="text-muted small mt-3" style="font-size: 0.8rem; line-height: 1.45;">
+                        <p class="mb-1 fw-bold text-secondary text-uppercase" style="letter-spacing:0.04em;">TCMS CSV layout (12 columns in order)</p>
+                        <ol class="mb-2 ps-3 small">
+                            <li>User ID</li><li>First name</li><li>Last name</li><li>Employee ID (EAC)</li>
+                            <li>Date (DD/MM/YYYY)</li><li>In</li><li>Out</li><li>Short</li><li>OT</li>
+                            <li>LeaveType</li><li>Work code</li><li>Day type (Workday / Restday / Holiday)</li>
+                        </ol>
+                        <ul class="mb-0 ps-3">
+                            <li>Save as <strong>UTF-8</strong> CSV. First line may be a <strong>header</strong> (detected and skipped) or the first <strong>data</strong> row.</li>
+                            <li>Delimiter: <strong>comma</strong> or <strong>semicolon</strong>. Quoted fields (e.g. names with commas) are supported.</li>
+                            <li>At least <strong>10</strong> columns (through LeaveType); columns 10–11 optional (day type defaults to Workday).</li>
+                            <li>Empty In/Out on rest/holiday rows is OK. EAC in column 4 (index 3) must match an employee&rsquo;s <code>custom_employee_id</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card p-4 border-0 shadow-sm" style="border-left: 5px solid var(--eac-dark-gray); height: 100%;">
+                    <label class="fw-bold text-dark small text-uppercase mb-3 letter-spacing-1">Live Database Search</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search by EAC ID, TCMS ID, or Name..." style="border: 2px solid var(--eac-border-gray); padding: 12px 15px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table table-hover table-custom text-center m-0" id="biometricsTable">
+                    <thead class="table-custom">
+                        <tr>
+                            <th>EAC ID</th>
+                            <th>TCMS ID</th>
+                            <th class="text-start">Employee Name</th>
+                            <th>Reg. Hours</th>
+                            <th>OT Logged</th>
+                            <th>Total Raw Hours</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="emp : ${employees}">
+                            <td class="fw-bold text-primary search-eacid" th:text="${emp.customEmployeeId}"></td>
+                            
+                            <td class="search-tcmsid">
+                                <span th:if="${emp.biometricId != null}" class="badge bg-danger fs-6 px-3 shadow-sm" th:text="${emp.biometricId}"></span>
+                                <span th:if="${emp.biometricId == null}" class="badge bg-light text-muted border px-3 shadow-sm">Unlinked</span>
+                            </td>
+
+                            <td class="text-start fw-bold text-dark search-name" th:text="${emp.firstName + ' ' + emp.lastName}"></td>
+                            
+                            <td><span class="badge bg-success fs-6 px-3 shadow-sm" th:text="${emp.regHoursText}"></span></td>
+                            <td><span class="badge fs-6 px-3 shadow-sm" th:classappend="${emp.otHours > 0 ? 'bg-danger' : 'bg-secondary'}" th:text="${emp.otHoursText}"></span></td>
+                            <td><span class="badge bg-dark fs-6 px-3 shadow-sm" th:text="${emp.rawHoursText}"></span></td>
+                            
+                            <td class="d-flex flex-column flex-md-row gap-1 justify-content-center align-items-center">
+                               <a th:href="@{/hr/employees/biometrics(id=${emp.id}, cutoffPeriod=${selectedCutoff})}" class="btn btn-sm btn-outline-dark fw-bold text-uppercase shadow-sm" style="font-size: 0.75rem;">📄 View Full DTR</a>
+                               <a th:href="@{/hr/payroll/download(id=${emp.id}, cutoffPeriod=${selectedCutoff})}" class="btn btn-sm btn-outline-danger fw-bold text-uppercase shadow-sm" style="font-size: 0.75rem;">🧾 Payslip PDF</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${employees.empty}">
+                            <td colspan="7" class="text-muted p-5"><i>No records found. Upload a TCMS CSV to populate records.</i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#biometricsTable tbody tr');
+        
+        rows.forEach(row => {
+            if(row.children.length === 1) return; 
+
+            let eacId = row.querySelector('.search-eacid').textContent.toLowerCase();
+            let tcmsId = row.querySelector('.search-tcmsid').textContent.toLowerCase();
+            let nameText = row.querySelector('.search-name').textContent.toLowerCase();
+            
+            if (eacId.includes(filter) || tcmsId.includes(filter) || nameText.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

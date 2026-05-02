@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead(${formPageTitle})}"></th:block>
+</head>
+<body class="eac-surface min-vh-100">
+
+<div class="dashboard-wrapper d-flex">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='jobs')}" style="width: 250px; flex-shrink: 0;"></div>
+
+    <div id="content" class="main-content flex-grow-1 p-4">
+
+        <div class="mb-4" style="max-width: 800px;">
+            <a th:href="@{/hr/jobs}" class="text-decoration-none text-muted small fw-bold">&larr; Back to Jobs</a>
+            <h2 class="text-danger fw-bold mt-2" th:if="${job.id == null}">Create Job Posting</h2>
+            <h2 class="text-danger fw-bold mt-2" th:if="${job.id != null}">Edit Job Posting</h2>
+        </div>
+
+        <div class="card shadow-sm border-0" style="border-radius: 12px; max-width: 800px;">
+            <div class="card-body p-4 p-lg-5">
+
+                <form th:action="@{/hr/jobs/save}" th:object="${job}" method="post">
+
+                    <input type="hidden" th:field="*{id}">
+
+					<div class="row g-4">
+					    <div class="col-12">
+					        <label class="form-label fw-bold text-muted small text-uppercase">Job Title <span class="text-danger">*</span></label>
+					        <input type="text" class="form-control form-control-lg bg-light border-0" th:field="*{title}" placeholder="e.g. Senior IT Instructor" required>
+					    </div>
+
+					    <div class="col-md-6">
+					        <label class="form-label fw-bold text-muted small text-uppercase">Department <span class="text-danger">*</span></label>
+					        <select class="form-select bg-light border-0" th:field="*{department}" required>
+					            <option value="">Select Department…</option>
+					            <option th:each="d : ${eacDepartments}" th:value="${d.code}" th:text="${d.name}">SON</option>
+					        </select>
+					        <p class="form-text text-muted small mb-0 mt-2">List matches <strong>HR → Departments</strong> and employee profiles: the value stored is the department <strong>code</strong> (e.g. SON, ITS) so hiring stays aligned with employee designation.</p>
+					    </div>
+
+					    <div class="col-md-6">
+					        <label class="form-label fw-bold text-muted small text-uppercase">Employment Type <span class="text-danger">*</span></label>
+					        <select class="form-select bg-light border-0" th:field="*{employmentType}" required>
+					            <option value="">Select Classification…</option>
+					            <option value="Full-Time Faculty">Full-Time Faculty</option>
+					            <option value="Full-Time Non-Faculty">Full-Time Non-Faculty</option>
+					            <option value="Part-Time Faculty">Part-Time Faculty</option>
+					            <option value="Part-Time Non-Faculty">Part-Time Non-Faculty</option>
+					        </select>
+					    </div>
+
+					    <div class="col-12">
+					        <label class="form-label fw-bold text-muted small text-uppercase">Job Description <span class="text-danger">*</span></label>
+					        <textarea class="form-control bg-light border-0" th:field="*{description}" rows="4" placeholder="Describe the responsibilities..." required></textarea>
+					    </div>
+
+					    <div class="col-12">
+					        <label class="form-label fw-bold text-muted small text-uppercase">Requirements</label>
+					        <textarea class="form-control bg-light border-0" th:field="*{requirements}" rows="3" placeholder="List qualifications, degrees required, etc."></textarea>
+					    </div>
+
+					    <div class="col-md-4">
+					        <label class="form-label fw-bold text-muted small text-uppercase" th:text="${job.id != null} ? 'Status' : 'Initial Status'">Status</label>
+					        <select class="form-select bg-light border-0" th:field="*{status}">
+					            <option value="OPEN">OPEN (Live immediately)</option>
+					            <option value="CLOSED">CLOSED (Draft/Hidden)</option>
+					        </select>
+					    </div>
+					</div>
+
+                    <hr class="my-5 text-muted">
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-danger btn-lg fw-bold rounded-pill px-5 shadow-sm" th:text="${job.id != null} ? 'Save changes' : 'Publish Job'">Publish Job</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

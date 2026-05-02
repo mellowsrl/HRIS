@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Salary rules (audit)')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100">
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='salaryAudit')}"></div>
+
+    <div id="content" class="main-content eac-payroll-shell p-3 p-md-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <button id="sidebarToggle" class="btn-hamburger">☰</button>
+                <div>
+                    <h1 class="h4 fw-bold text-danger m-0" style="letter-spacing: -0.5px;">Salary rules (audit)</h1>
+                    <nav class="small text-muted mt-1" aria-label="Breadcrumb">
+                        <a th:href="@{/hr/dashboard}">HR</a><span> / </span><span>Salary audit</span>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-light border shadow-sm small mb-3">
+            <div class="fw-bold text-secondary text-uppercase mb-1" style="font-size:0.7rem;letter-spacing:0.06em;">Legend (DOLE-style, 313 days / year)</div>
+            <ul class="mb-0 ps-3">
+                <li><strong>Yearly</strong> = effective monthly × 12</li>
+                <li><strong>Daily</strong> = yearly ÷ 313 = (monthly × 12) ÷ 313 — same as <code>SP_ProcessRegularPayroll</code> when <code>admin_pay</code> &gt; 0</li>
+                <li><strong>Hourly</strong> = daily ÷ 8; <strong>Minute</strong> = hourly ÷ 60</li>
+                <li><strong>Effective monthly</strong> uses <code>basic_salary</code> if set, else <code>admin_pay</code> (matches payroll list logic)</li>
+                <li><strong>Period basic</strong> = monthly × ½ if pay window days ≤ 16, else × 1 (matches SP)</li>
+                <li><strong>Part-time / flexi</strong> (type contains “part” or “flexi”): SP treats OT/deductions differently; rates here still follow monthly path when <code>admin_pay</code> &gt; 0</li>
+            </ul>
+        </div>
+
+        <form method="get" th:action="@{/hr/salary-audit}" class="card border-0 shadow-sm p-3 mb-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-3">
+                    <label class="form-label small text-muted mb-0">Payroll cutoff (preset)</label>
+                    <select name="cutoff" class="form-select form-select-sm" title="Semi-monthly presets">
+                        <option th:if="${isCustomRangeCutoff != null and isCustomRangeCutoff}" th:value="${selectedCutoff}" th:selected="true" th:text="${'Custom: ' + cutoffRangeLabel}">Custom</option>
+                        <option th:each="e : ${cutoffOptions}" th:value="${e.key}" th:text="${e.value}"
+                                th:selected="${(isCustomRangeCutoff == null or !isCustomRangeCutoff) and e.key == selectedCutoff}">—</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label small text-muted mb-0">Or custom from / to (inclusive)</label>
+                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                        <input type="date" name="customFrom" class="form-control form-control-sm" th:value="${customRangeFrom}">
+                        <input type="date" name="customTo" class="form-control form-control-sm" th:value="${customRangeTo}">
+                        <span class="small text-muted">Overrides preset when both set</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label small text-muted mb-0">Department</label>
+                    <select name="department" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option th:each="d : ${eacDepartments}" th:value="${d.code}"
+                                th:selected="${selectedDept != null && #strings.equalsIgnoreCase(selectedDept, d.code)}"
+                                th:text="${d.name}"></option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label small text-muted mb-0">Search</label>
+                    <input type="search" name="search" class="form-control form-control-sm" th:value="${searchKeyword}" placeholder="Name, ID, email...">
+                </div>
+                <div class="col-12 col-md-2 d-flex flex-wrap gap-1 align-items-end">
+                    <button type="submit" class="btn btn-sm btn-dark" name="applyMode" value="preset">Apply preset</button>
+                    <button type="submit" class="btn btn-sm btn-outline-primary" name="applyMode" value="custom" title="Uses custom from/to; ignores dropdown">Apply custom</button>
+                </div>
+            </div>
+            <div class="mt-2 small text-muted" th:if="${cutoffRangeLabel != null}">
+                Resolved: <strong th:text="${cutoffRangeLabel}">—</strong>
+                <span th:if="${periodDayCount != null}"> — Pay window day count (inclusive): <strong th:text="${periodDayCount}">0</strong> (SP uses ½× monthly if days ≤ 16, else 1×).</span>
+            </div>
+        </form>
+
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle small mb-0">
+                    <thead class="table-dark text-nowrap">
+                    <tr>
+                        <th>EAC ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th class="text-end">basic_salary</th>
+                        <th class="text-end">admin_pay</th>
+                        <th class="text-end">daily (stored)</th>
+                        <th class="text-end">hr (stored)</th>
+                        <th>Source</th>
+                        <th class="text-end">Effective mo.</th>
+                        <th class="text-end">Yearly</th>
+                        <th class="text-end">DOLE daily</th>
+                        <th class="text-end">DOLE hr</th>
+                        <th class="text-end">DOLE min</th>
+                        <th class="text-end">Period basic</th>
+                        <th>PT/Flexi</th>
+                        <th>Consistency</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${rows}" th:classappend="${r.consistencyMismatch} ? ' table-warning' : ''">
+                        <td class="font-monospace fw-bold text-primary" th:text="${r.customEmployeeId}">—</td>
+                        <td th:text="${r.fullName}">—</td>
+                        <td>
+                            <span th:text="${r.employmentType}">—</span>
+                            <span th:if="${r.partTimeOrFlexiPath}" class="badge bg-info text-dark ms-1">PT/Flexi</span>
+                        </td>
+                        <td class="text-end" th:text="${r.basicSalary != null} ? ${#numbers.formatDecimal(r.basicSalary, 1, 'COMMA', 2, 'POINT')} : '—'">—</td>
+                        <td class="text-end" th:text="${r.adminPay != null} ? ${#numbers.formatDecimal(r.adminPay, 1, 'COMMA', 2, 'POINT')} : '—'">—</td>
+                        <td class="text-end" th:text="${r.dailyWageStored != null} ? ${#numbers.formatDecimal(r.dailyWageStored, 1, 'COMMA', 2, 'POINT')} : '—'">—</td>
+                        <td class="text-end" th:text="${r.hourlyRateStored != null} ? ${#numbers.formatDecimal(r.hourlyRateStored, 1, 'COMMA', 2, 'POINT')} : '—'">—</td>
+                        <td class="text-muted" th:text="${r.monthlySourceLabel}">—</td>
+                        <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(r.effectiveMonthly, 1, 'COMMA', 2, 'POINT')}">0</td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(r.doleYearly, 1, 'COMMA', 2, 'POINT')}">0</td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(r.doleDaily, 1, 'COMMA', 4, 'POINT')}">0</td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(r.doleHourly, 1, 'COMMA', 4, 'POINT')}">0</td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(r.doleMinute, 1, 'COMMA', 6, 'POINT')}">0</td>
+                        <td class="text-end text-success fw-bold" th:text="${#numbers.formatDecimal(r.periodBasicPay, 1, 'COMMA', 2, 'POINT')}">0</td>
+                        <td th:text="${r.partTimeOrFlexiPath} ? 'Yes' : 'No'">—</td>
+                        <td style="max-width:14rem;">
+                            <span th:text="${r.consistencyMessage}" class="small">—</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(rows)}">
+                        <td colspan="17" class="text-center text-muted p-4">No active employees match your filters.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

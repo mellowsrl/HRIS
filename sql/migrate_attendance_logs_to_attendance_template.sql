@@ -1,0 +1,23 @@
+-- TEMPLATE ONLY — prefer the ready files:
+--   migrate_attendance_logs_to_attendance.sql  (when legacy columns match `attendance`)
+--   migrate_eac_hr_attendance_logs_to_attendance.sql  (eac_hr_db_attendance_logs.sql shape)
+-- Strategy: keep JPA on `attendance` and copy legacy rows from `attendance_logs` if needed.
+--
+-- Example pattern (UNCOMMENT and fix column lists after verification):
+--
+-- INSERT INTO attendance (
+--   employee_id, `date`, time_in, time_out, total_hours, minutes_late, undertime_hours,
+--   overtime_hours, overtime_reported, ot_approval_status, minutes_early_out
+-- )
+-- SELECT
+--   cast_map_employee_id,
+--   `date`, time_in, time_out, total_hours, minutes_late, undertime_hours,
+--   overtime_hours, overtime_reported, ot_approval_status, minutes_early_out
+-- FROM attendance_logs
+-- WHERE NOT EXISTS (
+--   SELECT 1 FROM attendance a
+--   WHERE a.employee_id = ... AND a.`date` = attendance_logs.`date`
+-- );
+--
+-- If instead your canonical data must stay in `attendance_logs` only, change
+-- AttendanceLog @Table in Java (and verify every column) — see plan "choose-strategy".

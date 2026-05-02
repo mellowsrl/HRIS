@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Careers dashboard')}"></th:block>
+</head>
+<body class="eac-surface min-vh-100">
+
+<nav th:replace="~{fragments/portal-topnav :: applicant}"></nav>
+
+<div class="container py-4 pb-5 eac-appdash-shell">
+
+    <div class="eac-appdash-hero p-3 p-md-4 mb-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <h1 class="h4 fw-bold mb-1 eac-appdash-title">Applicant dashboard</h1>
+                <p class="text-muted small mb-0">Track your submitted applications and browse current openings.</p>
+            </div>
+            <form method="get" th:action="@{/applicant/dashboard}" class="d-flex flex-wrap align-items-stretch gap-2 eac-appdash-search">
+                <input type="search" name="search" class="form-control form-control-sm" style="max-width: 340px;" th:value="${searchKeyword}" placeholder="Search jobs and applications">
+                <button type="submit" class="btn btn-sm btn-dark fw-bold">Search</button>
+            </form>
+        </div>
+    </div>
+    
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success.</strong> Your application has been submitted to EAC HR.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row mb-5" th:if="${not #lists.isEmpty(myApplications)}">
+        <div class="col-12">
+            <h2 class="eac-page-section-title h4">My applications</h2>
+            <div class="card border-0 shadow-sm mt-3" style="border-radius: 0.9rem;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                    <table class="table table-hover eac-table-apply align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="py-3 ps-4">Position</th>
+                                <th class="py-3">Department</th>
+                                <th class="py-3">Date applied</th>
+                                <th class="py-3 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="app : ${myApplications}">
+                                <td class="py-3 ps-4 fw-bold" th:text="${app.jobPosting.title}"></td>
+                                <td class="py-3 text-muted" th:text="${app.jobPosting.department}"></td>
+                                <td class="py-3 text-muted">Recent</td>
+                                <td class="py-3 text-center">
+                                    <span th:if="${app.status == 'PENDING'}" class="badge bg-warning text-dark px-3 py-2 rounded-pill">PENDING REVIEW</span>
+                                    <span th:if="${app.status == 'INTERVIEW'}" class="badge bg-info text-dark px-3 py-2 rounded-pill">INTERVIEW SET</span>
+                                    <span th:if="${app.status == 'HIRED'}" class="badge bg-success px-3 py-2 rounded-pill">HIRED</span>
+                                    <span th:if="${app.status == 'REJECTED'}" class="badge bg-secondary px-3 py-2 rounded-pill">NOT SELECTED</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3 align-items-center mt-2">
+        <div class="col">
+            <h2 class="eac-page-section-title h4">Available positions</h2>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6 col-lg-4" th:each="job : ${jobs}">
+            <div class="card h-100 eac-job-card" style="border-radius: 0.9rem;">
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-light text-danger border border-danger rounded-pill px-2 py-1 small" th:text="${job.department}"></span>
+                        <small class="text-muted" th:text="${job.employmentType}"></small>
+                    </div>
+                    <h5 class="card-title fw-bold mt-2 text-dark" th:text="${job.title}"></h5>
+                    <p class="card-text text-muted small flex-grow-1 mt-2" th:text="${job.description}"></p>
+                    <hr class="text-muted my-2">
+                    <a th:href="@{/apply(jobId=${job.id})}" class="btn btn-danger w-100 fw-bold rounded-pill mt-auto">Apply now</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(jobs)}">
+            <p class="text-muted mb-0">No open positions right now. Please check back later.</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

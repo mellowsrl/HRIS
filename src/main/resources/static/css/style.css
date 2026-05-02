@@ -1,0 +1,863 @@
+/* ==========================================
+   EAC HR System - Master Premium Stylesheet
+   (STRICTLY EAC Red, White, and Corporate Gray)
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    /* Core Brand Colors */
+    --eac-red: #D60000;
+    --eac-dark: #A30000;
+    
+    /* Grays */
+    --eac-bg-gray: #f4f7f6; 
+    --eac-border-gray: #e1e5eb;
+    --eac-dark-gray: #2d3436;
+    --eac-mid-gray: #636e72;
+    --eac-light-gray: #edf2f6;
+
+    /* Shadows */
+    --shadow-soft: 0 10px 40px rgba(0,0,0,0.03);
+    --shadow-hover: 0 15px 50px rgba(214,0,0,0.1);
+}
+
+body {
+    background-color: var(--eac-bg-gray);
+    font-family: 'Inter', sans-serif;
+    color: var(--eac-dark-gray);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+}
+
+/* ------------------------------------------
+   1. BOOTSTRAP COLOR OVERRIDES (PURGE ALL COLORS)
+   ------------------------------------------ */
+.btn-primary { background-color: var(--eac-red) !important; border: none !important; color: white !important; }
+.btn-primary:hover { background-color: var(--eac-dark) !important; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+.btn-danger { background-color: var(--eac-dark) !important; border: none !important; color: white !important; }
+.btn-danger:hover { background-color: #800000 !important; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+.btn-success { background-color: var(--eac-dark-gray) !important; border: none !important; color: white !important; }
+.btn-success:hover { background-color: #1a1e1f !important; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transform: translateY(-2px); }
+
+.btn-warning { background-color: var(--eac-border-gray) !important; color: var(--eac-dark-gray) !important; border: none !important; }
+.btn-info { background-color: var(--eac-light-gray) !important; color: var(--eac-dark-gray) !important; border: none !important; }
+
+/* Outlines */
+.btn-outline-danger { color: var(--eac-red) !important; border-color: var(--eac-red) !important; }
+.btn-outline-danger:hover { background-color: var(--eac-red) !important; color: white !important; }
+
+.btn-outline-success { color: var(--eac-dark-gray) !important; border-color: var(--eac-dark-gray) !important; }
+.btn-outline-success:hover { background-color: var(--eac-dark-gray) !important; color: white !important; }
+
+/* Badges & Backgrounds */
+.bg-primary { background-color: var(--eac-red) !important; color: white !important; }
+.bg-danger { background-color: var(--eac-dark) !important; color: white !important; }
+.bg-success { background-color: var(--eac-dark-gray) !important; color: white !important; }
+.bg-warning { background-color: var(--eac-border-gray) !important; color: var(--eac-dark-gray) !important; }
+.bg-info { background-color: var(--eac-light-gray) !important; color: var(--eac-dark-gray) !important; }
+
+/* Text Colors */
+.text-primary { color: var(--eac-red) !important; }
+.text-danger { color: var(--eac-dark) !important; }
+.text-success { color: var(--eac-dark-gray) !important; }
+.text-warning { color: var(--eac-mid-gray) !important; }
+.text-info { color: var(--eac-mid-gray) !important; }
+
+/* ------------------------------------------
+   2. DASHBOARD LAYOUT & SIDEBAR
+   ------------------------------------------ */
+.dashboard-wrapper { display: flex; width: 100%; min-height: 100vh; overflow-x: hidden; }
+
+.sidebar {
+    min-width: 300px; max-width: 300px; height: 100vh; position: fixed; top: 0; left: 0;
+    background: linear-gradient(180deg, var(--eac-red) 0%, var(--eac-dark) 100%);
+    color: white; padding: 25px 20px; box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+    z-index: 1000; transition: all 0.3s ease; overflow-y: auto; 
+}
+.sidebar.hidden { margin-left: -300px; }
+.sidebar h3 { font-size: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 0; letter-spacing: 1px; color: white; }
+.sidebar-heading { font-size: 0.70rem; letter-spacing: 2px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-top: 2rem; margin-bottom: 0.8rem; font-weight: 800; }
+.sidebar .nav-item a { display: block; padding: 12px 15px; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; font-weight: 500; font-size: 0.95rem; text-decoration: none; color: rgba(255,255,255,0.8) !important; }
+.sidebar .nav-item a:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); color: white !important; }
+.sidebar .nav-item a.fw-bold { color: white !important; font-weight: 700 !important; background: rgba(255,255,255,0.15); }
+.sidebar .eac-sidebar-top-link { border-left: 3px solid transparent; }
+.sidebar .eac-sidebar-top-link--active { border-left-color: var(--eac-red) !important; background: rgba(255,255,255,0.12) !important; font-weight: 700 !important; color: #fff !important; opacity: 1 !important; }
+.sidebar .eac-sidebar-top-link:not(.eac-sidebar-top-link--active):hover { border-left-color: rgba(255,255,255,0.3); }
+.sidebar .sidebar-group-btn {
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem !important;
+    transition: background 0.2s ease, transform 0.2s ease;
+    color: rgba(255,255,255,0.92) !important;
+}
+.sidebar .sidebar-group-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateX(3px);
+}
+.sidebar .collapse a {
+    border-radius: 6px;
+    margin-bottom: 0.1rem;
+    padding-left: 0.75rem !important;
+    font-size: 0.88rem;
+}
+
+.main-content { width: calc(100% - 300px); margin-left: 300px; padding: 40px; transition: all 0.3s ease; }
+.main-content.expanded { width: 100%; margin-left: 0; }
+
+.btn-hamburger { background: white; color: var(--eac-red); border: 2px solid var(--eac-border-gray); font-size: 20px; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; margin-right: 15px; box-shadow: var(--shadow-soft); }
+.btn-hamburger:hover { background: var(--eac-red); color: white; border-color: var(--eac-red); box-shadow: var(--shadow-hover); }
+
+/* Employee Navbar */
+.navbar-custom { background: linear-gradient(135deg, var(--eac-dark) 0%, var(--eac-red) 100%); padding: 15px 30px; }
+
+/* ------------------------------------------
+   3. CARDS, FORMS & TABLES
+   ------------------------------------------ */
+.card { border: none; border-radius: 12px; box-shadow: var(--shadow-soft); background-color: white; }
+.card h2 { color: var(--eac-dark); font-weight: 800; }
+.summary-card { border-radius: 12px; border-left: 5px solid; transition: transform 0.2s; }
+.summary-card:hover { transform: translateY(-3px); }
+
+.filter-bar { background: white; padding: 15px; border-radius: 10px; box-shadow: var(--shadow-soft); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.02); }
+.form-control, .form-select { border: 2px solid var(--eac-border-gray); border-radius: 8px; padding: 10px 15px; font-weight: 500; color: var(--eac-dark-gray); }
+.form-control:focus, .form-select:focus { border-color: var(--eac-red); box-shadow: 0 0 0 4px rgba(214, 0, 0, 0.05); outline: none; }
+.btn { border-radius: 8px; font-weight: 700; letter-spacing: 0.5px; transition: all 0.2s; text-transform: uppercase; font-size: 0.8rem; padding: 10px 20px; }
+
+.table { margin-bottom: 0; }
+.table-custom th, .table thead th { background-color: var(--eac-dark-gray) !important; color: white !important; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px; font-weight: 600; }
+.table tbody td { padding: 15px; vertical-align: middle; border-bottom: 1px solid var(--eac-light-gray); color: var(--eac-dark-gray); font-size: 0.95rem; }
+.table-hover tbody tr:hover { background-color: #fafafa; }
+.badge { font-size: 0.75em; padding: 6px 10px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+
+/* ------------------------------------------
+   4. PREMIUM LOGIN GATEWAYS (MODERN OVERHAUL)
+   ------------------------------------------ */
+.gateway-body { 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a subtle geometric background pattern to make it feel premium */
+.gateway-body::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(214,0,0,0.03) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(163,0,0,0.05) 0%, transparent 40%);
+    z-index: -1;
+    animation: rotateBg 60s linear infinite;
+}
+@keyframes rotateBg { 100% { transform: rotate(360deg); } }
+
+.gateway-admin { background-color: #fcfcfc; }
+.gateway-employee { background-color: #f8f9fa; }
+
+/* The Modern Centered Card */
+.gateway-card { 
+    border-radius: 24px; 
+    overflow: hidden; 
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02); 
+    width: 100%; 
+    max-width: 480px; /* Much more compact and focused! */
+    display: flex; 
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.98); 
+    backdrop-filter: blur(20px);
+    z-index: 10;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gateway-card:hover { transform: translateY(-5px); }
+
+/* The Top Branding Area */
+.gateway-header-admin { 
+    background: linear-gradient(135deg, var(--eac-red) 0%, var(--eac-dark) 100%); 
+    color: white; 
+    padding: 40px 40px 30px 40px; 
+    text-align: center;
+    position: relative;
+}
+.gateway-header-admin::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://www.transparenttextures.com/patterns/cubes.png') opacity(0.1); pointer-events: none;
+}
+
+.gateway-header-employee { 
+    background: white; 
+    padding: 40px 40px 20px 40px; 
+    text-align: center;
+    border-bottom: 2px solid var(--eac-bg-gray);
+}
+
+.gateway-form-area { padding: 40px; }
+
+/* Gateway Inputs */
+.gateway-form-area .form-control {
+    background-color: var(--eac-bg-gray);
+    border: 1px solid transparent;
+    padding: 15px 20px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+}
+.gateway-form-area .form-control:focus {
+    background-color: white;
+    border-color: var(--eac-red);
+    box-shadow: 0 0 0 4px rgba(214,0,0,0.08);
+}
+
+/* Gateway Buttons */
+.btn-gateway-admin { 
+    background: linear-gradient(135deg, var(--eac-red) 0%, var(--eac-dark) 100%);
+    border: none; 
+    border-radius: 12px; 
+    padding: 16px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    color: white;
+    box-shadow: 0 10px 20px rgba(163,0,0,0.2);
+    transition: all 0.3s;
+}
+.btn-gateway-admin:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 15px 25px rgba(163,0,0,0.3); 
+    color: white;
+}
+
+.btn-gateway-employee { 
+    color: var(--eac-red); 
+    border: 2px solid var(--eac-red); 
+    border-radius: 12px; 
+    padding: 15px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    transition: all 0.3s; 
+    background: transparent;
+}
+.btn-gateway-employee:hover { 
+    background-color: var(--eac-red); 
+    color: white; 
+    transform: translateY(-2px); 
+    box-shadow: 0 10px 20px rgba(214,0,0,0.15); 
+}
+
+/* ------------------------------------------
+   5. PUBLIC PAGES & STANDALONE UTILITIES
+   ------------------------------------------ */
+.standalone-body { margin: 0; }
+.bg-gradient-red { background: linear-gradient(135deg, var(--eac-dark) 0%, var(--eac-bg-gray) 100%); background-attachment: fixed; min-height: 100vh; }
+.bg-gradient-vertical { background: linear-gradient(180deg, var(--eac-red) 0%, var(--eac-bg-gray) 100%); background-attachment: fixed; min-height: 100vh; }
+.flex-center { display: flex; align-items: center; justify-content: center; min-height: 100vh; position: relative; }
+
+.top-banner { 
+    position: absolute; top: 0; left: 0; width: 100%; 
+    background: linear-gradient(135deg, var(--eac-dark) 0%, var(--eac-red) 100%); 
+    padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 1000; 
+    border-bottom: 3px solid #800000; 
+}
+.top-banner a { text-decoration: none; font-weight: 700; font-size: 0.85rem; transition: 0.3s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;}
+.link-eac { color: #ffffff; }
+.link-eac:hover { color: var(--eac-border-gray); }
+
+.hero-card { background: rgba(255, 255, 255, 0.99); padding: 60px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; max-width: 600px; margin-top: 60px; }
+.btn-eac { background: var(--eac-red); color: white; padding: 16px 45px; font-size: 1.1rem; border-radius: 50px; text-transform: uppercase; font-weight: 800; transition: all 0.3s; text-decoration: none; display: inline-block; margin-top: 25px; box-shadow: 0 10px 20px rgba(214,0,0,0.1); }
+.btn-eac:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(214,0,0,0.2); color: white; background-color: var(--eac-dark); }
+.logo-sm { display: block; margin: 0 auto 25px auto; max-width: 100px; }
+
+/* ------------------------------------------
+   6. KIOSK & FORMS
+   ------------------------------------------ */
+.kiosk-card { background: rgba(255, 255, 255, 0.99); padding: 50px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); width: 100%; max-width: 550px; text-align: center; border-top: 6px solid var(--eac-dark-gray); }
+.clock { font-size: 4.5rem; font-weight: 800; margin-bottom: 5px; color: var(--eac-dark-gray); letter-spacing: -3px; }
+.date-display { font-size: 1rem; color: var(--eac-red); margin-bottom: 35px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+.kiosk-input { text-align: center; font-size: 1.8rem; letter-spacing: 4px; border: 2px solid var(--eac-border-gray); border-radius: 10px; font-weight: 700; height: 60px; color: var(--eac-dark-gray); }
+
+.form-container { background: white; border-radius: 16px; box-shadow: var(--shadow-soft); padding: 50px; margin: 60px 0; border-top: 6px solid var(--eac-red); }
+.form-container h2 { color: var(--eac-dark-gray); font-weight: 800; border-bottom: 2px solid var(--eac-light-gray); padding-bottom: 20px; margin-bottom: 35px; }
+.form-label { font-weight: 600; color: var(--eac-dark-gray); font-size: 0.90rem; }
+.btn-submit { background: var(--eac-red); color: white; font-weight: 700; font-size: 1.1rem; padding: 15px; border-radius: 10px; margin-top: 20px; border: none;}
+.btn-submit:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); color: white; background: var(--eac-dark); }
+.section-header { background-color: var(--eac-bg-gray); padding: 12px 20px; border-left: 6px solid var(--eac-red); border-radius: 6px; margin: 35px 0 20px 0; font-weight: 700; color: var(--eac-dark-gray); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1.5px; }
+
+/* ------------------------------------------
+   7. MODALS, ALERTS & MESSAGES
+   ------------------------------------------ */
+.modal-content { border: none !important; border-radius: 12px; overflow: hidden; }
+.modal-header { border-bottom: none; }
+.modal-footer { border-top: 1px solid var(--eac-border-gray); background-color: var(--eac-bg-gray); }
+
+.alert-info { background-color: var(--eac-border-gray); color: var(--eac-dark-gray); border: none; border-left: 4px solid var(--eac-mid-gray); }
+.alert-danger { background-color: #fee2e2; color: var(--eac-dark); border: none; border-left: 4px solid var(--eac-red); }
+
+.msg-container { text-align: center; padding-top: 80px; background-color: var(--eac-bg-gray); min-height: 100vh; }
+.msg-card { background: white; max-width: 500px; margin: auto; padding: 50px; border-radius: 16px; box-shadow: var(--shadow-soft); text-align: center; border-top: 6px solid var(--eac-red); }
+.error-code { font-size: 100px; font-weight: 800; color: var(--eac-red); line-height: 1; margin-bottom: 10px; }
+
+/* ------------------------------------------
+   8. UNIFIED UI — APPLICANT / PUBLIC / LANDING
+   (shared with HR dashboard tokens: --eac-red, etc.)
+   ------------------------------------------ */
+.eac-surface { background-color: var(--eac-bg-gray) !important; }
+.eac-auth-shell { min-height: 100vh; }
+.eac-auth-shell--centered { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+/* Long public forms: avoid flex+vertical center on body — it can clip the bottom of the form in some viewports. */
+.eac-auth-shell--form-scroll {
+  min-height: 100vh;
+  display: block;
+  box-sizing: border-box;
+  padding-top: 1.25rem;
+  padding-bottom: 3rem;
+}
+
+/* Applicant register / login — interactive shell */
+.eac-portal-auth {
+    position: relative;
+    overflow-x: hidden;
+    padding: 1.5rem 0 2.5rem;
+}
+.eac-portal-auth__bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(160deg, #f5f7f6 0%, #e8f0ef 35%, #f0ebe9 70%, #faf8f7 100%);
+    background-size: 200% 200%;
+    animation: eacPortalAuthBg 18s ease-in-out infinite;
+    pointer-events: none;
+}
+.eac-portal-auth__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(139, 21, 56, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 85% 75%, rgba(26, 78, 74, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+@keyframes eacPortalAuthBg {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+.eac-portal-auth .container { position: relative; z-index: 1; }
+.eac-portal-auth__col { max-width: 440px; }
+.eac-portal-auth--register .eac-portal-auth__col { max-width: 520px; }
+.eac-portal-auth--login .eac-portal-auth__col { max-width: 460px; }
+.eac-portal-auth__brand { animation: eacIndexFadeUp 0.6s ease-out both; }
+.eac-portal-auth__card-wrap {
+    opacity: 0;
+    transform: translateY(18px) scale(0.99);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.eac-portal-auth.eac-portal-auth--ready .eac-portal-auth__card-wrap {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.eac-portal-auth__card {
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 1.1rem;
+    overflow: hidden;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.8) inset;
+}
+.eac-portal-auth__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--eac-red);
+    margin-bottom: 0.35rem;
+}
+.eac-portal-auth__input-wrap { position: relative; }
+.eac-portal-auth__input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.1rem;
+    height: 1.1rem;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 2;
+}
+.eac-portal-auth__input-wrap .form-control {
+    padding-left: 2.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--eac-border-gray);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.eac-portal-auth__input-wrap .form-control:focus {
+    border-color: var(--eac-red);
+    box-shadow: 0 0 0 0.2rem rgba(139, 21, 56, 0.12);
+    background: #fff;
+}
+.eac-portal-auth__pw-toggle {
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    border: none;
+    background: transparent;
+    color: var(--eac-dark-gray);
+    opacity: 0.6;
+    padding: 0.4rem 0.6rem;
+    line-height: 1;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: opacity 0.2s, background 0.2s, color 0.2s;
+}
+.eac-portal-auth__pw-toggle:hover { opacity: 1; background: rgba(0,0,0,0.05); }
+.eac-portal-auth__pw-toggle:focus-visible { outline: 2px solid var(--eac-red); outline-offset: 2px; }
+.eac-portal-auth__input-wrap--pw .form-control { padding-right: 3.25rem; }
+.eac-portal-auth .alert { border-radius: 0.75rem; border: none; animation: eacIndexFadeUp 0.4s ease-out both; }
+.eac-portal-auth .btn-danger.rounded-pill { transition: transform 0.2s, box-shadow 0.2s; }
+.eac-portal-auth .btn-danger.rounded-pill:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(139, 21, 56, 0.35); }
+.eac-portal-auth .btn-danger.rounded-pill:active { transform: translateY(0); }
+.eac-portal-auth__footer-link a {
+    transition: color 0.2s, text-decoration-color 0.2s;
+}
+.eac-portal-auth__footer-link a:hover { color: var(--eac-red) !important; }
+.eac-portal-auth__quick a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--eac-red);
+    border: 1px solid rgba(139, 21, 56, 0.35);
+    background: rgba(255,255,255,0.6);
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.eac-portal-auth__quick a:hover { background: #fff; border-color: var(--eac-red); transform: translateY(-2px); }
+.eac-portal-auth__logo {
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+}
+.eac-portal-auth__form .form-control.form-control-lg {
+    border-radius: 0.8rem;
+    min-height: 3rem;
+}
+.eac-portal-auth__card .card-body {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,249,0.98) 100%);
+}
+.eac-portal-auth__footer-link a {
+    text-underline-offset: 3px;
+}
+
+/* Applicant + register login card (replaces per-page <style> duplicates) */
+.eac-card-auth {
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+.eac-card-auth .eac-card-auth-header,
+.eac-card-auth-header {
+    background: linear-gradient(180deg, var(--eac-red) 0%, var(--eac-dark) 100%);
+    color: #fff;
+    text-align: center;
+    border: none;
+    border-radius: 0;
+    padding: 1rem 1.25rem;
+}
+.eac-card-auth .eac-card-auth-header h5,
+.eac-card-auth-header h5 { font-weight: 800; margin: 0; letter-spacing: 0.02em; }
+
+/* Landing / careers index (alias legacy .hero-section / .portal-card) */
+/* Public landing: interactive index */
+.eac-index-page { overflow-x: hidden; }
+.eac-index-hero { position: relative; overflow: hidden; }
+.eac-index-hero::before {
+    content: ""; position: absolute; inset: 0; background: linear-gradient(125deg, rgba(139,21,56,0.04) 0%, rgba(26,78,74,0.06) 50%, rgba(139,21,56,0.03) 100%);
+    background-size: 200% 200%;
+    animation: eacIndexHeroShimmer 12s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 20px;
+}
+@keyframes eacIndexHeroShimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.eac-index-hero .eac-index-hero-inner { position: relative; z-index: 1; }
+.eac-index-hero h1, .eac-index-hero p { animation: eacIndexFadeUp 0.7s ease-out both; }
+.eac-index-hero p { animation-delay: 0.12s; }
+.eac-index-cta { animation: eacIndexFadeUp 0.7s 0.22s ease-out both; }
+.eac-index-card-wrap {
+    opacity: 0.98;
+    transform: translateY(12px);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.eac-index-page.eac-index--ready .eac-index-card-wrap {
+    opacity: 1;
+    transform: translateY(0);
+}
+.eac-index-page.eac-index--ready .eac-index-card-wrap:nth-child(1) { transition-delay: 0.1s; }
+.eac-index-page.eac-index--ready .eac-index-card-wrap:nth-child(2) { transition-delay: 0.22s; }
+@keyframes eacIndexFadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.eac-index-card-wrap a:focus-visible .portal-card { outline: 3px solid var(--eac-red); outline-offset: 3px; }
+.eac-index-card-wrap .portal-card { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s, border-color 0.3s; will-change: transform; }
+.eac-index-card-wrap a:hover .portal-card { transform: translateY(-8px) scale(1.02); }
+.eac-index-stat { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--eac-red); margin-top: 0.5rem; }
+
+.eac-hero, .hero-section {
+    background: #fff;
+    border-top: 6px solid var(--eac-red);
+    padding: 4rem 1.5rem;
+    text-align: center;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    margin-top: 1.25rem;
+}
+.eac-portal-card, .portal-card {
+    background: #fff; border-radius: 20px; padding: 2.5rem; text-align: center;
+    transition: all 0.3s ease; border: 1px solid var(--eac-border-gray);
+    height: 100%; display: flex; flex-direction: column; justify-content: center;
+}
+.eac-portal-card:hover, .portal-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); border-color: var(--eac-red); }
+.portal-icon { font-size: 3.5rem; margin-bottom: 1.25rem; }
+.eac-nav-link-landing { transition: opacity 0.3s; text-decoration: none; }
+.eac-nav-link-landing:hover { opacity: 0.85; }
+
+/* Applicant / public top nav (align with landing) */
+.eac-nav-portal {
+    background: #fff !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border-bottom: 1px solid var(--eac-border-gray);
+    padding: 0.75rem 1.25rem;
+}
+.eac-nav-portal .navbar-brand { letter-spacing: 0.5px; }
+.eac-nav-portal .eac-eyebrow { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--eac-red); }
+
+/* Section titles: match HR h2 (text-danger + bottom border) */
+.eac-page-section-title {
+    font-weight: 800;
+    color: var(--eac-dark-gray);
+    border-bottom: 2px solid var(--eac-red);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+    letter-spacing: -0.5px;
+}
+
+/* Job cards (applicant dashboard) */
+.eac-job-card {
+    transition: transform 0.2s, box-shadow 0.2s; border-radius: 12px;
+    border: 1px solid var(--eac-border-gray) !important;
+    box-shadow: var(--shadow-soft) !important;
+}
+.eac-job-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.08) !important; border-color: var(--eac-red) !important; }
+.eac-appdash-shell .eac-appdash-hero {
+    border: 1px solid var(--eac-border-gray);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbfa 100%);
+    box-shadow: var(--shadow-soft);
+}
+.eac-appdash-shell .eac-appdash-title {
+    letter-spacing: -0.02em;
+    color: #1a2e2c;
+}
+.eac-appdash-shell .eac-appdash-search .form-control {
+    border-radius: 999px;
+    padding-left: 1rem;
+    min-height: 2.4rem;
+}
+.eac-appdash-shell .eac-appdash-search .btn {
+    border-radius: 999px;
+    min-width: 6rem;
+}
+
+/* Applicant my-applications table header → HR-style dark header */
+.eac-table-apply thead th {
+    background-color: var(--eac-dark-gray) !important;
+    color: #fff !important;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    border: none;
+    padding: 0.9rem 1rem;
+}
+
+/* Shared animated gateway background (employee + admin login) */
+@keyframes eacGradientBGLight {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.eac-gateway-animated {
+    background: linear-gradient(-45deg, #ffffff, #f0f4f8, #fde8e8, #f4f7f6);
+    background-size: 400% 400%;
+    animation: eacGradientBGLight 15s ease infinite;
+}
+.eac-link-brand { transition: transform 0.2s; text-decoration: none; display: inline-block; }
+.eac-link-brand:hover { transform: scale(1.02); }
+
+/* HR Job Postings: full main column, table card stretches with viewport */
+.eac-hr-jobs-content {
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+.eac-hr-jobs-table-card {
+    min-height: 0;
+}
+.eac-hr-jobs-table-card .table-responsive {
+    min-height: min(50vh, 400px);
+}
+.eac-hr-jobs-table-card .eac-hr-jobs-empty {
+    vertical-align: middle;
+}
+
+/* ---- HR Employee list (teal / dashboard style) ---- */
+.eac-empl-page {
+    --eac-empl-teal: #1a4d4a;
+    --eac-empl-teal-bright: #0d6e6a;
+    --eac-empl-mint: #5cb85c;
+    --eac-empl-ruby: #8b2942;
+    --eac-empl-amber: #e8a23c;
+    --eac-empl-surface: #f5f7f7;
+    background: var(--eac-empl-surface);
+    min-width: 0;
+}
+.eac-empl-breadcrumb a {
+    color: var(--eac-mid-gray);
+    text-decoration: none;
+}
+.eac-empl-breadcrumb a:hover { color: var(--eac-empl-teal-bright); }
+.eac-empl-breadcrumb { font-size: 0.8rem; }
+.eac-empl-breadcrumb .sep { color: #bbb; margin: 0 0.25rem; }
+
+.eac-empl-stat {
+    border-radius: 12px;
+    border: none;
+    padding: 1.1rem 1.25rem;
+    color: #fff;
+    min-height: 100px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+.eac-empl-stat h3 { font-size: 1.75rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+.eac-empl-stat .sub { font-size: 0.7rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+.eac-empl-stat .ico {
+    position: absolute;
+    right: 0.5rem; bottom: 0.1rem; font-size: 3.5rem; opacity: 0.12; line-height: 1; pointer-events: none;
+}
+.eac-empl-stat--total   { background: linear-gradient(135deg, var(--eac-empl-teal) 0%, #163330 100%); }
+.eac-empl-stat--active  { background: linear-gradient(135deg, #2a7a4a 0%, #1c5433 100%); }
+.eac-empl-stat--inactive { background: linear-gradient(135deg, #a13d4f 0%, var(--eac-empl-ruby) 100%); }
+.eac-empl-stat--new     { background: linear-gradient(135deg, #e4a23b 0%, #c87a1c 100%); }
+
+.eac-empl-nav-pill {
+    display: inline-block;
+    padding: 0.45rem 1.1rem;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    margin-right: 0.2rem;
+    background: #fff;
+    color: var(--eac-mid-gray);
+    transition: background 0.2s, color 0.2s;
+}
+.eac-empl-nav-pill:hover { color: var(--eac-empl-teal-bright); }
+.eac-empl-nav-pill--active {
+    background: var(--eac-empl-teal);
+    color: #fff;
+    border-color: var(--eac-empl-teal);
+}
+
+.eac-empl-filters { background: #fff; border-radius: 0 8px 8px 8px; border: 1px solid #e8ecec; border-top: none; }
+.eac-empl-filters .form-control,
+.eac-empl-filters .form-select { font-size: 0.8rem; }
+.eac-empl-filters h6 { font-size: 0.85rem; }
+
+.eac-empl-data-card { border: 1px solid #e8ecec; border-radius: 10px; background: #fff; }
+
+.eac-empl-page--grid .eac-empl-table-wrap thead { display: none; }
+.eac-empl-page--grid .eac-empl-table-wrap tbody { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.eac-empl-page--grid .eac-empl-table-wrap tbody tr {
+    display: block;
+    width: calc(33.333% - 0.5rem);
+    min-width: 220px;
+    border: 1px solid #e8ecec !important;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+.eac-empl-page--grid .eac-empl-table-wrap tbody tr td {
+    display: block;
+    width: 100% !important;
+    text-align: left !important;
+    border: none !important;
+    padding: 0.4rem 0.75rem !important;
+}
+.eac-empl-page--grid .eac-empl-table-wrap tbody tr td:before {
+    content: attr(data-eac-empl-label);
+    display: block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: #888;
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+}
+.eac-empl-page--grid .eac-empl-table-wrap tbody tr td:last-child { padding-bottom: 0.8rem !important; }
+
+@media (max-width: 992px) {
+    .eac-empl-page--grid .eac-empl-table-wrap tbody tr { width: calc(50% - 0.4rem); }
+}
+@media (max-width: 576px) {
+    .eac-empl-page--grid .eac-empl-table-wrap tbody tr { width: 100%; }
+}
+
+/* ---- HR Department list (EAC) ---- */
+.eac-dept-page { min-width: 0; }
+.eac-dept-data-card {
+    border: 1px solid #e8ecec;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+.eac-dept-list-head {
+    background: linear-gradient(90deg, #1a4d4a 0%, #0d6e6a 100%);
+    border-bottom: 1px solid #134040;
+}
+.eac-dept-filters .eac-dept-sel { min-width: 8.5rem; max-width: 12rem; font-size: 0.8rem; }
+.eac-dept-pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+}
+.eac-dept-pill--active {
+    background: rgba(40, 167, 69, 0.15);
+    color: #1e5f2b;
+    border: 1px solid rgba(40, 167, 69, 0.35);
+}
+.eac-dept-pill--off {
+    background: #e9ecef;
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+.eac-dept-pill .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #28a745;
+    vertical-align: middle;
+}
+.eac-dept-pill--off .dot { background: #6c757d; }
+
+/* ---- Attendance admin / employee dashboards ---- */
+.eac-att-stat { border-radius: 12px; border: none; padding: 1rem 1.1rem; color: #fff; min-height: 88px; position: relative; box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.eac-att-stat h3 { font-size: 1.6rem; font-weight: 800; margin: 0; }
+.eac-att-stat .sub { font-size: 0.7rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+.eac-att-stat--ok    { background: linear-gradient(135deg, #2a8a4e 0%, #1c5c34 100%); }
+.eac-att-stat--late  { background: linear-gradient(135deg, #e4a23b 0%, #c87a1c 100%); }
+.eac-att-stat--abs   { background: linear-gradient(135deg, #c13d3d 0%, #8b2323 100%); }
+.eac-emp-att-clock { border-radius: 14px; border: 1px solid #e8ecec; }
+
+/* ---- Employee portal sidebar + DTR / payslip (neutral) ---- */
+.eac-emp-layout { min-height: 100vh; background: #eef1f0; }
+.eac-emp-sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: linear-gradient(180deg, #0f3d3a 0%, #0a2c2a 100%);
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    z-index: 100;
+    box-shadow: 4px 0 18px rgba(0,0,0,0.08);
+}
+.eac-emp-side-link {
+    display: flex;
+    align-items: center;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    padding: 0.55rem 0.9rem;
+    border-radius: 6px;
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+}
+.eac-emp-side-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.eac-emp-side-link--active {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-weight: 700;
+}
+.eac-emp-content { min-width: 0; }
+@media (max-width: 991px) {
+    .eac-emp-layout { flex-direction: column; }
+    .eac-emp-sidebar { width: 100%; min-width: 100%; height: auto; min-height: auto; position: relative; }
+}
+
+.eac-dtr-card {
+    background: #fff;
+    border: 1px solid #dde2e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.eac-dtr-meta {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0.35rem 1rem;
+    font-size: 0.8rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid #dde2e0;
+    background: #fafbfa;
+}
+.eac-dtr-meta .lbl { text-transform: uppercase; color: #7a8583; font-weight: 600; letter-spacing: 0.04em; font-size: 0.68rem; }
+.eac-dtr-meta .val { font-weight: 600; color: #1a1f1e; }
+.eac-dtr-thead th {
+    background: #e8ebea !important;
+    color: #3d4544 !important;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    border-color: #dde2e0 !important;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.eac-dtr-table td { border-color: #e8ebea !important; font-size: 0.8rem; vertical-align: middle; }
+.eac-dtr-badge--penalty { background: #f4a84a; color: #3b2a10; font-size: 0.65rem; font-weight: 700; }
+.eac-dtr-badge--rest { background: #c5cbc9; color: #2a302f; font-size: 0.65rem; font-weight: 700; }
+.eac-dtr-badge--ok { background: #d5e8dd; color: #1d4a2e; font-size: 0.65rem; font-weight: 700; }
+.eac-dtr-badge--day { background: #d9ecf7; color: #1a3a4a; font-size: 0.65rem; font-weight: 700; }
+.eac-dtr-nolog { color: #9aa6a3; text-align: center; font-size: 0.85rem; }
+
+.eac-payroll-shell {
+    background: #f4f6f5;
+    border: 1px solid #d5dbd8;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.eac-payroll-shell .eac-py-head {
+    background: #fff;
+    border-bottom: 1px solid #d5dbd8;
+    padding: 1.25rem 1.5rem;
+}
+.eac-payroll-shell .table thead th {
+    background: #e8ebea;
+    color: #3d4544;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-color: #dde2e0;
+    font-weight: 700;
+}
+.eac-payroll-shell .table td { border-color: #e8ebea; vertical-align: middle; }

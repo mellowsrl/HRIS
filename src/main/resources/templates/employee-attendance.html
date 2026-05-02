@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('My attendance — EAC')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100 p-0">
+
+<div class="eac-emp-layout d-flex" th:if="${employee != null}">
+    <div th:replace="~{fragments/employee-sidebar :: sidebar(activePage='attendance')}"></div>
+    <div class="eac-emp-content flex-grow-1 p-3 p-md-4" style="max-height:100vh;overflow-y:auto;">
+<div class="container pb-5">
+    <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold" style="color:#1a2e2c;">Employee attendance</h1>
+            <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb" style="font-size:0.85rem;">
+                <a th:href="@{/}">Home</a><span class="sep">/</span>
+                <span>Attendance</span><span class="sep">/</span>
+                <span>Employee attendance</span>
+            </nav>
+        </div>
+        <a th:href="@{/employee/dashboard}" class="btn btn-sm text-white border-0 fw-bold px-3" style="background: linear-gradient(135deg, #1a4d4a, #0d6e6a);">+ Back to dashboard</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-4">
+            <div class="eac-emp-att-clock p-4 h-100 bg-white shadow-sm">
+                <p class="text-muted small mb-1" th:text="'Hello, ' + ${employee.firstName}">—</p>
+                <p class="fw-bold text-dark" id="eacNowClock">—</p>
+                <div class="rounded-circle bg-light mx-auto my-3 d-flex align-items-center justify-content-center border" style="width:120px;height:120px;overflow:hidden;">
+                    <img th:if="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}"
+                         th:src="${employee.profilePhotoPath}" alt="Profile" class="w-100 h-100" style="object-fit:cover;">
+                    <i th:unless="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}"
+                       class="fas fa-user text-secondary fa-3x" aria-hidden="true"></i>
+                </div>
+                <p class="text-center small mb-2" th:unless="${isClockedIn}">
+                    <i class="fas fa-ban text-warning"></i> Not clocked in <span th:if="${todayLog != null and todayLog.timeIn != null}">(day closed)</span>
+                </p>
+                <p class="text-center small mb-2 text-success fw-bold" th:if="${isClockedIn}">CLOCKED IN — clock out when done</p>
+                <div class="text-center mb-3">
+                    <span class="badge text-white px-3 py-2" style="background:#1a4d4a;">Production: <span th:text="${todayLog != null and todayLog.totalHours != null ? todayLog.totalHours : 0}">0</span> h</span>
+                </div>
+                <form th:action="@{/employee/attendance/tap}" method="post" class="d-flex flex-column gap-2" th:if="${isClockedIn == false}">
+                    <input type="hidden" name="action" value="TIME_IN"/>
+                    <button type="submit" class="btn w-100 text-white fw-bold border-0" style="background:#1a4d4a;">Clock in</button>
+                </form>
+                <form th:action="@{/employee/attendance/tap}" method="post" class="d-flex flex-column gap-2" th:if="${isClockedIn}">
+                    <input type="hidden" name="action" value="TIME_OUT"/>
+                    <button type="submit" class="btn w-100 fw-bold" style="border:2px solid #1a4d4a;color:#1a4d4a;background:#fff;">Clock out</button>
+                </form>
+                <p class="small text-muted mt-3 mb-0">Kiosk and TCMS data also appear in this list after import.</p>
+            </div>
+        </div>
+        <div class="col-12 col-lg-8" th:if="${statSummary != null}">
+            <div class="row g-2">
+                <div class="col-6 col-md-4">
+                    <div class="eac-empl-stat eac-empl-stat--total h-100" style="min-height:5rem;padding:.85rem 1rem;">
+                        <h3 th:text="${statSummary.totalHoursToday}">0 h</h3>
+                        <div class="sub">Total hours today</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="eac-empl-stat eac-empl-stat--inactive h-100" style="min-height:5rem;padding:.85rem 1rem;">
+                        <h3 th:text="${statSummary.totalHoursWeek}">0 h</h3>
+                        <div class="sub">This week (7d)</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="eac-empl-stat eac-empl-stat--new h-100" style="min-height:5rem;padding:.85rem 1rem;">
+                        <h3 th:text="${statSummary.totalHoursMonth}">0 h</h3>
+                        <div class="sub">This month</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="eac-empl-stat h-100" style="min-height:5rem;padding:.85rem 1rem;background:linear-gradient(135deg,#d4a017,#a67c00);">
+                        <h3 th:text="${statSummary.nightDiffMonth}">0</h3>
+                        <div class="sub">Night diff (m)</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="eac-empl-stat h-100" style="min-height:5rem;padding:.85rem 1rem;background:linear-gradient(135deg,#1a3a5c,#0d2137);">
+                        <h3 th:text="${statSummary.lateThisMonth}">0</h3>
+                        <div class="sub">Late this month</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="eac-empl-stat h-100" style="min-height:5rem;padding:.85rem 1rem;background:linear-gradient(135deg,#c24b7a,#8b2d4f);">
+                        <h3 th:text="${statSummary.undertimeThisMonth}">0</h3>
+                        <div class="sub">Undertime (month)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav border-0 mb-0" role="tablist">
+        <li class="nav-item"><span class="eac-empl-nav-pill eac-empl-nav-pill--active" style="cursor:default">Attendance</span></li>
+        <li class="nav-item"><a th:href="@{/employee/overtime}" class="eac-empl-nav-pill">Employee overtime</a></li>
+    </ul>
+
+    <div class="eac-empl-filters p-3 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2">
+            <h6 class="m-0 fw-bold" style="color:#1a2e2c;">My attendance</h6>
+        </div>
+        <div class="row g-2 mt-1">
+            <div class="col-6 col-md-3">
+                <label class="form-label text-muted small mb-0" for="eacEmpSize">Row per page</label>
+                <select class="form-select form-select-sm" id="eacEmpSize"><option>10</option><option>25</option></select>
+            </div>
+            <div class="col-12 col-md-5 ms-md-auto">
+                <label class="form-label text-muted small mb-0" for="eacEmpSearch">Search</label>
+                <input type="search" class="form-control form-control-sm" id="eacEmpSearch" placeholder="Date or status" autocomplete="off">
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive eac-empl-data-card border">
+        <table class="table table-sm table-hover mb-0" id="eacEmpAttTable">
+            <thead class="table-light small text-uppercase text-muted" style="font-size:0.7rem;">
+            <tr>
+                <th>Date</th>
+                <th>Shift</th>
+                <th>Clock in</th>
+                <th>Status</th>
+                <th>Break</th>
+                <th>Clock out</th>
+                <th>Photo</th>
+                <th>Location</th>
+                <th>Device</th>
+                <th>Late</th>
+                <th>Hours</th>
+            </tr>
+            </thead>
+            <tbody id="eacEmpAttBody">
+            <tr th:each="log : ${logs}" class="eac-emp-row d-none" th:attr="data-srch=${#strings.toLowerCase(#strings.toString(log.date) + (log.minutesLate != null && log.minutesLate > 0 ? ' late' : ' present'))}">
+                <td th:text="${log.date}">—</td>
+                <td th:text="${employee.expectedShift != null ? employee.expectedShift : '—'}">—</td>
+                <td th:text="${log.timeIn != null ? log.timeIn : '—'}">—</td>
+                <td>
+                    <span th:if="${log.timeIn == null}">—</span>
+                    <span th:if="${log.timeIn != null and (log.minutesLate == null or log.minutesLate == 0)}" class="text-success">Present</span>
+                    <span th:if="${log.minutesLate != null and log.minutesLate > 0}" class="text-warning">Late</span>
+                </td>
+                <td>—</td>
+                <td th:text="${log.timeOut != null ? log.timeOut : (log.timeIn != null ? '—' : '—')}">—</td>
+                <td class="small text-muted">—</td>
+                <td>EAC</td>
+                <td>TCMS</td>
+                <td th:text="${log.minutesLate != null and log.minutesLate > 0 ? (log.minutesLate + ' m') : '—'}">—</td>
+                <td th:text="${log.totalHours != null ? (log.totalHours + ' h') : '—'}">—</td>
+            </tr>
+            <tr th:if="${logs == null or #lists.isEmpty(logs)}">
+                <td colspan="11" class="text-center text-muted p-4">No data in table</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between small text-muted border py-2 px-2 bg-light">
+        <span id="eacEmpInfo">—</span>
+    </div>
+</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:if="${employee != null}">
+    (function() {
+        var el = document.getElementById('eacNowClock');
+        if (el) el.textContent = new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    })();
+</script>
+<script th:inline="javascript" th:if="${employee != null}">
+    /*<![CDATA[*/
+    (function() {
+        const body = document.getElementById('eacEmpAttBody');
+        if (!body) return;
+        const size = document.getElementById('eacEmpSize');
+        const q = document.getElementById('eacEmpSearch');
+        const info = document.getElementById('eacEmpInfo');
+        function rows() { return Array.prototype.slice.call(body.querySelectorAll('tr.eac-emp-row')); }
+        function run() {
+            const term = (q && q.value) ? q.value.trim().toLowerCase() : '';
+            const vis = rows().filter(function(r) {
+                if (!term) return true;
+                return (r.getAttribute('data-srch') || '').indexOf(term) >= 0;
+            });
+            const ps = size ? (parseInt(size.value, 10) || 10) : 10;
+            rows().forEach(function(r) { r.classList.add('d-none'); });
+            vis.forEach(function(r) { r.classList.remove('d-none'); });
+            if (info) {
+                if (vis.length === 0) info.textContent = 'Showing 0 to 0 of 0 entries';
+                else {
+                    const n = Math.min(ps, vis.length);
+                    info.textContent = 'Showing 1 to ' + n + ' of ' + vis.length + ' entries';
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (q) q.addEventListener('input', run);
+            if (size) size.addEventListener('change', run);
+            run();
+        });
+    })();
+    /*]]>*/
+</script>
+</body>
+</html>

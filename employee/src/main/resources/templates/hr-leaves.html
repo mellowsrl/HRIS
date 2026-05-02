@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>HR Leave Approvals</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+	<nav id="sidebar" class="sidebar">
+	        <h3 class="text-center">EAC System</h3>
+	        <ul class="nav flex-column mt-4">
+	            <li class="sidebar-heading">HR Module</li>
+	            <li class="nav-item mb-2"><a href="/hr/dashboard" class="text-white text-decoration-none opacity-75">Applicants</a></li>
+	            <li class="nav-item mb-2"><a href="/hr/employees" class="text-white text-decoration-none opacity-75">Employees</a></li>
+				<li class="nav-item mb-2"><a href="/hr/biometrics" class="text-white text-decoration-none opacity-75">Biometrics Data</a></li>
+	            <li class="nav-item mb-2"><a href="/hr/records" class="text-white text-decoration-none opacity-75">Government & Emergency</a></li>
+	            <li class="nav-item mb-2"><a href="/hr/leaves" class="text-white text-decoration-none fw-bold">Leave Approvals</a></li>
+
+	            <li class="sidebar-heading border-top pt-3 mt-3">Finance Module</li>
+	            <li class="nav-item mb-2"><a href="/hr/payroll" class="text-white text-decoration-none opacity-75">Payroll (Salary)</a></li>
+
+	            <li class="nav-item mb-2 mt-5 pt-5"><a th:href="@{/logout}" class="text-white text-decoration-none opacity-75 border-top pt-3 d-block text-uppercase small fw-bold">Logout</a></li>
+	        </ul>
+	    </nav>
+
+
+    <div id="content" class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn-hamburger">☰</button>
+                <h2 class="text-danger fw-bold m-0">Pending Leave Requests</h2>
+            </div>
+        </div>
+        
+        <div class="card p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Employee ID</th>
+                            <th>Leave Type</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${pendingLeaves}">
+                            <td class="fw-bold text-muted" th:text="'REQ-' + ${#numbers.formatInteger(req.id, 4)}"></td>
+                            <td class="fw-bold" th:text="${'EAC-' + #numbers.formatInteger(req.employeeId, 5)}"></td>
+                            <td>
+                                <span class="badge bg-info text-dark" th:text="${req.leaveType}"></span>
+                            </td>
+                            <td class="fw-bold text-secondary" th:text="${req.startDate}"></td>
+                            <td class="fw-bold text-secondary" th:text="${req.endDate}"></td>
+                            <td>
+                                <span class="badge bg-warning text-dark">Pending Review</span>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <form th:action="@{/hr/leaves/approve}" method="post">
+                                        <input type="hidden" name="id" th:value="${req.id}">
+                                        <button type="submit" class="btn btn-sm btn-success fw-bold" onclick="return confirm('Approve this leave and deduct the balance?');">Approve</button>
+                                    </form>
+                                    <form th:action="@{/hr/leaves/reject}" method="post">
+                                        <input type="hidden" name="id" th:value="${req.id}">
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold" onclick="return confirm('Reject this leave request?');">Reject</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${pendingLeaves.empty}">
+                            <td colspan="7" class="text-center text-muted p-4">No pending leave requests at this time. All caught up!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('Application submitted')}"></th:block>
+</head>
+<body class="standalone-body msg-container eac-surface">
+    <div class="msg-card mt-5">
+        <h2 class="text-danger fw-bold">Submission received</h2>
+        <p class="mt-3">Your admission documents have been logged into our system.</p>
+        <p>A confirmation email has been sent to your provided address.</p>
+        <br>
+        <a href="/" class="btn btn-outline-danger fw-bold rounded-pill px-4">Return to Home</a>
+    </div>
+</body>
+</html>

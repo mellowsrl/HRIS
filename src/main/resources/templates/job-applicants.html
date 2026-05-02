@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Job applicants')}"></th:block>
+</head>
+<body class="eac-surface min-vh-100 py-4">
+
+<div class="container mt-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a th:href="@{/hr/jobs}" class="btn btn-outline-secondary btn-sm mb-2">&larr; Back to Job Board</a>
+            <h2>Applicants: <span class="text-primary" th:text="${job.title}"></span></h2>
+            <p class="text-muted mb-0">
+                Department: <strong th:text="${job.department}"></strong> | 
+                Posted: <strong th:text="${job.datePosted}"></strong> | 
+                Status: <span class="badge" th:classappend="${job.status == 'OPEN'} ? 'bg-success' : 'bg-danger'" th:text="${job.status}"></span>
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Candidate Pipeline (<span th:text="${#lists.size(applicants)}"></span>)</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                        <th>Resume</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="applicant : ${applicants}">
+                        <td th:text="${applicant.id}"></td>
+                        <td class="fw-bold" th:text="${applicant.firstName + ' ' + applicant.lastName}"></td>
+                        <td>
+                            <div th:text="${applicant.email}"></div>
+                            <small class="text-muted" th:text="${applicant.phone}"></small>
+                        </td>
+                        <td>
+                            <span th:if="${applicant.experienceText != null and !#strings.isEmpty(applicant.experienceText)}" th:text="${applicant.experienceText}">—</span>
+                            <span th:if="${applicant.experienceText == null or #strings.isEmpty(applicant.experienceText)}" th:text="${applicant.yearsExperience} + ' yr(s)'">0</span>
+                        </td>
+                        
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${applicant.status == 'PENDING'} ? 'bg-warning text-dark' : 
+                                                 (${applicant.status == 'HIRED'} ? 'bg-success' : 'bg-info')" 
+                                  th:text="${applicant.status}"></span>
+                        </td>
+                        
+                        <td>
+                            <a th:if="${applicant.resumeLink != null and !#strings.isEmpty(applicant.resumeLink)}"
+                               th:href="${applicant.resumeLink}" target="_blank" rel="noopener"
+                               class="btn btn-sm btn-outline-primary">Open PDF</a>
+                            <span th:unless="${applicant.resumeLink != null and !#strings.isEmpty(applicant.resumeLink)}" class="text-muted small">—</span>
+                        </td>
+                        
+                        <td>
+                            <button class="btn btn-sm btn-secondary" disabled>Update Status</button>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(applicants)}">
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <h4>No applicants yet.</h4>
+                            <p>Once candidates apply for this role, their profiles will appear here.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

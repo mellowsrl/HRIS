@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('EAC — Saved pay periods')}"></th:block>
+</head>
+<body class="eac-surface min-vh-100">
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='payrollPeriods')}"></div>
+    <div id="content" class="main-content p-3 p-md-4" style="max-width: 960px;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <button type="button" id="sidebarToggle" class="btn-hamburger">☰</button>
+            <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;">Saved pay periods</h1>
+        </div>
+        <p class="text-muted small">Named shortcuts for the same date keys used in payroll, biometrics, and salary audit. Shown as <strong>Saved: …</strong> in period dropdowns.</p>
+
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h6 class="text-uppercase text-muted small fw-bold mb-3">Add saved period</h6>
+            <form th:action="@{/hr/payroll-periods/add}" method="post" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small">Name</label>
+                    <input type="text" name="name" class="form-control form-control-sm" required placeholder="e.g. March catch-up 2025">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">From</label>
+                    <input type="date" name="rangeFrom" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">To</label>
+                    <input type="date" name="rangeTo" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-sm btn-dark w-100">Save</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive card border-0 shadow-sm">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                <tr>
+                    <th>Name</th>
+                    <th>Cutoff key</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${presets}">
+                    <td class="fw-bold" th:text="${p.name}">—</td>
+                    <td><code class="small" th:text="${p.cutoffKey}">—</code></td>
+                    <td class="text-end">
+                        <form th:action="@{/hr/payroll-periods/delete}" method="post" class="d-inline" onsubmit="return confirm('Remove this saved period?');">
+                            <input type="hidden" name="id" th:value="${p.id}"/>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${presets == null or presets.isEmpty()}">
+                    <td colspan="3" class="text-center text-muted p-4">No saved periods yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    document.getElementById('sidebarToggle')?.addEventListener('click', function () {
+        document.getElementById('sidebar')?.classList.toggle('hidden');
+        document.getElementById('content')?.classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>
