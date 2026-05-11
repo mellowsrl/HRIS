@@ -10,7 +10,8 @@ import com.example.employee.model.LeaveRequest;
 import com.example.employee.model.LeaveRequestDisplayRow;
 import com.example.employee.model.AppUser;
 import com.example.employee.model.OvertimeApprovalListItem;
-import com.example.employee.model.AttendanceViewModels;
+import com.example.employee.model.ShiftAssignment;
+import com.example.employee.model.ShiftSchedule;
 import com.example.employee.model.AttendanceViewModels.AdminAttendanceLogRow;
 import com.example.employee.model.AttendanceViewModels.AttendanceDayStats;
 import com.example.employee.model.AttendanceViewModels.EmployeeStatSummary;
@@ -27,6 +28,7 @@ import com.example.employee.repository.PayrollPeriodPresetRepository;
 import com.example.employee.repository.AttendanceRepository;
 import com.example.employee.repository.LeaveRequestRepository;
 import com.example.employee.repository.AppUserRepository;
+import com.example.employee.repository.ShiftAssignmentRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +63,6 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -133,6 +134,9 @@ public class AdmissionService {
 
     @Autowired
     private PayrollPeriodPresetRepository payrollPeriodPresetRepository;
+
+    @Autowired
+    private ShiftAssignmentRepository shiftAssignmentRepository;
 
     @Value("${app.upload.resume-dir:uploads/applicant-resume}")
     private String resumeUploadDir;
@@ -709,6 +713,14 @@ public class AdmissionService {
         }
     }
 
+    private static String blankToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
     public EmployeeListStats getEmployeeListStats() {
         List<OfficialEmployee> all = new java.util.ArrayList<>();
         officialEmployeeRepository.findAll().forEach(all::add);
@@ -841,7 +853,10 @@ public class AdmissionService {
             int incentiveLeaveBalance, int studyLeaveBalance,
             String employmentType, String paymentType, String expectedShift, Integer biometricId,
             String dateHiredStr, String probationEndStr, String contractEndStr,
-            String separationDateStr, String separationNoteStr) {
+            String separationDateStr, String separationNoteStr,
+            String gender, String civilStatus, String birthDateStr, String birthPlace, String nationality,
+            String presentAddress, String permanentAddress, String emergencyContactName, String emergencyContactPhone,
+            String emergencyContactRelationship, String secondaryEmergencyContactName, String secondaryEmergencyContactPhone) {
 
         Optional<OfficialEmployee> opt = officialEmployeeRepository.findById(id);
         if (opt.isPresent()) {
@@ -884,6 +899,18 @@ public class AdmissionService {
             app.setPaymentType(paymentType);
             app.setExpectedShift(expectedShift);
             app.setBiometricId(biometricId);
+            app.setGender(blankToNull(gender));
+            app.setCivilStatus(blankToNull(civilStatus));
+            app.setBirthDate(parseOptionalDate(birthDateStr));
+            app.setBirthPlace(blankToNull(birthPlace));
+            app.setNationality(blankToNull(nationality));
+            app.setPresentAddress(blankToNull(presentAddress));
+            app.setPermanentAddress(blankToNull(permanentAddress));
+            app.setEmergencyContactName(blankToNull(emergencyContactName));
+            app.setEmergencyContactPhone(blankToNull(emergencyContactPhone));
+            app.setEmergencyContactRelationship(blankToNull(emergencyContactRelationship));
+            app.setSecondaryEmergencyContactName(blankToNull(secondaryEmergencyContactName));
+            app.setSecondaryEmergencyContactPhone(blankToNull(secondaryEmergencyContactPhone));
             
             officialEmployeeRepository.save(app);
         }
@@ -2141,10 +2168,11 @@ public class AdmissionService {
                 log.setEmployeeId(String.valueOf(internalDbId));
                 log.setDate(logDate);
 
+                EffectiveShiftRule effectiveShift = resolveEffectiveShiftForDate(emp, logDate);
                 if (!leaveType.isEmpty() && !"None".equalsIgnoreCase(leaveType)) {
                     if (isPaidLeaveType(leaveType)) {
-                        log.setTimeIn(LocalTime.of(8, 0));
-                        log.setTimeOut(LocalTime.of(17, 0));
+                        log.setTimeIn(effectiveShift.expectedIn());
+                        log.setTimeOut(effectiveShift.expectedOut());
                     } else {
                         log.setTimeIn(timeIn);
                         log.setTimeOut(timeOut);
@@ -2156,36 +2184,73 @@ public class AdmissionService {
 
                 LocalTime calcIn = log.getTimeIn();
                 LocalTime calcOut = log.getTimeOut();
+                boolean ignoreMissingPunch = false;
+                if (!isPaidLeaveType(leaveType) && (calcIn == null || calcOut == null)) {
+                    if ("AUTO_CLOSE".equals(effectiveShift.missingPunchPolicy())) {
+                        if (calcIn == null && calcOut != null) {
+                            calcIn = effectiveShift.expectedIn();
+                            log.setTimeIn(calcIn);
+                        } else if (calcOut == null && calcIn != null) {
+                            calcOut = effectiveShift.expectedOut();
+                            log.setTimeOut(calcOut);
+                        }
+                    } else if ("IGNORE".equals(effectiveShift.missingPunchPolicy())) {
+                        ignoreMissingPunch = true;
+                    }
+                }
                 int minutesLate = 0;
                 int minutesEarlyOut = 0;
                 int totalHoursInt = 0;
                 int undertimeHoursInt = 0;
                 int reportedOtHours = 0;
 
-                if (calcIn != null && calcOut != null) {
-                    if (calcIn.isAfter(LocalTime.of(8, 0))) {
-                        minutesLate = (int) ChronoUnit.MINUTES.between(LocalTime.of(8, 0), calcIn);
+                if (!ignoreMissingPunch && calcIn != null && calcOut != null) {
+                    if (!effectiveShift.flexibleHours()) {
+                        LocalTime lateThreshold = addMinutesToTime(effectiveShift.expectedIn(), effectiveShift.graceMinutes());
+                        if (calcIn.isAfter(lateThreshold)) {
+                            minutesLate = (int) minutesBetween(lateThreshold, calcIn);
+                        }
+                    } else if (effectiveShift.flexiInWindowEnd() != null) {
+                        LocalTime flexiThreshold = addMinutesToTime(effectiveShift.flexiInWindowEnd(), effectiveShift.graceMinutes());
+                        if (calcIn.isAfter(flexiThreshold)) {
+                            minutesLate = (int) minutesBetween(flexiThreshold, calcIn);
+                        }
                     }
-                    if (calcOut.isBefore(LocalTime.of(17, 0))) {
-                        minutesEarlyOut = (int) ChronoUnit.MINUTES.between(calcOut, LocalTime.of(17, 0));
+                    if (calcOut.isBefore(effectiveShift.expectedOut())) {
+                        minutesEarlyOut = (int) minutesBetween(calcOut, effectiveShift.expectedOut());
                     }
-                    long elapsedMinutes = ChronoUnit.MINUTES.between(calcIn, calcOut);
-                    if (elapsedMinutes < 0) {
-                        elapsedMinutes += 1440;
-                    }
-                    if (elapsedMinutes >= 540) {
-                        elapsedMinutes -= 60;
+                    long elapsedMinutes = minutesBetween(calcIn, calcOut);
+                    if (elapsedMinutes > 0) {
+                        elapsedMinutes = Math.max(0, elapsedMinutes - effectiveShift.breakMinutes());
                     }
 
                     totalHoursInt = (int) (elapsedMinutes / 60);
 
-                    if (calcOut.isAfter(LocalTime.of(17, 0))) {
-                        long otMins = ChronoUnit.MINUTES.between(LocalTime.of(17, 0), calcOut);
-                        reportedOtHours = (int) (otMins / 60);
+                    long scheduledWorkMins = effectiveShift.requiredNetWorkMinutes() > 0
+                        ? effectiveShift.requiredNetWorkMinutes()
+                        : Math.max(0, minutesBetween(effectiveShift.expectedIn(), effectiveShift.expectedOut()) - effectiveShift.breakMinutes());
+                    boolean specialDay = isTcmsRestOrHolidayDayType(dayType);
+                    if (specialDay && effectiveShift.treatRestOrHolidayAsOt()) {
+                        long otMins = elapsedMinutes;
+                        if (otMins >= effectiveShift.minimumOtMinutes()) {
+                            reportedOtHours = (int) (otMins / 60);
+                        }
+                    } else if (effectiveShift.allowExtraHours()) {
+                        long otMins;
+                        if (effectiveShift.flexibleHours()) {
+                            otMins = Math.max(0, elapsedMinutes - scheduledWorkMins);
+                        } else if (calcOut.isAfter(effectiveShift.expectedOut())) {
+                            otMins = minutesBetween(effectiveShift.expectedOut(), calcOut);
+                        } else {
+                            otMins = 0;
+                        }
+                        if (otMins >= effectiveShift.minimumOtMinutes()) {
+                            reportedOtHours = (int) (otMins / 60);
+                        }
                     }
 
-                    if (totalHoursInt < 8 && !isTcmsRestOrHolidayDayType(dayType) && !isPaidLeaveType(leaveType)) {
-                        undertimeHoursInt = 8 - totalHoursInt;
+                    if (elapsedMinutes < scheduledWorkMins && !specialDay && !isPaidLeaveType(leaveType)) {
+                        undertimeHoursInt = (int) ((scheduledWorkMins - elapsedMinutes) / 60);
                     }
                 }
 
@@ -2202,8 +2267,13 @@ public class AdmissionService {
                 } else {
                     if (reportedOtHours > 0) {
                         log.setOvertimeReported(reportedOtHours);
-                        log.setOtApprovalStatus("PENDING");
-                        log.setOvertimeHours(0);
+                        if (effectiveShift.requireOtApproval()) {
+                            log.setOtApprovalStatus("PENDING");
+                            log.setOvertimeHours(0);
+                        } else {
+                            log.setOtApprovalStatus("APPROVED");
+                            log.setOvertimeHours(reportedOtHours);
+                        }
                     } else {
                         log.setOvertimeReported(0);
                         log.setOtApprovalStatus("NONE");
@@ -2281,8 +2351,7 @@ public class AdmissionService {
                 continue;
             }
             OfficialEmployee emp = op.get();
-            String shift = emp.getExpectedShift() != null && !emp.getExpectedShift().isBlank()
-                ? emp.getExpectedShift() : "—";
+            String shift = resolveShiftLabelForDate(emp, log.getDate());
             String statusLabel = describeAttendanceStatus(log);
             String inStr = log.getTimeIn() != null ? log.getTimeIn().toString() : "—";
             String outStr = log.getTimeOut() != null ? log.getTimeOut().toString()
@@ -2307,6 +2376,95 @@ public class AdmissionService {
         rows.sort(Comparator.comparing(AdminAttendanceLogRow::workDate).reversed()
             .thenComparing(AdminAttendanceLogRow::eacId));
         return rows;
+    }
+
+    private String resolveShiftLabelForDate(OfficialEmployee emp, LocalDate workDate) {
+        if (emp == null || emp.getId() == null || workDate == null) {
+            return "—";
+        }
+        Optional<ShiftAssignment> maybe = shiftAssignmentRepository.findByEmployeeIdAndWorkDate(emp.getId(), workDate);
+        if (maybe.isPresent()) {
+            ShiftAssignment a = maybe.get();
+            String base = (a.getShift() != null && a.getShift().getName() != null && !a.getShift().getName().isBlank())
+                ? a.getShift().getName().trim()
+                : "Assigned shift";
+            if (a.getOverrideTimeIn() != null && a.getOverrideTimeOut() != null) {
+                return base + " (" + a.getOverrideTimeIn() + "-" + a.getOverrideTimeOut() + ")";
+            }
+            return base;
+        }
+        if (emp.getExpectedShift() != null && !emp.getExpectedShift().isBlank()) {
+            return emp.getExpectedShift();
+        }
+        return "—";
+    }
+
+    private record EffectiveShiftRule(
+        LocalTime expectedIn,
+        LocalTime expectedOut,
+        int graceMinutes,
+        int breakMinutes,
+        int minimumOtMinutes,
+        boolean allowExtraHours,
+        boolean flexibleHours,
+        boolean treatRestOrHolidayAsOt,
+        LocalTime flexiInWindowStart,
+        LocalTime flexiInWindowEnd,
+        int requiredNetWorkMinutes,
+        boolean requireOtApproval,
+        String missingPunchPolicy
+    ) {}
+
+    private EffectiveShiftRule resolveEffectiveShiftForDate(OfficialEmployee emp, LocalDate workDate) {
+        LocalTime defaultIn = LocalTime.of(7, 0);
+        LocalTime defaultOut = LocalTime.of(16, 0);
+        int defaultBreak = 60;
+        if (emp == null || emp.getId() == null || workDate == null) {
+            return new EffectiveShiftRule(defaultIn, defaultOut, 0, defaultBreak, 0, true, false, false, null, null, 0, false, "REVIEW_REQUIRED");
+        }
+        Optional<ShiftAssignment> maybe = shiftAssignmentRepository.findByEmployeeIdAndWorkDate(emp.getId(), workDate);
+        if (maybe.isEmpty()) {
+            return new EffectiveShiftRule(defaultIn, defaultOut, 0, defaultBreak, 0, true, false, false, null, null, 0, false, "REVIEW_REQUIRED");
+        }
+        ShiftAssignment a = maybe.get();
+        ShiftSchedule s = a.getShift();
+        LocalTime expectedIn = a.getOverrideTimeIn() != null ? a.getOverrideTimeIn() : (s != null && s.getStartTime() != null ? s.getStartTime() : defaultIn);
+        LocalTime expectedOut = a.getOverrideTimeOut() != null ? a.getOverrideTimeOut() : (s != null && s.getEndTime() != null ? s.getEndTime() : defaultOut);
+        int grace = a.getOverrideGraceMinutes() != null ? Math.max(0, a.getOverrideGraceMinutes()) : (s != null && s.getGraceMinutes() != null ? Math.max(0, s.getGraceMinutes()) : 0);
+        int breakMinutes = a.getOverrideBreakMinutes() != null ? Math.max(0, a.getOverrideBreakMinutes()) : (s != null && s.getBreakMinutes() != null ? Math.max(0, s.getBreakMinutes()) : defaultBreak);
+        int minOt = (s != null && s.getMinimumMinutesForOt() != null) ? Math.max(0, s.getMinimumMinutesForOt()) : 0;
+        boolean allowExtra = s == null || s.isAllowExtraHours();
+        boolean flexible = s != null && s.isFlexibleHours();
+        boolean restOrHolidayAsOt = s != null && (Boolean.TRUE.equals(s.getTreatRestdayAsOt()) || Boolean.TRUE.equals(s.getTreatHolidayAsOt()) || Boolean.TRUE.equals(s.getTreatOffdayAsOt()));
+        LocalTime flexiStart = s != null ? s.getFlexiInWindowStart() : null;
+        LocalTime flexiEnd = s != null ? s.getFlexiInWindowEnd() : null;
+        int requiredNet = (s != null && s.getRequiredNetWorkMinutes() != null) ? Math.max(0, s.getRequiredNetWorkMinutes()) : 0;
+        boolean requireOtApproval = s != null && Boolean.TRUE.equals(s.getRequireOtApproval());
+        String missingPunchPolicy = (s != null && s.getMissingPunchPolicy() != null && !s.getMissingPunchPolicy().isBlank())
+            ? s.getMissingPunchPolicy().trim().toUpperCase(Locale.ROOT)
+            : "REVIEW_REQUIRED";
+        return new EffectiveShiftRule(
+            expectedIn, expectedOut, grace, breakMinutes, minOt, allowExtra, flexible, restOrHolidayAsOt,
+            flexiStart, flexiEnd, requiredNet, requireOtApproval, missingPunchPolicy
+        );
+    }
+
+    private static LocalTime addMinutesToTime(LocalTime base, int minutes) {
+        if (base == null || minutes <= 0) {
+            return base;
+        }
+        return base.plusMinutes(minutes);
+    }
+
+    private static long minutesBetween(LocalTime start, LocalTime end) {
+        if (start == null || end == null) {
+            return 0;
+        }
+        long mins = ChronoUnit.MINUTES.between(start, end);
+        if (mins < 0) {
+            mins += 1440;
+        }
+        return Math.max(0, mins);
     }
 
     private static String describeAttendanceStatus(AttendanceLog log) {

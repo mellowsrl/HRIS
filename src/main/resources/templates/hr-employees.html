@@ -186,9 +186,13 @@
                             th:data-dept="${#strings.toLowerCase(emp.department != null ? emp.department : '')}"
                             th:data-pos="${#strings.toLowerCase(emp.position != null ? emp.position : '')}"
                             th:data-email="${#strings.toLowerCase(emp.email != null ? emp.email : '')}">
-                            <td class="search-id fw-bold text-primary" th:attr="data-eac-empl-label='Employee ID'" th:text="${emp.customEmployeeId}"></td>
+                            <td class="search-id fw-bold text-primary" th:attr="data-eac-empl-label='Employee ID'">
+                                <a class="text-decoration-none fw-bold" th:href="@{/hr/employees/{id}(id=${emp.id})}" th:text="${emp.customEmployeeId}">ID</a>
+                            </td>
                             <td class="text-start search-name" th:attr="data-eac-empl-label='Name'">
-                                <div class="fw-bold text-dark" th:text="${emp.firstName + ' ' + emp.lastName}"></div>
+                                <div class="fw-bold text-dark">
+                                    <a class="text-decoration-none text-dark" th:href="@{/hr/employees/{id}(id=${emp.id})}" th:text="${emp.firstName + ' ' + emp.lastName}">Name</a>
+                                </div>
                                 <div class="small text-uppercase text-muted" style="font-size:0.65rem; letter-spacing:0.3px" th:text="${emp.employmentType}"></div>
                             </td>
                             <td th:attr="data-eac-empl-label='Email'">
@@ -215,11 +219,15 @@
                                 </th:block>
                             </td>
                             <td th:attr="data-eac-empl-label='Action'">
-                                <div class="d-flex flex-wrap gap-1 justify-content-center">
-                                    <button type="button" class="btn btn-sm btn-primary fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;" data-bs-toggle="modal" th:data-bs-target="'#editEmployeeModal-' + ${emp.id}">Edit</button>
-                                    <a th:href="@{/hr/attendance/record(id=${emp.id})}" class="btn btn-sm btn-outline-dark fw-bold text-uppercase shadow-sm bg-light" style="font-size: 0.70rem;" title="View daily time record (in-app)">DTR</a>
-                                    <a th:href="@{/hr/employees/{id}/record(id=${emp.id})}" class="btn btn-sm btn-outline-danger fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;">201</a>
-                                    <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/hr/employees/delete(id=${emp.id})}" class="btn btn-sm btn-danger fw-bold text-uppercase shadow-sm" style="font-size: 0.70rem;" onclick="return confirm('WARNING: Are you sure you want to permanently delete this employee?');">Delete</a>
+                                <div class="d-flex justify-content-center align-items-center gap-1">
+                                    <a sec:authorize="hasAuthority('ADMIN')"
+                                       th:href="@{/hr/employees/delete(id=${emp.id})}"
+                                       class="btn btn-sm btn-danger shadow-sm"
+                                       style="width:40px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;"
+                                       title="Delete employee"
+                                       onclick="return confirm('WARNING: Are you sure you want to permanently delete this employee?');">
+                                        <i class="fas fa-trash" style="font-size:0.82rem;line-height:1;"></i>
+                                    </a>
                                 </div>
 
                                 <div class="modal fade" th:id="'editEmployeeModal-' + ${emp.id}" tabindex="-1">
@@ -235,7 +243,72 @@
                                             <form action="/hr/employees/edit" method="POST">
                                                 <div class="modal-body p-4 text-start bg-light">
                                                     <input type="hidden" name="customEmployeeId" th:value="${emp.customEmployeeId}">
-                                                    <input type="hidden" name="id" th:value="${emp.id}"> <div class="card p-3 mb-4 shadow-sm border-0">
+                                                    <input type="hidden" name="id" th:value="${emp.id}">
+                                                    <div class="card p-3 mb-4 shadow-sm border-0">
+                                                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">Personal Profile</h6>
+                                                        <div class="row g-2">
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Gender</label>
+                                                                <select class="form-select form-select-sm" name="gender">
+                                                                    <option value="">—</option>
+                                                                    <option value="Male" th:selected="${emp.gender == 'Male'}">Male</option>
+                                                                    <option value="Female" th:selected="${emp.gender == 'Female'}">Female</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Civil Status</label>
+                                                                <select class="form-select form-select-sm" name="civilStatus">
+                                                                    <option value="">—</option>
+                                                                    <option value="Single" th:selected="${emp.civilStatus == 'Single'}">Single</option>
+                                                                    <option value="Married" th:selected="${emp.civilStatus == 'Married'}">Married</option>
+                                                                    <option value="Separated" th:selected="${emp.civilStatus == 'Separated'}">Separated</option>
+                                                                    <option value="Widowed" th:selected="${emp.civilStatus == 'Widowed'}">Widowed</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Birth Date</label>
+                                                                <input type="date" class="form-control form-control-sm" name="birthDate"
+                                                                       th:value="${emp.birthDate != null ? #temporals.format(emp.birthDate, 'yyyy-MM-dd') : ''}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="fw-bold small text-muted text-uppercase">Birth Place</label>
+                                                                <input type="text" class="form-control form-control-sm" name="birthPlace" th:value="${emp.birthPlace}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="fw-bold small text-muted text-uppercase">Nationality</label>
+                                                                <input type="text" class="form-control form-control-sm" name="nationality" th:value="${emp.nationality}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="fw-bold small text-muted text-uppercase">Present Address</label>
+                                                                <input type="text" class="form-control form-control-sm" name="presentAddress" th:value="${emp.presentAddress}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="fw-bold small text-muted text-uppercase">Permanent Address</label>
+                                                                <input type="text" class="form-control form-control-sm" name="permanentAddress" th:value="${emp.permanentAddress}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Emergency Contact</label>
+                                                                <input type="text" class="form-control form-control-sm" name="emergencyContactName" th:value="${emp.emergencyContactName}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Emergency Phone</label>
+                                                                <input type="text" class="form-control form-control-sm" name="emergencyContactPhone" th:value="${emp.emergencyContactPhone}">
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fw-bold small text-muted text-uppercase">Relationship</label>
+                                                                <input type="text" class="form-control form-control-sm" name="emergencyContactRelationship" th:value="${emp.emergencyContactRelationship}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="fw-bold small text-muted text-uppercase">Secondary Emergency Contact</label>
+                                                                <input type="text" class="form-control form-control-sm" name="secondaryEmergencyContactName" th:value="${emp.secondaryEmergencyContactName}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="fw-bold small text-muted text-uppercase">Secondary Emergency Phone</label>
+                                                                <input type="text" class="form-control form-control-sm" name="secondaryEmergencyContactPhone" th:value="${emp.secondaryEmergencyContactPhone}">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card p-3 mb-4 shadow-sm border-0">
                                                         <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">Employment Configuration</h6>
                                                         <div class="row mb-3">
                                                             <div class="col-md-4">
@@ -423,12 +496,62 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Civil Status</label>
+                                <select class="form-select form-select-sm" name="civilStatus">
+                                    <option value="" selected>—</option>
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Separated">Separated</option>
+                                    <option value="Widowed">Widowed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="fw-bold small text-muted text-uppercase">Email</label>
                                 <input type="email" class="form-control form-control-sm" name="email" required>
                             </div>
                             <div class="col-md-4">
                                 <label class="fw-bold small text-muted text-uppercase">Phone</label>
                                 <input type="text" class="form-control form-control-sm" name="phone" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Birth Date</label>
+                                <input type="date" class="form-control form-control-sm" name="birthDate">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Birth Place</label>
+                                <input type="text" class="form-control form-control-sm" name="birthPlace">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Nationality</label>
+                                <input type="text" class="form-control form-control-sm" name="nationality">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted text-uppercase">Present Address</label>
+                                <input type="text" class="form-control form-control-sm" name="presentAddress">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted text-uppercase">Permanent Address</label>
+                                <input type="text" class="form-control form-control-sm" name="permanentAddress">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Emergency Contact</label>
+                                <input type="text" class="form-control form-control-sm" name="emergencyContactName">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Emergency Phone</label>
+                                <input type="text" class="form-control form-control-sm" name="emergencyContactPhone">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold small text-muted text-uppercase">Relationship</label>
+                                <input type="text" class="form-control form-control-sm" name="emergencyContactRelationship">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted text-uppercase">Secondary Emergency Contact</label>
+                                <input type="text" class="form-control form-control-sm" name="secondaryEmergencyContactName">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold small text-muted text-uppercase">Secondary Emergency Phone</label>
+                                <input type="text" class="form-control form-control-sm" name="secondaryEmergencyContactPhone">
                             </div>
                         </div>
                     </div>

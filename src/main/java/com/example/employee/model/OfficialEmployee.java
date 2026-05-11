@@ -40,6 +40,24 @@ public class OfficialEmployee {
     
     @Column(name = "gender")
     private String gender;
+
+    @Column(name = "civil_status")
+    private String civilStatus;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "birth_place")
+    private String birthPlace;
+
+    @Column(name = "nationality")
+    private String nationality;
+
+    @Column(name = "present_address", length = 500)
+    private String presentAddress;
+
+    @Column(name = "permanent_address", length = 500)
+    private String permanentAddress;
     
     @Column(name = "position")
     private String position;
@@ -102,6 +120,12 @@ public class OfficialEmployee {
     private String emergencyContactName;
     @Column(name = "emergency_contact_phone")
     private String emergencyContactPhone;
+    @Column(name = "emergency_contact_relationship")
+    private String emergencyContactRelationship;
+    @Column(name = "secondary_emergency_contact_name")
+    private String secondaryEmergencyContactName;
+    @Column(name = "secondary_emergency_contact_phone")
+    private String secondaryEmergencyContactPhone;
     @Column(name = "highest_degree")
     private String highestDegree;
     @Column(name = "years_experience")
@@ -220,6 +244,24 @@ public class OfficialEmployee {
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
 
+    public String getCivilStatus() { return civilStatus; }
+    public void setCivilStatus(String civilStatus) { this.civilStatus = civilStatus; }
+
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+
+    public String getBirthPlace() { return birthPlace; }
+    public void setBirthPlace(String birthPlace) { this.birthPlace = birthPlace; }
+
+    public String getNationality() { return nationality; }
+    public void setNationality(String nationality) { this.nationality = nationality; }
+
+    public String getPresentAddress() { return presentAddress; }
+    public void setPresentAddress(String presentAddress) { this.presentAddress = presentAddress; }
+
+    public String getPermanentAddress() { return permanentAddress; }
+    public void setPermanentAddress(String permanentAddress) { this.permanentAddress = permanentAddress; }
+
     public String getPosition() { return position; }
     public void setPosition(String position) { this.position = position; }
 
@@ -282,6 +324,15 @@ public class OfficialEmployee {
 
     public String getEmergencyContactPhone() { return emergencyContactPhone; }
     public void setEmergencyContactPhone(String emergencyContactPhone) { this.emergencyContactPhone = emergencyContactPhone; }
+
+    public String getEmergencyContactRelationship() { return emergencyContactRelationship; }
+    public void setEmergencyContactRelationship(String emergencyContactRelationship) { this.emergencyContactRelationship = emergencyContactRelationship; }
+
+    public String getSecondaryEmergencyContactName() { return secondaryEmergencyContactName; }
+    public void setSecondaryEmergencyContactName(String secondaryEmergencyContactName) { this.secondaryEmergencyContactName = secondaryEmergencyContactName; }
+
+    public String getSecondaryEmergencyContactPhone() { return secondaryEmergencyContactPhone; }
+    public void setSecondaryEmergencyContactPhone(String secondaryEmergencyContactPhone) { this.secondaryEmergencyContactPhone = secondaryEmergencyContactPhone; }
 
     public String getHighestDegree() { return highestDegree; }
     public void setHighestDegree(String highestDegree) { this.highestDegree = highestDegree; }

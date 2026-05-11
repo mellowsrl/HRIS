@@ -258,7 +258,19 @@ public class AdmissionController {
                                @RequestParam(required = false) String probationEndDate,
                                @RequestParam(required = false) String contractEndDate,
                                @RequestParam(required = false) String separationDate,
-                               @RequestParam(required = false) String separationNote) { 
+                               @RequestParam(required = false) String separationNote,
+                               @RequestParam(required = false) String gender,
+                               @RequestParam(required = false) String civilStatus,
+                               @RequestParam(required = false) String birthDate,
+                               @RequestParam(required = false) String birthPlace,
+                               @RequestParam(required = false) String nationality,
+                               @RequestParam(required = false) String presentAddress,
+                               @RequestParam(required = false) String permanentAddress,
+                               @RequestParam(required = false) String emergencyContactName,
+                               @RequestParam(required = false) String emergencyContactPhone,
+                               @RequestParam(required = false) String emergencyContactRelationship,
+                               @RequestParam(required = false) String secondaryEmergencyContactName,
+                               @RequestParam(required = false) String secondaryEmergencyContactPhone) { 
 
         Double basicSalary = parseOptionalDouble(basicSalaryParam);
                                
@@ -266,7 +278,10 @@ public class AdmissionController {
                                vlBalance, slBalance, mlBalance, plBalance, splBalance, blBalance,
                                incentiveLeaveBalance, studyLeaveBalance,
                                employmentType, paymentType, expectedShift, biometricId,
-                               dateHired, probationEndDate, contractEndDate, separationDate, separationNote);
+                               dateHired, probationEndDate, contractEndDate, separationDate, separationNote,
+                               gender, civilStatus, birthDate, birthPlace, nationality,
+                               presentAddress, permanentAddress, emergencyContactName, emergencyContactPhone,
+                               emergencyContactRelationship, secondaryEmergencyContactName, secondaryEmergencyContactPhone);
         String actor = principal != null ? principal.getName() : "HR";
         service.recordHrAudit(actor, "UPDATE_EMPLOYEE", "OfficialEmployee", id,
             "dept=" + department + " position=" + positionApplied + " status=" + status);
@@ -385,6 +400,27 @@ public class AdmissionController {
             service.recordHrAudit(actor, "UPDATE_201_RECORDS", "OfficialEmployee", id, "gov IDs / emergency / education from HR records screen");
         }
         return "redirect:/hr/records";
+    }
+
+    @PostMapping("/hr/employees/{id}/info/update")
+    public String updateEmployeeInfoInline(
+            java.security.Principal principal,
+            @PathVariable Long id,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone,
+            RedirectAttributes ra) {
+        OfficialEmployee emp = officialEmployeeRepository.findById(id).orElse(null);
+        if (emp == null) {
+            ra.addFlashAttribute("errorMessage", "Employee not found.");
+            return "redirect:/hr/employees";
+        }
+        emp.setEmail(blankToNull(email));
+        emp.setPhone(blankToNull(phone));
+        officialEmployeeRepository.save(emp);
+        String actor = principal != null ? principal.getName() : "HR";
+        service.recordHrAudit(actor, "UPDATE_EMPLOYEE_INFO", "OfficialEmployee", id, "inline Info tab update");
+        ra.addFlashAttribute("successMessage", "Employee info updated.");
+        return "redirect:/hr/employees/" + id + "?tab=info";
     }
 
     private static String blankToNull(String s) {
@@ -642,6 +678,94 @@ public class AdmissionController {
         return "personnel-record";
     }
 
+    @GetMapping("/hr/employees/{id}")
+    public String hrEmployeeWorkspace(@PathVariable Long id,
+                                      @RequestParam(required = false, defaultValue = "info") String tab,
+                                      Model model) {
+        OfficialEmployee emp = officialEmployeeRepository.findById(id).orElse(null);
+        if (emp == null) {
+            return "redirect:/hr/employees";
+        }
+        String activeTab = switch (tab == null ? "" : tab.trim().toLowerCase(Locale.ROOT)) {
+            case "201" -> "201";
+            case "dtr" -> "dtr";
+            case "eac" -> "eac";
+            default -> "info";
+        };
+        model.addAttribute("employee", emp);
+        model.addAttribute("recordMode", "hr");
+        model.addAttribute("activeTab", activeTab);
+        model.addAttribute("logs", service.getEmployeeAttendanceHistory(emp.getId().intValue()));
+        return "hr-employee-workspace";
+    }
+
+    @PostMapping("/hr/employees/{id}/eac/update")
+    public String updateEmployeeEacSettings(
+            java.security.Principal principal,
+            @PathVariable Long id,
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) String position,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String employmentType,
+            @RequestParam(required = false) String expectedShift,
+            @RequestParam(required = false) String dateHired,
+            @RequestParam(required = false) String probationEndDate,
+            @RequestParam(required = false) String contractEndDate,
+            @RequestParam(required = false) String separationDate,
+            @RequestParam(required = false) Integer biometricId,
+            @RequestParam(required = false) String paymentType,
+            @RequestParam(required = false) String basicSalary,
+            @RequestParam(required = false) String dailyWage,
+            @RequestParam int vlBalance,
+            @RequestParam int slBalance,
+            @RequestParam int mlBalance,
+            @RequestParam int plBalance,
+            @RequestParam int splBalance,
+            @RequestParam int blBalance,
+            @RequestParam int incentiveLeaveBalance,
+            @RequestParam int studyLeaveBalance,
+            RedirectAttributes ra) {
+
+        OfficialEmployee emp = officialEmployeeRepository.findById(id).orElse(null);
+        if (emp == null) {
+            ra.addFlashAttribute("errorMessage", "Employee not found.");
+            return "redirect:/hr/employees";
+        }
+
+        if (department != null && !department.isBlank()) {
+            emp.setDepartment(departmentCodeService.toCanonicalCode(department));
+        } else {
+            emp.setDepartment(null);
+        }
+        emp.setPosition(blankToNull(position));
+        emp.setStatus(blankToNull(status));
+        emp.setEmploymentType(blankToNull(employmentType));
+        emp.setExpectedShift(blankToNull(expectedShift));
+        emp.setDateHired(parseOptionalDate(dateHired));
+        emp.setProbationEndDate(parseOptionalDate(probationEndDate));
+        emp.setContractEndDate(parseOptionalDate(contractEndDate));
+        emp.setSeparationDate(parseOptionalDate(separationDate));
+        emp.setBiometricId(biometricId);
+        emp.setPaymentType(blankToNull(paymentType));
+        emp.setBasicSalary(parseOptionalDouble(basicSalary));
+        emp.setDailyWage(parseOptionalDouble(dailyWage));
+
+        emp.setVlBalance(vlBalance);
+        emp.setSlBalance(slBalance);
+        emp.setMlBalance(mlBalance);
+        emp.setPlBalance(plBalance);
+        emp.setSplBalance(splBalance);
+        emp.setBlBalance(blBalance);
+        emp.setIncentiveLeaveBalance(incentiveLeaveBalance);
+        emp.setStudyLeaveBalance(studyLeaveBalance);
+
+        officialEmployeeRepository.save(emp);
+        String actor = principal != null ? principal.getName() : "HR";
+        service.recordHrAudit(actor, "UPDATE_EMPLOYEE_EAC", "OfficialEmployee", id, "inline EAC tab update");
+        ra.addFlashAttribute("successMessage", "EAC settings updated.");
+        return "redirect:/hr/employees/" + id + "?tab=eac";
+    }
+
     @PostMapping("/hr/employees/{id}/profile/photo")
     public String hrUploadEmployeeProfilePhoto(
             @PathVariable Long id,
@@ -663,7 +787,76 @@ public class AdmissionController {
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Could not upload photo. Try a smaller image (JPEG/PNG).");
         }
-        return "redirect:/hr/employees/" + id + "/record";
+        return "redirect:/hr/employees/" + id + "?tab=201";
+    }
+
+    @PostMapping("/hr/employees/{id}/201/update")
+    public String updateEmployee201Inline(
+            java.security.Principal principal,
+            @PathVariable Long id,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String civilStatus,
+            @RequestParam(required = false) String birthDate,
+            @RequestParam(required = false) String birthPlace,
+            @RequestParam(required = false) String nationality,
+            @RequestParam(required = false) String presentAddress,
+            @RequestParam(required = false) String permanentAddress,
+            @RequestParam(required = false) String sssNumber,
+            @RequestParam(required = false) String tinNumber,
+            @RequestParam(required = false) String philhealthNumber,
+            @RequestParam(required = false) String pagibigNumber,
+            @RequestParam(required = false) String highestDegree,
+            @RequestParam(required = false) String yearsExperience,
+            @RequestParam(required = false) String previousEmployer,
+            @RequestParam(required = false) String experienceText,
+            @RequestParam(required = false) String emergencyContactName,
+            @RequestParam(required = false) String emergencyContactPhone,
+            @RequestParam(required = false) String emergencyContactRelationship,
+            @RequestParam(required = false) String secondaryEmergencyContactName,
+            @RequestParam(required = false) String secondaryEmergencyContactPhone,
+            RedirectAttributes ra) {
+
+        OfficialEmployee emp = officialEmployeeRepository.findById(id).orElse(null);
+        if (emp == null) {
+            ra.addFlashAttribute("errorMessage", "Employee not found.");
+            return "redirect:/hr/employees";
+        }
+
+        emp.setPhone(blankToNull(phone));
+        emp.setGender(blankToNull(gender));
+        emp.setCivilStatus(blankToNull(civilStatus));
+        emp.setBirthDate(parseOptionalDate(birthDate));
+        emp.setBirthPlace(blankToNull(birthPlace));
+        emp.setNationality(blankToNull(nationality));
+        emp.setPresentAddress(blankToNull(presentAddress));
+        emp.setPermanentAddress(blankToNull(permanentAddress));
+
+        emp.setSssNumber(blankToNull(sssNumber));
+        emp.setTinNumber(blankToNull(tinNumber));
+        emp.setPhilhealthNumber(blankToNull(philhealthNumber));
+        emp.setPagibigNumber(blankToNull(pagibigNumber));
+
+        emp.setHighestDegree(blankToNull(highestDegree));
+        try {
+            emp.setYearsExperience(yearsExperience == null || yearsExperience.isBlank() ? 0 : Integer.parseInt(yearsExperience.trim()));
+        } catch (Exception ignored) {
+            emp.setYearsExperience(0);
+        }
+        emp.setPreviousEmployer(blankToNull(previousEmployer));
+        emp.setExperienceText(blankToNull(experienceText));
+
+        emp.setEmergencyContactName(blankToNull(emergencyContactName));
+        emp.setEmergencyContactPhone(blankToNull(emergencyContactPhone));
+        emp.setEmergencyContactRelationship(blankToNull(emergencyContactRelationship));
+        emp.setSecondaryEmergencyContactName(blankToNull(secondaryEmergencyContactName));
+        emp.setSecondaryEmergencyContactPhone(blankToNull(secondaryEmergencyContactPhone));
+
+        officialEmployeeRepository.save(emp);
+        String actor = principal != null ? principal.getName() : "HR";
+        service.recordHrAudit(actor, "UPDATE_EMPLOYEE_201", "OfficialEmployee", id, "inline 201 tab update");
+        ra.addFlashAttribute("successMessage", "201 record updated.");
+        return "redirect:/hr/employees/" + id + "?tab=201";
     }
 
     @PostMapping("/employee/leave/submit")

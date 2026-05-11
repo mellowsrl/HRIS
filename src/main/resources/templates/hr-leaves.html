@@ -12,7 +12,7 @@
             <div class="d-flex align-items-start gap-2">
                 <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
                 <div>
-                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;">Leaves</h1>
+                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c; letter-spacing:-0.5px;">Leaves</h1>
                     <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
                         <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
                         <span>Leaves</span><span class="sep">/</span>
@@ -27,6 +27,17 @@
                 </ul>
             </div>
         </div>
+        <ul class="nav border-0 mb-3" role="tablist">
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill eac-empl-nav-pill--active" th:href="@{/hr/leaves(dateFrom=${dateFrom},dateTo=${dateTo})}">Leave Requests</a>
+            </li>
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:href="@{/hr/leave-history}">Leave History</a>
+            </li>
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:href="@{/hr/leave-credits/reset}">Leave Settings</a>
+            </li>
+        </ul>
         <div class="alert alert-light border small text-secondary py-2 px-3 mb-3" style="--bs-alert-border-color: #e0e8e6;" role="status">
             <i class="fas fa-info-circle me-1" style="color:#0d6e6a;" aria-hidden="true"></i>
             <strong>Where this list comes from:</strong>

@@ -16,12 +16,24 @@
                 <div>
                     <h1 class="h4 fw-bold m-0" style="color: #1a2e2c; letter-spacing: -0.5px;">Leave credits reset</h1>
                     <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
-                        <a th:href="@{/}">Home</a><span class="sep">/</span>
-                        <a th:href="@{/hr/leave-credits/reset}">Leave credits reset</a>
+                        <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
+                        <a th:href="@{/hr/leaves}">Leaves</a><span class="sep">/</span>
+                        <span>Leave settings</span>
                     </nav>
                 </div>
             </div>
         </div>
+        <ul class="nav border-0 mb-3" role="tablist">
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:href="@{/hr/leaves}">Leave Requests</a>
+            </li>
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill" th:href="@{/hr/leave-history}">Leave History</a>
+            </li>
+            <li class="nav-item">
+                <a class="eac-empl-nav-pill eac-empl-nav-pill--active" th:href="@{/hr/leave-credits/reset}">Leave Settings</a>
+            </li>
+        </ul>
 
         <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>

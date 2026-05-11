@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Shift management')}"></th:block>
+</head>
+<body class="eac-surface min-vh-100">
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='shiftManagement')}"></div>
+    <div id="content" class="main-content eac-empl-page">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" id="sidebarToggle" class="btn-hamburger">☰</button>
+                <div>
+                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;">Shift Management</h1>
+                    <div class="small text-muted">Shift &amp; Schedule</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#assignShiftForm">Assign Shift</button>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/hr/shifts}">Shift List</a>
+            </div>
+        </div>
+
+        <div id="assignShiftForm" class="collapse bg-white border rounded p-3 mb-3">
+            <form method="post" th:action="@{/hr/shift-management/assign}" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small">Employee</label>
+                    <select class="form-select form-select-sm" name="employeeId" required>
+                        <option value="">Select employee</option>
+                        <option th:each="e : ${allEmployees}" th:value="${e.id}" th:text="${e.customEmployeeId + ' - ' + e.firstName + ' ' + e.lastName}">Emp</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Shift</label>
+                    <select class="form-select form-select-sm" name="shiftId" required>
+                        <option value="">Select shift</option>
+                        <option th:each="s : ${shifts}" th:value="${s.id}" th:text="${s.name}">Shift</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Date</label>
+                    <input type="date" class="form-control form-control-sm" name="workDate" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Override In</label>
+                    <input type="time" class="form-control form-control-sm" name="overrideTimeIn">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Override Out</label>
+                    <input type="time" class="form-control form-control-sm" name="overrideTimeOut">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Override Break (min)</label>
+                    <input type="number" min="0" class="form-control form-control-sm" name="overrideBreakMinutes">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Override Grace (min)</label>
+                    <input type="number" min="0" class="form-control form-control-sm" name="overrideGraceMinutes">
+                </div>
+                <div class="col-md-2">
+                    <input type="hidden" name="weekStart" th:value="${weekStart}">
+                    <button class="btn btn-sm btn-dark w-100" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+
+        <form method="get" th:action="@{/hr/shift-management}" class="row g-2 align-items-end bg-white border rounded p-3 mb-3">
+            <div class="col-md-3">
+                <label class="form-label small">Week start</label>
+                <input type="date" class="form-control form-control-sm" name="weekStart" th:value="${weekStart}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Branch</label>
+                <select class="form-select form-select-sm" name="branch">
+                    <option value="">All</option>
+                    <option th:each="b : ${allBranches}" th:value="${b}" th:text="${b}" th:selected="${selectedBranch == b}">1</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Department</label>
+                <select class="form-select form-select-sm" name="department">
+                    <option value="">All</option>
+                    <option th:each="d : ${allDepartments}" th:value="${d.code}" th:text="${d.code + ' - ' + d.name}" th:selected="${selectedDepartment == d.code}">Dept</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Designation</label>
+                <select class="form-select form-select-sm" name="designation">
+                    <option value="">All</option>
+                    <option th:each="p : ${allDesignations}" th:value="${p}" th:text="${p}" th:selected="${selectedDesignation == p}">Pos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Search</label>
+                <input class="form-control form-control-sm" name="search" th:value="${searchKeyword}">
+            </div>
+            <div class="col-12">
+                <button class="btn btn-sm btn-dark" type="submit">Apply</button>
+            </div>
+        </form>
+
+        <div class="table-responsive bg-white border rounded">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light small">
+                <tr>
+                    <th>Employee</th>
+                    <th th:each="d : ${weekDates}" th:text="${#temporals.format(d, 'MM/dd EEE')}">05/06 Wed</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="emp : ${employees}">
+                    <td style="min-width:220px;">
+                        <div class="fw-semibold" th:text="${emp.firstName + ' ' + emp.lastName}">Name</div>
+                        <div class="small text-muted" th:text="${emp.customEmployeeId + ' · ' + (emp.department != null ? emp.department : '—')}">ID</div>
+                    </td>
+                    <td th:each="d : ${weekDates}" style="min-width:150px;">
+                        <span class="badge text-bg-light border"
+                              th:if="${assignmentMap[emp.id + '|' + d] != null}"
+                              th:text="${assignmentMap[emp.id + '|' + d].shift.name + (assignmentMap[emp.id + '|' + d].overrideTimeIn != null and assignmentMap[emp.id + '|' + d].overrideTimeOut != null ? ' (' + assignmentMap[emp.id + '|' + d].overrideTimeIn + '-' + assignmentMap[emp.id + '|' + d].overrideTimeOut + ')' : '')}">Shift</span>
+                        <span class="text-muted small" th:if="${assignmentMap[emp.id + '|' + d] == null}">—</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(employees)}">
+                    <td th:colspan="${1 + #lists.size(weekDates)}" class="text-center text-muted p-3">No data available in table.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+</script>
+</body>
+</html>
+

@@ -11,6 +11,12 @@
                     <tr><td class="text-muted">Email</td><td th:text="${employee.email}"></td></tr>
                     <tr><td class="text-muted">Phone</td><td th:text="${employee.phone != null and !#strings.isEmpty(employee.phone) ? employee.phone : '—'}"></td></tr>
                     <tr><td class="text-muted">Gender</td><td th:text="${employee.gender != null ? employee.gender : '—'}"></td></tr>
+                    <tr><td class="text-muted">Civil status</td><td th:text="${employee.civilStatus != null ? employee.civilStatus : '—'}"></td></tr>
+                    <tr><td class="text-muted">Birth date</td><td th:text="${employee.birthDate != null ? #temporals.format(employee.birthDate, 'MMM d, yyyy') : '—'}"></td></tr>
+                    <tr><td class="text-muted">Birth place</td><td th:text="${employee.birthPlace != null ? employee.birthPlace : '—'}"></td></tr>
+                    <tr><td class="text-muted">Nationality</td><td th:text="${employee.nationality != null ? employee.nationality : '—'}"></td></tr>
+                    <tr><td class="text-muted">Present address</td><td style="white-space:pre-wrap" th:text="${employee.presentAddress != null ? employee.presentAddress : '—'}"></td></tr>
+                    <tr><td class="text-muted">Permanent address</td><td style="white-space:pre-wrap" th:text="${employee.permanentAddress != null ? employee.permanentAddress : '—'}"></td></tr>
                 </table>
             </div>
             <div class="col-md-6">
@@ -57,6 +63,9 @@
                 <table class="table table-sm table-borderless mb-0">
                     <tr><td class="text-muted">Name</td><td class="fw-bold" th:text="${employee.emergencyContactName != null ? employee.emergencyContactName : '—'}"></td></tr>
                     <tr><td class="text-muted">Phone</td><td th:text="${employee.emergencyContactPhone != null ? employee.emergencyContactPhone : '—'}"></td></tr>
+                    <tr><td class="text-muted">Relationship</td><td th:text="${employee.emergencyContactRelationship != null ? employee.emergencyContactRelationship : '—'}"></td></tr>
+                    <tr><td class="text-muted">Secondary contact</td><td th:text="${employee.secondaryEmergencyContactName != null ? employee.secondaryEmergencyContactName : '—'}"></td></tr>
+                    <tr><td class="text-muted">Secondary phone</td><td th:text="${employee.secondaryEmergencyContactPhone != null ? employee.secondaryEmergencyContactPhone : '—'}"></td></tr>
                 </table>
             </div>
         </div>

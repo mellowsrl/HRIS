@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: eacHead('HR — Employee workspace')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="eac-surface min-vh-100">
+<div class="dashboard-wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar(activePage='employees')}"></div>
+    <div id="content" class="main-content eac-empl-page" style="background:#f5f7f7;">
+        <div th:if="${successMessage}" class="alert alert-success py-2 small fw-bold mb-3" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small fw-bold mb-3" th:text="${errorMessage}"></div>
+
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+            <div class="d-flex align-items-start gap-2">
+                <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
+                <div>
+                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c; letter-spacing:-0.5px;"
+                        th:text="${employee.firstName + ' ' + employee.lastName}">Employee Name</h1>
+                    <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
+                        <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
+                        <a th:href="@{/hr/employees}">Employees</a><span class="sep">/</span>
+                        <span th:text="${employee.customEmployeeId}">ID</span>
+                    </nav>
+                </div>
+            </div>
+            <a id="workspaceEditBtn"
+               th:href="@{/hr/employees/{id}/record(id=${employee.id})}"
+               th:attr="data-employee-id=${employee.id}"
+               class="btn btn-sm btn-dark">
+                <i class="fas fa-pen me-1"></i> Edit
+            </a>
+        </div>
+
+        <ul class="nav border-0 mb-3" id="employeeWorkspaceTabs" role="tablist">
+            <li class="nav-item"><button class="eac-empl-nav-pill border-0" th:classappend="${activeTab == 'info'} ? ' eac-empl-nav-pill--active active'" data-bs-toggle="tab" data-bs-target="#tabInfo" type="button">Info</button></li>
+            <li class="nav-item"><button class="eac-empl-nav-pill border-0" th:classappend="${activeTab == '201'} ? ' eac-empl-nav-pill--active active'" data-bs-toggle="tab" data-bs-target="#tab201" type="button">201</button></li>
+            <li class="nav-item"><button class="eac-empl-nav-pill border-0" th:classappend="${activeTab == 'dtr'} ? ' eac-empl-nav-pill--active active'" data-bs-toggle="tab" data-bs-target="#tabDtr" type="button">DTR</button></li>
+            <li class="nav-item"><button class="eac-empl-nav-pill border-0" th:classappend="${activeTab == 'eac'} ? ' eac-empl-nav-pill--active active'" data-bs-toggle="tab" data-bs-target="#tabEac" type="button">EAC</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="tabInfo" class="tab-pane fade" th:classappend="${activeTab == 'info'} ? ' show active'">
+                <div class="card border-0 shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-uppercase text-muted mb-0">Employee info</h6>
+                    </div>
+
+                    <div id="infoViewBlock" class="row g-3">
+                        <div class="col-md-6"><span class="text-muted small">Employee ID</span><div class="fw-bold" th:text="${employee.customEmployeeId}">—</div></div>
+                        <div class="col-md-6"><span class="text-muted small">Status</span><div class="fw-bold" th:text="${employee.status}">—</div></div>
+                        <div class="col-md-6"><span class="text-muted small">Email</span><div th:text="${employee.email != null ? employee.email : '—'}">—</div></div>
+                        <div class="col-md-6"><span class="text-muted small">Phone</span><div th:text="${employee.phone != null ? employee.phone : '—'}">—</div></div>
+                        <div class="col-md-6"><span class="text-muted small">Department</span><div th:text="${employee.department != null ? employee.department : '—'}">—</div></div>
+                        <div class="col-md-6"><span class="text-muted small">Designation</span><div th:text="${employee.position != null ? employee.position : '—'}">—</div></div>
+                    </div>
+
+                    <form id="infoEditForm" class="d-none mt-3" th:action="@{/hr/employees/{id}/info/update(id=${employee.id})}" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">Email</label>
+                                <input type="email" name="email" class="form-control form-control-sm" th:value="${employee.email}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">Phone</label>
+                                <input type="text" name="phone" class="form-control form-control-sm" th:value="${employee.phone}">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button type="button" id="infoCancelEditBtn" class="btn btn-sm btn-outline-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-sm btn-dark">Save Info</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="tab201" class="tab-pane fade" th:classappend="${activeTab == '201'} ? ' show active'">
+                <div class="card border-0 shadow-sm p-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <h6 class="m-0 fw-bold text-uppercase text-muted">201 — Personnel record</h6>
+                    </div>
+
+                    <div class="card border-0 bg-light p-3 mb-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-sm-auto text-center text-sm-start">
+                                <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center border" style="width:92px;height:92px;overflow:hidden;">
+                                    <img th:if="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}"
+                                         th:src="${employee.profilePhotoPath}" alt="Profile" class="w-100 h-100" style="object-fit:cover;">
+                                    <i th:unless="${employee.profilePhotoPath != null and !#strings.isEmpty(employee.profilePhotoPath)}" class="fas fa-user text-secondary fa-2x" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="small text-uppercase text-muted mb-1" style="font-size:0.65rem;letter-spacing:0.06em;">Profile photo</div>
+                                <form th:action="@{/hr/employees/{id}/profile/photo(id=${employee.id})}" method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2">
+                                    <input type="file" name="photo" class="form-control form-control-sm" style="max-width:18rem" accept="image/jpeg,image/png,image/webp" required>
+                                    <button type="submit" class="btn btn-sm btn-danger">Upload</button>
+                                </form>
+                                <p class="small text-muted mb-0 mt-2">JPEG, PNG, or WebP. Upload replaces the current employee photo.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="record201ViewBlock">
+                        <th:block th:replace="~{fragments/personnel-record-content :: content}"></th:block>
+                    </div>
+
+                    <form id="record201EditForm" class="d-none" th:action="@{/hr/employees/{id}/201/update(id=${employee.id})}" method="post">
+                        <div class="row g-3">
+                            <div class="col-12"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Identity &amp; contact (edit)</div></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Phone</label><input name="phone" class="form-control form-control-sm" th:value="${employee.phone}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Gender</label><select name="gender" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option value="Male" th:selected="${employee.gender == 'Male'}">Male</option>
+                                <option value="Female" th:selected="${employee.gender == 'Female'}">Female</option>
+                            </select></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Civil status</label><select name="civilStatus" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option value="Single" th:selected="${employee.civilStatus == 'Single'}">Single</option>
+                                <option value="Married" th:selected="${employee.civilStatus == 'Married'}">Married</option>
+                                <option value="Separated" th:selected="${employee.civilStatus == 'Separated'}">Separated</option>
+                                <option value="Widowed" th:selected="${employee.civilStatus == 'Widowed'}">Widowed</option>
+                            </select></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Birth date</label><input type="date" name="birthDate" class="form-control form-control-sm" th:value="${employee.birthDate != null ? #temporals.format(employee.birthDate, 'yyyy-MM-dd') : ''}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Birth place</label><input name="birthPlace" class="form-control form-control-sm" th:value="${employee.birthPlace}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Nationality</label><input name="nationality" class="form-control form-control-sm" th:value="${employee.nationality}"></div>
+                            <div class="col-md-6"><label class="form-label small text-muted mb-1">Present address</label><input name="presentAddress" class="form-control form-control-sm" th:value="${employee.presentAddress}"></div>
+                            <div class="col-md-6"><label class="form-label small text-muted mb-1">Permanent address</label><input name="permanentAddress" class="form-control form-control-sm" th:value="${employee.permanentAddress}"></div>
+
+                            <div class="col-12 mt-2"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Government IDs (edit)</div></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">SSS</label><input name="sssNumber" class="form-control form-control-sm" th:value="${employee.sssNumber}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">TIN</label><input name="tinNumber" class="form-control form-control-sm" th:value="${employee.tinNumber}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">PhilHealth</label><input name="philhealthNumber" class="form-control form-control-sm" th:value="${employee.philhealthNumber}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Pag-IBIG</label><input name="pagibigNumber" class="form-control form-control-sm" th:value="${employee.pagibigNumber}"></div>
+
+                            <div class="col-12 mt-2"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Education &amp; experience (edit)</div></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Highest degree</label><input name="highestDegree" class="form-control form-control-sm" th:value="${employee.highestDegree}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Years experience</label><input type="number" min="0" name="yearsExperience" class="form-control form-control-sm" th:value="${employee.yearsExperience}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Previous employer</label><input name="previousEmployer" class="form-control form-control-sm" th:value="${employee.previousEmployer}"></div>
+                            <div class="col-12"><label class="form-label small text-muted mb-1">Experience (summary)</label><textarea name="experienceText" class="form-control form-control-sm" rows="3" th:text="${employee.experienceText}"></textarea></div>
+
+                            <div class="col-12 mt-2"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Emergency contact (edit)</div></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Name</label><input name="emergencyContactName" class="form-control form-control-sm" th:value="${employee.emergencyContactName}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Phone</label><input name="emergencyContactPhone" class="form-control form-control-sm" th:value="${employee.emergencyContactPhone}"></div>
+                            <div class="col-md-4"><label class="form-label small text-muted mb-1">Relationship</label><input name="emergencyContactRelationship" class="form-control form-control-sm" th:value="${employee.emergencyContactRelationship}"></div>
+                            <div class="col-md-6"><label class="form-label small text-muted mb-1">Secondary contact</label><input name="secondaryEmergencyContactName" class="form-control form-control-sm" th:value="${employee.secondaryEmergencyContactName}"></div>
+                            <div class="col-md-6"><label class="form-label small text-muted mb-1">Secondary phone</label><input name="secondaryEmergencyContactPhone" class="form-control form-control-sm" th:value="${employee.secondaryEmergencyContactPhone}"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button type="button" id="record201CancelEditBtn" class="btn btn-sm btn-outline-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-sm btn-dark">Save 201</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="tabDtr" class="tab-pane fade" th:classappend="${activeTab == 'dtr'} ? ' show active'">
+                <div class="card border-0 shadow-sm p-0">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                        <h6 class="m-0 fw-bold text-uppercase text-muted">Full attendance logs</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Date</th>
+                                <th>Time in</th>
+                                <th>Time out</th>
+                                <th>Reg. hours</th>
+                                <th>Late (min)</th>
+                                <th>Undertime (h)</th>
+                                <th>OT reported</th>
+                                <th>OT approval</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="l : ${logs}">
+                                <td th:text="${l.date}">—</td>
+                                <td th:text="${l.timeIn != null ? l.timeIn : '—'}">—</td>
+                                <td th:text="${l.timeOut != null ? l.timeOut : (l.timeIn != null ? 'Open' : '—')}">—</td>
+                                <td th:text="${l.totalHours != null ? (l.totalHours + ' h') : '—'}">—</td>
+                                <td th:text="${l.minutesLate != null ? l.minutesLate : '0'}">0</td>
+                                <td th:text="${l.undertimeHours != null ? l.undertimeHours : '0'}">0</td>
+                                <td th:text="${l.overtimeReported != null ? l.overtimeReported : '0'}">0</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${(l.otApprovalStatus == 'APPROVED') ? 'bg-success' : ((l.otApprovalStatus == 'PENDING') ? 'bg-warning text-dark' : 'bg-secondary')}"
+                                          th:text="${l.otApprovalStatus != null ? l.otApprovalStatus : '—'}">—</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${logs == null or #lists.isEmpty(logs)}"><td colspan="8" class="text-center text-muted p-3">No logs yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabEac" class="tab-pane fade" th:classappend="${activeTab == 'eac'} ? ' show active'">
+                <div class="card border-0 shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-uppercase text-muted mb-0">EAC employment settings</h6>
+                    </div>
+
+                    <div id="eacViewBlock" class="row g-3">
+                        <div class="col-12"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Work setup</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Campus / Branch</span><div class="fw-bold" th:text="${employee.campusCode != null and !#strings.isEmpty(employee.campusCode) ? employee.campusCode : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Department</span><div class="fw-bold" th:text="${employee.department != null ? employee.department : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Position</span><div class="fw-bold" th:text="${employee.position != null ? employee.position : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Status</span><div class="fw-bold" th:text="${employee.status != null ? employee.status : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Employment Type</span><div class="fw-bold" th:text="${employee.employmentType != null ? employee.employmentType : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Expected Shift</span><div class="fw-bold" th:text="${employee.expectedShift != null ? employee.expectedShift : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Date Hired</span><div class="fw-bold" th:text="${employee.dateHired != null ? #temporals.format(employee.dateHired, 'MMM d, yyyy') : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Probation Ends</span><div class="fw-bold" th:text="${employee.probationEndDate != null ? #temporals.format(employee.probationEndDate, 'MMM d, yyyy') : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Contract Ends</span><div class="fw-bold" th:text="${employee.contractEndDate != null ? #temporals.format(employee.contractEndDate, 'MMM d, yyyy') : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Separation Date</span><div class="fw-bold" th:text="${employee.separationDate != null ? #temporals.format(employee.separationDate, 'MMM d, yyyy') : '—'}">—</div></div>
+
+                        <div class="col-12 mt-2"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Attendance linkage</div></div>
+                        <div class="col-md-3"><span class="text-muted small">TCMS / Biometric ID</span><div class="fw-bold" th:text="${employee.biometricId != null ? employee.biometricId : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Attendance Link</span><div class="fw-bold" th:text="${employee.biometricId != null ? 'Linked' : 'Unlinked'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Payment Type</span><div class="fw-bold" th:text="${employee.paymentType != null ? employee.paymentType : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Basic Salary</span><div class="fw-bold" th:text="${employee.basicSalary != null ? #numbers.formatDecimal(employee.basicSalary, 1, 2) : '—'}">—</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Daily Wage</span><div class="fw-bold" th:text="${employee.dailyWage != null ? #numbers.formatDecimal(employee.dailyWage, 1, 2) : '—'}">—</div></div>
+
+                        <div class="col-12 mt-2"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Leave balances</div></div>
+                        <div class="col-md-2"><span class="text-muted small">VL</span><div class="fw-bold" th:text="${employee.vlBalance}">0</div></div>
+                        <div class="col-md-2"><span class="text-muted small">SL</span><div class="fw-bold" th:text="${employee.slBalance}">0</div></div>
+                        <div class="col-md-2"><span class="text-muted small">ML</span><div class="fw-bold" th:text="${employee.mlBalance}">0</div></div>
+                        <div class="col-md-2"><span class="text-muted small">PL</span><div class="fw-bold" th:text="${employee.plBalance}">0</div></div>
+                        <div class="col-md-2"><span class="text-muted small">SPL</span><div class="fw-bold" th:text="${employee.splBalance}">0</div></div>
+                        <div class="col-md-2"><span class="text-muted small">BL</span><div class="fw-bold" th:text="${employee.blBalance}">0</div></div>
+                        <div class="col-md-3"><span class="text-muted small">SIL</span><div class="fw-bold" th:text="${employee.incentiveLeaveBalance}">0</div></div>
+                        <div class="col-md-3"><span class="text-muted small">Study</span><div class="fw-bold" th:text="${employee.studyLeaveBalance}">0</div></div>
+                    </div>
+
+                    <form id="eacEditForm" class="d-none mt-3" th:action="@{/hr/employees/{id}/eac/update(id=${employee.id})}" method="post">
+                        <div class="row g-3">
+                            <div class="col-12"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Work setup (edit)</div></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Campus / Branch</label><input class="form-control form-control-sm" th:value="${employee.campusCode}" disabled></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Department</label><input name="department" class="form-control form-control-sm" th:value="${employee.department}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Position</label><input name="position" class="form-control form-control-sm" th:value="${employee.position}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Status</label><input name="status" class="form-control form-control-sm" th:value="${employee.status}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Employment Type</label><input name="employmentType" class="form-control form-control-sm" th:value="${employee.employmentType}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Expected Shift</label><input name="expectedShift" class="form-control form-control-sm" th:value="${employee.expectedShift}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Date Hired</label><input type="date" name="dateHired" class="form-control form-control-sm" th:value="${employee.dateHired != null ? #temporals.format(employee.dateHired, 'yyyy-MM-dd') : ''}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Probation Ends</label><input type="date" name="probationEndDate" class="form-control form-control-sm" th:value="${employee.probationEndDate != null ? #temporals.format(employee.probationEndDate, 'yyyy-MM-dd') : ''}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Contract Ends</label><input type="date" name="contractEndDate" class="form-control form-control-sm" th:value="${employee.contractEndDate != null ? #temporals.format(employee.contractEndDate, 'yyyy-MM-dd') : ''}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Separation Date</label><input type="date" name="separationDate" class="form-control form-control-sm" th:value="${employee.separationDate != null ? #temporals.format(employee.separationDate, 'yyyy-MM-dd') : ''}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">TCMS / Biometric ID</label><input type="number" name="biometricId" class="form-control form-control-sm" th:value="${employee.biometricId}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Payment Type</label><input name="paymentType" class="form-control form-control-sm" th:value="${employee.paymentType}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Basic Salary</label><input type="number" step="0.01" min="0" name="basicSalary" class="form-control form-control-sm" th:value="${employee.basicSalary}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Daily Wage</label><input type="number" step="0.01" min="0" name="dailyWage" class="form-control form-control-sm" th:value="${employee.dailyWage}"></div>
+
+                            <div class="col-12 mt-2"><div class="small fw-bold text-uppercase text-muted border-bottom pb-1">Leave balances (edit)</div></div>
+                            <div class="col-md-2"><label class="form-label small text-muted mb-1">VL</label><input type="number" name="vlBalance" class="form-control form-control-sm" th:value="${employee.vlBalance}"></div>
+                            <div class="col-md-2"><label class="form-label small text-muted mb-1">SL</label><input type="number" name="slBalance" class="form-control form-control-sm" th:value="${employee.slBalance}"></div>
+                            <div class="col-md-2"><label class="form-label small text-muted mb-1">ML</label><input type="number" name="mlBalance" class="form-control form-control-sm" th:value="${employee.mlBalance}"></div>
+                            <div class="col-md-2"><label class="form-label small text-muted mb-1">PL</label><input type="number" name="plBalance" class="form-control form-control-sm" th:value="${employee.plBalance}"></div>
+                            <div class="col-md-2"><label class="form-label small text-muted mb-1">SPL</label><input type="number" name="splBalance" class="form-control form-control-sm" th:value="${employee.splBalance}"></div>
+                            <div class="col-md-2"><label class="form-label small text-muted mb-1">BL</label><input type="number" name="blBalance" class="form-control form-control-sm" th:value="${employee.blBalance}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">SIL</label><input type="number" name="incentiveLeaveBalance" class="form-control form-control-sm" th:value="${employee.incentiveLeaveBalance}"></div>
+                            <div class="col-md-3"><label class="form-label small text-muted mb-1">Study</label><input type="number" name="studyLeaveBalance" class="form-control form-control-sm" th:value="${employee.studyLeaveBalance}"></div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button type="button" id="eacCancelEditBtn" class="btn btn-sm btn-outline-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-sm btn-dark">Save EAC</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var initialTab = /*[[${activeTab}]]*/ 'info';
+    /*]]>*/
+</script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function () {
+        document.getElementById('sidebar').classList.toggle('hidden');
+        document.getElementById('content').classList.toggle('expanded');
+    });
+
+    var workspaceEditBtn = document.getElementById('workspaceEditBtn');
+    var employeeId = workspaceEditBtn ? workspaceEditBtn.getAttribute('data-employee-id') : null;
+
+    function updateEditTargetByTab(targetSelector) {
+        if (!workspaceEditBtn || !employeeId) {
+            return;
+        }
+        if (targetSelector === '#tabInfo') {
+            workspaceEditBtn.setAttribute('href', '#info');
+            workspaceEditBtn.innerHTML = '<i class="fas fa-pen me-1"></i> Edit Info';
+            return;
+        }
+        if (targetSelector === '#tab201') {
+            workspaceEditBtn.setAttribute('href', '#201');
+            workspaceEditBtn.innerHTML = '<i class="fas fa-pen me-1"></i> Edit 201';
+            return;
+        }
+        if (targetSelector === '#tabDtr') {
+            workspaceEditBtn.setAttribute('href', '/hr/attendance/record?id=' + employeeId);
+            workspaceEditBtn.innerHTML = '<i class="fas fa-pen me-1"></i> Edit DTR';
+            return;
+        }
+        if (targetSelector === '#tabEac') {
+            workspaceEditBtn.setAttribute('href', '#');
+            workspaceEditBtn.innerHTML = '<i class="fas fa-pen me-1"></i> Edit EAC';
+            return;
+        }
+        workspaceEditBtn.setAttribute('href', '/hr/employees/' + employeeId + '/record');
+        workspaceEditBtn.innerHTML = '<i class="fas fa-pen me-1"></i> Edit 201';
+    }
+
+    // Keep custom tab pills and pane visibility in sync.
+    document.querySelectorAll('#employeeWorkspaceTabs [data-bs-target]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var targetSelector = btn.getAttribute('data-bs-target');
+            var targetPane = targetSelector ? document.querySelector(targetSelector) : null;
+            if (!targetPane) {
+                return;
+            }
+
+            document.querySelectorAll('#employeeWorkspaceTabs .eac-empl-nav-pill')
+                .forEach(function (pill) { pill.classList.remove('eac-empl-nav-pill--active', 'active'); });
+            btn.classList.add('eac-empl-nav-pill--active', 'active');
+
+            document.querySelectorAll('.tab-content .tab-pane')
+                .forEach(function (pane) { pane.classList.remove('show', 'active'); });
+            targetPane.classList.add('show', 'active');
+            updateEditTargetByTab(targetSelector);
+        });
+    });
+
+    var eacViewBlock = document.getElementById('eacViewBlock');
+    var eacEditForm = document.getElementById('eacEditForm');
+    var eacCancelEditBtn = document.getElementById('eacCancelEditBtn');
+
+    function openEacInlineEdit() {
+        if (!eacViewBlock || !eacEditForm) return;
+        eacViewBlock.classList.add('d-none');
+        eacEditForm.classList.remove('d-none');
+    }
+    function closeEacInlineEdit() {
+        if (!eacViewBlock || !eacEditForm) return;
+        eacEditForm.classList.add('d-none');
+        eacViewBlock.classList.remove('d-none');
+    }
+    if (eacCancelEditBtn) eacCancelEditBtn.addEventListener('click', closeEacInlineEdit);
+    if (workspaceEditBtn) {
+        workspaceEditBtn.addEventListener('click', function (e) {
+            if (workspaceEditBtn.getAttribute('href') === '#') {
+                e.preventDefault();
+                openEacInlineEdit();
+            }
+            if (workspaceEditBtn.getAttribute('href') === '#info') {
+                e.preventDefault();
+                openInfoInlineEdit();
+            }
+            if (workspaceEditBtn.getAttribute('href') === '#201') {
+                e.preventDefault();
+                open201InlineEdit();
+            }
+        });
+    }
+
+    var infoViewBlock = document.getElementById('infoViewBlock');
+    var infoEditForm = document.getElementById('infoEditForm');
+    var infoCancelEditBtn = document.getElementById('infoCancelEditBtn');
+    function openInfoInlineEdit() {
+        if (!infoViewBlock || !infoEditForm) return;
+        infoViewBlock.classList.add('d-none');
+        infoEditForm.classList.remove('d-none');
+    }
+    function closeInfoInlineEdit() {
+        if (!infoViewBlock || !infoEditForm) return;
+        infoEditForm.classList.add('d-none');
+        infoViewBlock.classList.remove('d-none');
+    }
+    if (infoCancelEditBtn) infoCancelEditBtn.addEventListener('click', closeInfoInlineEdit);
+
+    var record201ViewBlock = document.getElementById('record201ViewBlock');
+    var record201EditForm = document.getElementById('record201EditForm');
+    var record201CancelEditBtn = document.getElementById('record201CancelEditBtn');
+    function open201InlineEdit() {
+        if (!record201ViewBlock || !record201EditForm) return;
+        record201ViewBlock.classList.add('d-none');
+        record201EditForm.classList.remove('d-none');
+    }
+    function close201InlineEdit() {
+        if (!record201ViewBlock || !record201EditForm) return;
+        record201EditForm.classList.add('d-none');
+        record201ViewBlock.classList.remove('d-none');
+    }
+    if (record201CancelEditBtn) record201CancelEditBtn.addEventListener('click', close201InlineEdit);
+
+    var initialTarget = '#tabInfo';
+    if (initialTab === '201') initialTarget = '#tab201';
+    if (initialTab === 'dtr') initialTarget = '#tabDtr';
+    if (initialTab === 'eac') initialTarget = '#tabEac';
+    updateEditTargetByTab(initialTarget);
+</script>
+</body>
+</html>
+
