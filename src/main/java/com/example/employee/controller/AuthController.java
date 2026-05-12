@@ -33,6 +33,11 @@ public class AuthController {
         return "admin-login"; 
     }
 
+    @GetMapping("/staff")
+    public String viewStaffAccessPage() {
+        return "staff-access";
+    }
+
     @GetMapping("/applicant-login")
     public String viewApplicantLoginPage() {
         return "applicant-login"; 

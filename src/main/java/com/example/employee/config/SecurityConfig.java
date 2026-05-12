@@ -24,9 +24,10 @@ public class SecurityConfig {
                     "/", 
                     "/apply",          
                     "/submit",         
-                    "/admin-login",    // <-- NEW Admin Door
-                    "/applicant-login",// <-- NEW Applicant Door
-                    "/employee-login", // <-- Existing Employee Door
+                    "/admin-login",    // <-- Admin Door
+                    "/applicant-login",// <-- Applicant Door
+                    "/employee-login", // <-- Employee Door
+                    "/staff",          // <-- Staff portal selector
                     "/register",       
                     "/kiosk",
                     "/kiosk/tap",

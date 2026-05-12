@@ -1,99 +1,92 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="split-page">
 <head>
-    <th:block th:replace="~{fragments/head :: eacHead('Applicant login')}"></th:block>
+    <th:block th:replace="~{fragments/head :: eacHead('Applicant Login')}"></th:block>
 </head>
-<body class="eac-surface eac-auth-shell--centered eac-portal-auth eac-portal-auth--login py-4">
+<body class="split-page">
 
-<div class="eac-portal-auth__bg" aria-hidden="true"></div>
+<div class="split-layout">
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 eac-portal-auth__col eac-portal-auth__brand text-center mb-2">
-            <a th:href="@{/}" class="d-inline-block text-decoration-none" title="EAC home">
-                <img th:src="@{/image/logo.png}" alt="EAC" height="64" class="eac-portal-auth__logo mb-3" width="auto">
-            </a>
-            <p class="eac-portal-auth__eyebrow mb-1">Emilio Aguinaldo College</p>
-            <h1 class="h3 fw-bold text-dark m-0" style="letter-spacing: -0.02em;">Applicant sign in</h1>
-            <p class="text-muted small mt-2 mb-0">View postings, your applications, and messages from HR.</p>
-        </div>
-    </div>
-
-    <div class="row justify-content-center eac-portal-auth__card-wrap">
-        <div class="col-12 eac-portal-auth__col">
-            <div class="card eac-card-auth eac-portal-auth__card">
-                <div class="card-header eac-card-auth-header">
-                    <h2 class="h5 mb-0">Welcome back</h2>
-                </div>
-                <div class="card-body p-4 p-md-4">
-
-                    <div th:if="${param.error}" class="alert alert-danger shadow-sm mb-3" role="alert">
-                        <span class="d-block text-center">Invalid email or password. Check caps lock and try again.</span>
-                    </div>
-                    <div th:if="${param.logout}" class="alert alert-info shadow-sm mb-3" role="alert">
-                        <span class="d-block text-center">You have been signed out.</span>
-                    </div>
-                    <div th:if="${param.registered}" class="alert alert-success shadow-sm mb-3" role="alert">
-                        <span class="d-block text-center">Account created! Sign in with your email and password below.</span>
-                    </div>
-
-                    <form th:action="@{/process-login}" method="post" class="eac-portal-auth__form" id="eacAppLoginForm">
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1" for="loginEmail">Email</label>
-                            <div class="eac-portal-auth__input-wrap">
-                                <svg class="eac-portal-auth__input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                                <input type="email" class="form-control form-control-lg" id="loginEmail" name="username" placeholder="name@example.com" required autofocus autocomplete="username">
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1" for="loginPw">Password</label>
-                            <div class="eac-portal-auth__input-wrap eac-portal-auth__input-wrap--pw">
-                                <svg class="eac-portal-auth__input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10z"/></svg>
-                                <input type="password" class="form-control form-control-lg eac-pw-input" id="loginPw" name="password" required autocomplete="current-password">
-                                <button type="button" class="eac-portal-auth__pw-toggle" data-eac-toggle-pw="loginPw" aria-label="Show password" title="Show or hide password">
-                                    <span aria-hidden="true">&#128065;</span>
-                                </button>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold rounded-pill">Sign in</button>
-                    </form>
-
-                    <div class="mt-4 text-center eac-portal-auth__footer-link">
-                        <p class="text-muted small mb-2">New to the careers portal?</p>
-                        <a th:href="@{/register}" class="text-danger fw-bold text-decoration-none">Create an applicant account &rarr;</a>
-                    </div>
-                </div>
+    <!-- LEFT: Brand panel -->
+    <div class="split-left">
+        <div class="sl-brand">
+            <img th:src="@{/image/logo.png}" alt="EAC Logo">
+            <div>
+                <span class="sl-brand-school">Emilio Aguinaldo College</span>
+                <span class="sl-brand-system">Enterprise HR System</span>
             </div>
         </div>
+
+        <div class="sl-hero">
+            <p class="sl-eyebrow">Careers Portal</p>
+            <h1>Find your place <span>at EAC.</span></h1>
+            <div class="sl-divider"></div>
+            <p class="sl-desc">Browse open positions, submit your application, and track your status — all in one place.</p>
+        </div>
+
+        <div class="sl-footer">
+            <a href="https://www.eac.edu.ph/" target="_blank" rel="noopener">eac.edu.ph</a>
+            &nbsp;&middot;&nbsp;<em>Virtus, Excelentia, Servitium</em>
+        </div>
     </div>
 
-    <div class="row justify-content-center mt-3">
-        <div class="col-12 eac-portal-auth__col text-center eac-portal-auth__quick">
-            <a th:href="@{/}" class="d-inline-block">&larr; Main portal</a>
+    <!-- RIGHT: Login form -->
+    <div class="split-right">
+
+        <p class="sr-label">Applicant Access</p>
+        <h2 class="sr-heading">Sign in</h2>
+        <p class="sr-subheading">Use your registered email and password.</p>
+
+        <div th:if="${param.error}" class="sr-alert sr-alert-danger" role="alert">Invalid email or password. Please try again.</div>
+        <div th:if="${param.logout}" class="sr-alert sr-alert-info" role="alert">You have been signed out.</div>
+        <div th:if="${param.registered}" class="sr-alert sr-alert-success" role="alert">Account created. You may now sign in.</div>
+
+        <form th:action="@{/process-login}" method="post" id="eacAppLoginForm">
+            <div class="sr-form-group">
+                <label class="sr-label-field" for="loginEmail">Email</label>
+                <div class="sr-input-wrap">
+                    <svg class="sr-input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <input type="email" class="sr-input" id="loginEmail" name="username" placeholder="name@example.com" required autofocus autocomplete="username">
+                </div>
+            </div>
+            <div class="sr-form-group">
+                <label class="sr-label-field" for="loginPw">Password</label>
+                <div class="sr-input-wrap">
+                    <svg class="sr-input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10z"/></svg>
+                    <input type="password" class="sr-input" id="loginPw" name="password" required autocomplete="current-password" style="padding-right: 2.8rem;">
+                    <button type="button" class="sr-pw-toggle" data-target="loginPw" aria-label="Show password">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="sr-btn">Sign In</button>
+        </form>
+
+        <div class="sr-form-footer">
+            <p>No account yet?</p>
+            <a th:href="@{/register}">Create an applicant account &rarr;</a>
         </div>
+
+        <a th:href="@{/}" class="sr-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            Back to portal
+        </a>
+
+        <p class="sr-footer">&copy; 2026 <a href="https://www.eac.edu.ph/" target="_blank" rel="noopener">Emilio Aguinaldo College</a>. All rights reserved.</p>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript">
-(function () {
-    function ready() { document.body.classList.add('eac-portal-auth--ready'); }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { requestAnimationFrame(ready); });
-    } else { requestAnimationFrame(ready); }
-
-    document.querySelectorAll('[data-eac-toggle-pw]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var id = btn.getAttribute('data-eac-toggle-pw');
-            var input = id ? document.getElementById(id) : null;
-            if (!input) return;
-            var show = input.getAttribute('type') === 'password';
-            input.setAttribute('type', show ? 'text' : 'password');
-            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-            btn.setAttribute('title', show ? 'Hide password' : 'Show password');
-        });
+<script>
+document.querySelectorAll('.sr-pw-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var input = document.getElementById(btn.getAttribute('data-target'));
+        if (!input) return;
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
     });
-})();
+});
 </script>
 </body>
 </html>

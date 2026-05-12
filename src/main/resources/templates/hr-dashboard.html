@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <th:block th:replace="~{fragments/head :: eacHead('EAC — HR home')}"></th:block>
+    <th:block th:replace="~{fragments/head :: eacHead('EAC — HR Dashboard')}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="eac-surface min-vh-100">
@@ -9,86 +9,111 @@
 <div class="dashboard-wrapper">
     <div th:replace="~{fragments/sidebar :: sidebar(activePage='dashboard')}"></div>
 
-    <div id="content" class="main-content eac-empl-page" style="background:#f5f7f7;">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-            <div class="d-flex align-items-start gap-3">
-                <button id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
+    <div id="content" class="main-content eac-dash-main">
+
+        <!-- ── TOP HEADER BAR ── -->
+        <div class="eac-dash-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button id="sidebarToggle" class="btn-hamburger">☰</button>
                 <div>
-                    <h1 class="h3 fw-bold m-0" style="color:#1a2e2c; letter-spacing:-0.5px;">EAC system</h1>
-                    <p class="text-muted small mb-0">Emilio Aguinaldo College — HR &amp; workforce console</p>
-                    <nav class="eac-empl-breadcrumb mt-2" aria-label="Breadcrumb">
-                        <span>Home</span>
+                    <h1 class="eac-dash-page-title">HR Dashboard</h1>
+                    <nav aria-label="Breadcrumb" class="eac-dash-breadcrumb">
+                        <span class="eac-dash-breadcrumb-item eac-dash-breadcrumb-item--active">Home</span>
                     </nav>
                 </div>
             </div>
-            <div class="text-end small text-muted" th:if="${employeeStats != null}">
-                <span class="d-block">Active directory</span>
-                <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(employeeStats.active, 0, 'COMMA', 0, 'POINT')} + ' active employees'">0</span>
+            <div class="d-flex align-items-center gap-3">
+                <div class="eac-dash-date">
+                    <i class="fas fa-calendar-days me-1"></i>
+                    <span id="dashDate"></span>
+                </div>
+                <div class="eac-dash-user-badge" sec:authentication="name">User</div>
             </div>
         </div>
 
+        <!-- ── STAT CARDS ── -->
         <div class="row g-3 mb-4" th:if="${employeeStats != null}">
-            <div class="col-6 col-md-3">
-                <div class="eac-empl-stat eac-empl-stat--total h-100">
-                    <h3 th:text="${#numbers.formatDecimal(employeeStats.total, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                    <div class="sub">Total</div>
-                    <div class="small" style="opacity:.9">Employees (all)</div>
+            <div class="col-6 col-xl-3">
+                <div class="eac-stat-card eac-stat-card--total">
+                    <div class="eac-stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="eac-stat-body">
+                        <div class="eac-stat-number" th:text="${#numbers.formatDecimal(employeeStats.total, 0, 'COMMA', 0, 'POINT')}">0</div>
+                        <div class="eac-stat-label">Total Employees</div>
+                        <div class="eac-stat-sub">All employment types</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="eac-empl-stat eac-empl-stat--active h-100">
-                    <h3 th:text="${#numbers.formatDecimal(employeeStats.active, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                    <div class="sub">Active</div>
+            <div class="col-6 col-xl-3">
+                <div class="eac-stat-card eac-stat-card--active">
+                    <div class="eac-stat-icon"><i class="fas fa-circle-check"></i></div>
+                    <div class="eac-stat-body">
+                        <div class="eac-stat-number" th:text="${#numbers.formatDecimal(employeeStats.active, 0, 'COMMA', 0, 'POINT')}">0</div>
+                        <div class="eac-stat-label">Active</div>
+                        <div class="eac-stat-sub">Currently employed</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="eac-empl-stat eac-empl-stat--inactive h-100">
-                    <h3 th:text="${#numbers.formatDecimal(employeeStats.inactive, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                    <div class="sub">Inactive / archive</div>
+            <div class="col-6 col-xl-3">
+                <div class="eac-stat-card eac-stat-card--inactive">
+                    <div class="eac-stat-icon"><i class="fas fa-circle-xmark"></i></div>
+                    <div class="eac-stat-body">
+                        <div class="eac-stat-number" th:text="${#numbers.formatDecimal(employeeStats.inactive, 0, 'COMMA', 0, 'POINT')}">0</div>
+                        <div class="eac-stat-label">Inactive</div>
+                        <div class="eac-stat-sub">Archived records</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="eac-empl-stat eac-empl-stat--new h-100" title="Approx. from recent IDs">
-                    <h3 th:text="${#numbers.formatDecimal(employeeStats.newJoiners, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                    <div class="sub">New joiners</div>
-                    <div class="small" style="opacity:.9">(recent)</div>
+            <div class="col-6 col-xl-3">
+                <div class="eac-stat-card eac-stat-card--new">
+                    <div class="eac-stat-icon"><i class="fas fa-user-plus"></i></div>
+                    <div class="eac-stat-body">
+                        <div class="eac-stat-number" th:text="${#numbers.formatDecimal(employeeStats.newJoiners, 0, 'COMMA', 0, 'POINT')}">0</div>
+                        <div class="eac-stat-label">New Joiners</div>
+                        <div class="eac-stat-sub">Recently onboarded</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row g-3 mb-2">
+        <!-- ── SUMMARY PANELS ── -->
+        <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius:12px; border-left:4px solid #1a4d4a !important;">
-                    <div class="card-body">
-                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Recruitment</h6>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>Pending review</span>
-                            <span class="badge bg-warning text-dark" th:text="${pendingApplicants}">0</span>
+                <div class="eac-info-card">
+                    <div class="eac-info-card-header">
+                        <i class="fas fa-user-tie eac-info-card-icon eac-info-card-icon--blue"></i>
+                        <span class="eac-info-card-title">Recruitment Pipeline</span>
+                        <a href="/hr/applicants" class="eac-info-card-link">View all &rarr;</a>
+                    </div>
+                    <div class="eac-info-card-body">
+                        <div class="eac-pipeline-row">
+                            <span class="eac-pipeline-label"><i class="fas fa-hourglass-half me-2 text-warning"></i>Pending review</span>
+                            <span class="eac-pipeline-badge eac-pipeline-badge--pending" th:text="${pendingApplicants}">0</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>Interview scheduled</span>
-                            <span class="badge" style="background:#0d6e6a;" th:text="${scheduledApplicants}">0</span>
+                        <div class="eac-pipeline-row">
+                            <span class="eac-pipeline-label"><i class="fas fa-calendar-check me-2" style="color:#0d6e6a;"></i>Interview scheduled</span>
+                            <span class="eac-pipeline-badge eac-pipeline-badge--scheduled" th:text="${scheduledApplicants}">0</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <div class="card border-0 shadow-sm h-100" style="border-radius:12px; border-left:4px solid #8b6914 !important;">
-                    <div class="card-body">
-                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Employment dates</h6>
-                        <p class="small text-muted mb-2">Probation and contract end (next 60 days, or up to 45 days overdue).</p>
-                        <div th:if="${employmentMilestones == null or employmentMilestones.isEmpty()}" class="text-muted small">No items. Set dates when editing an employee.</div>
-                        <ul class="list-unstyled small mb-0" th:if="${employmentMilestones != null and !employmentMilestones.isEmpty()}">
-                            <li th:each="m : ${employmentMilestones}" class="d-flex justify-content-between align-items-start gap-2 py-1 border-bottom border-light">
-                                <div>
-                                    <a th:href="@{/hr/employees}" class="fw-bold text-dark text-decoration-none" th:text="${m.displayName}">Name</a>
-                                    <div class="text-muted" style="font-size:0.75rem;">
-                                        <span th:text="${m.milestoneKind}">Kind</span>
-                                        — <span th:text="${#temporals.format(m.eventDate, 'MMM d, yyyy')}">date</span>
-                                    </div>
+                <div class="eac-info-card">
+                    <div class="eac-info-card-header">
+                        <i class="fas fa-hourglass-end eac-info-card-icon eac-info-card-icon--amber"></i>
+                        <span class="eac-info-card-title">Employment Milestones</span>
+                        <span class="eac-info-card-sub">Next 60 days</span>
+                    </div>
+                    <div class="eac-info-card-body">
+                        <div th:if="${employmentMilestones == null or employmentMilestones.isEmpty()}"
+                             class="eac-info-card-empty"><i class="fas fa-check-circle me-2 text-success"></i>No upcoming milestones.</div>
+                        <ul class="eac-milestone-list" th:if="${employmentMilestones != null and !employmentMilestones.isEmpty()}">
+                            <li th:each="m : ${employmentMilestones}" class="eac-milestone-item">
+                                <div class="eac-milestone-info">
+                                    <a th:href="@{/hr/employees}" class="eac-milestone-name" th:text="${m.displayName}">Name</a>
+                                    <span class="eac-milestone-kind" th:text="${m.milestoneKind} + ' — ' + ${#temporals.format(m.eventDate, 'MMM d, yyyy')}">Kind</span>
                                 </div>
-                                <span th:if="${m.daysFromToday < 0}" class="fw-bold text-nowrap text-danger" style="font-size:0.8rem;" th:text="${m.daysFromToday} + 'd'">-3d</span>
-                                <span th:if="${m.daysFromToday >= 0}" class="fw-bold text-nowrap text-success" style="font-size:0.8rem;" th:text="'in ' + ${m.daysFromToday} + 'd'">in 5d</span>
+                                <span th:if="${m.daysFromToday < 0}" class="eac-milestone-days eac-milestone-days--overdue" th:text="${m.daysFromToday} + 'd'">-3d</span>
+                                <span th:if="${m.daysFromToday >= 0}" class="eac-milestone-days eac-milestone-days--upcoming" th:text="'in ' + ${m.daysFromToday} + 'd'">in 5d</span>
                             </li>
                         </ul>
                     </div>
@@ -96,121 +121,190 @@
             </div>
         </div>
 
-        <h2 class="h6 fw-bold text-uppercase text-muted letter-spacing-1 mb-3 mt-4" style="font-size:0.75rem;">Go to module</h2>
-        <div class="row g-3">
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/applicants}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-user-friends text-primary fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Applicants</div>
-                    <div class="small text-muted">Pipeline &amp; hiring</div>
-                </a>
+        <!-- ── MODULE GRID ── -->
+
+        <!-- Recruitment -->
+        <div sec:authorize="hasAnyAuthority('ADMIN','HR')">
+            <div class="eac-module-section-label">
+                <i class="fas fa-user-tie"></i> Recruitment
             </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/jobs}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-briefcase fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Job postings</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/employees}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-users fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Employees</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/departments}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-building fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Departments</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/records}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-id-card fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">201 / Gov’t data</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/attendance}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-clipboard-list fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Attendance (admin)</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/attendance-board}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-calendar-alt fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Calendar</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/biometrics}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-fingerprint fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Biometrics</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/overtime}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-business-time fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Overtime</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/official-business}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-briefcase fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Official Business</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/leaves}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-plane-departure fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Leave</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/holidays}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-calendar-day fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Holidays</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR')">
-                <a th:href="@{/hr/suspensions}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-snowflake fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Class suspensions</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR','FINANCE')">
-                <a th:href="@{/hr/salary-audit}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-scale-balanced fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Salary rules (audit)</div>
-                    <div class="small text-muted">DOLE-style checks</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR','FINANCE')">
-                <a th:href="@{/hr/teaching-pay}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-chalkboard-teacher fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Teaching pay</div>
-                    <div class="small text-muted">CRUD for payroll totals</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" sec:authorize="hasAnyAuthority('ADMIN','HR','FINANCE')">
-                <a th:href="@{/hr/payroll}" class="text-decoration-none d-block p-3 bg-white rounded-3 shadow-sm border h-100 eac-dash-tile" style="border-color:#e8ecec !important; color:inherit;">
-                    <i class="fas fa-file-invoice-dollar fa-lg mb-2 d-block" style="color:#1a4d4a !important;"></i>
-                    <div class="fw-bold" style="color:#1a2e2c;">Payroll</div>
-                </a>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/applicants}" class="eac-tile eac-tile--recruit">
+                        <div class="eac-tile-icon"><i class="fas fa-user-friends fa-lg"></i></div>
+                        <div class="eac-tile-title">Applicants</div>
+                        <div class="eac-tile-sub">Pipeline &amp; hiring</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/jobs}" class="eac-tile eac-tile--recruit">
+                        <div class="eac-tile-icon"><i class="fas fa-briefcase fa-lg"></i></div>
+                        <div class="eac-tile-title">Job Postings</div>
+                        <div class="eac-tile-sub">Open positions</div>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+
+        <!-- Workforce -->
+        <div sec:authorize="hasAnyAuthority('ADMIN','HR')">
+            <div class="eac-module-section-label">
+                <i class="fas fa-building-user"></i> Workforce &amp; Records
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/employees}" class="eac-tile eac-tile--workforce">
+                        <div class="eac-tile-icon"><i class="fas fa-id-badge fa-lg"></i></div>
+                        <div class="eac-tile-title">Employees</div>
+                        <div class="eac-tile-sub">Directory &amp; profiles</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/departments}" class="eac-tile eac-tile--workforce">
+                        <div class="eac-tile-icon"><i class="fas fa-sitemap fa-lg"></i></div>
+                        <div class="eac-tile-title">Departments</div>
+                        <div class="eac-tile-sub">Org structure</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/records}" class="eac-tile eac-tile--workforce">
+                        <div class="eac-tile-icon"><i class="fas fa-id-card fa-lg"></i></div>
+                        <div class="eac-tile-title">201 / Gov't Data</div>
+                        <div class="eac-tile-sub">SSS, PhilHealth, etc.</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time & Attendance -->
+        <div sec:authorize="hasAnyAuthority('ADMIN','HR')">
+            <div class="eac-module-section-label">
+                <i class="fas fa-clock"></i> Time &amp; Attendance
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/attendance}" class="eac-tile eac-tile--time">
+                        <div class="eac-tile-icon"><i class="fas fa-clipboard-list fa-lg"></i></div>
+                        <div class="eac-tile-title">Attendance</div>
+                        <div class="eac-tile-sub">Admin view</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/attendance-board}" class="eac-tile eac-tile--time">
+                        <div class="eac-tile-icon"><i class="fas fa-calendar-alt fa-lg"></i></div>
+                        <div class="eac-tile-title">Calendar</div>
+                        <div class="eac-tile-sub">Attendance board</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/biometrics}" class="eac-tile eac-tile--time">
+                        <div class="eac-tile-icon"><i class="fas fa-fingerprint fa-lg"></i></div>
+                        <div class="eac-tile-title">Biometrics</div>
+                        <div class="eac-tile-sub">Device settings</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/overtime}" class="eac-tile eac-tile--time">
+                        <div class="eac-tile-icon"><i class="fas fa-business-time fa-lg"></i></div>
+                        <div class="eac-tile-title">Overtime</div>
+                        <div class="eac-tile-sub">OT requests &amp; logs</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/official-business}" class="eac-tile eac-tile--time">
+                        <div class="eac-tile-icon"><i class="fas fa-car-side fa-lg"></i></div>
+                        <div class="eac-tile-title">Official Business</div>
+                        <div class="eac-tile-sub">OB requests</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave & Calendar -->
+        <div sec:authorize="hasAnyAuthority('ADMIN','HR')">
+            <div class="eac-module-section-label">
+                <i class="fas fa-calendar-days"></i> Leave &amp; Calendar
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/leaves}" class="eac-tile eac-tile--leave">
+                        <div class="eac-tile-icon"><i class="fas fa-plane-departure fa-lg"></i></div>
+                        <div class="eac-tile-title">Leave</div>
+                        <div class="eac-tile-sub">Requests &amp; credits</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/holidays}" class="eac-tile eac-tile--leave">
+                        <div class="eac-tile-icon"><i class="fas fa-flag fa-lg"></i></div>
+                        <div class="eac-tile-title">Holidays</div>
+                        <div class="eac-tile-sub">Official calendar</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/suspensions}" class="eac-tile eac-tile--leave">
+                        <div class="eac-tile-icon"><i class="fas fa-circle-pause fa-lg"></i></div>
+                        <div class="eac-tile-title">Class Suspensions</div>
+                        <div class="eac-tile-sub">Suspension notices</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finance -->
+        <div sec:authorize="hasAnyAuthority('ADMIN','HR','FINANCE')">
+            <div class="eac-module-section-label">
+                <i class="fas fa-peso-sign"></i> Finance &amp; Payroll
+            </div>
+            <div class="row g-3 mb-5">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/payroll}" class="eac-tile eac-tile--finance">
+                        <div class="eac-tile-icon"><i class="fas fa-file-invoice-dollar fa-lg"></i></div>
+                        <div class="eac-tile-title">Payroll</div>
+                        <div class="eac-tile-sub">Run &amp; review salary</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/salary-audit}" class="eac-tile eac-tile--finance">
+                        <div class="eac-tile-icon"><i class="fas fa-scale-balanced fa-lg"></i></div>
+                        <div class="eac-tile-title">Salary Rules</div>
+                        <div class="eac-tile-sub">DOLE-style checks</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/payroll-periods}" class="eac-tile eac-tile--finance">
+                        <div class="eac-tile-icon"><i class="fas fa-calendar-check fa-lg"></i></div>
+                        <div class="eac-tile-title">Pay Periods</div>
+                        <div class="eac-tile-sub">Saved period presets</div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a th:href="@{/hr/teaching-pay}" class="eac-tile eac-tile--finance">
+                        <div class="eac-tile-icon"><i class="fas fa-chalkboard-user fa-lg"></i></div>
+                        <div class="eac-tile-title">Teaching Pay</div>
+                        <div class="eac-tile-sub">Faculty payroll totals</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /dashboard-wrapper -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<style>
-    .eac-dash-tile { transition: transform 0.15s ease, box-shadow 0.15s ease; }
-    .eac-dash-tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; }
-</style>
 <script>
     document.getElementById('sidebarToggle').addEventListener('click', function () {
         document.getElementById('sidebar').classList.toggle('hidden');
         document.getElementById('content').classList.toggle('expanded');
     });
+
+    // Live date in header
+    (function() {
+        var el = document.getElementById('dashDate');
+        if (el) {
+            var d = new Date();
+            el.textContent = d.toLocaleDateString('en-PH', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+        }
+    })();
 </script>
 </body>
 </html>

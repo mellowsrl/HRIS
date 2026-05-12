@@ -12,7 +12,7 @@
             <div class="d-flex align-items-start gap-2">
                 <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
                 <div>
-                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;">Official Business</h1>
+                    <h1 class="h4 fw-bold m-0" style="color: var(--eac-dark-gray, #2d3436);">Official Business</h1>
                     <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
                         <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
                         <span>Official Business</span><span class="sep">/</span>
@@ -27,7 +27,7 @@
                         <li><button type="button" class="dropdown-item" id="eacObExportCsv">Download CSV (visible rows)</button></li>
                     </ul>
                 </div>
-                <button type="button" class="btn btn-sm text-white border-0 fw-bold" data-bs-toggle="modal" data-bs-target="#manualObModal" style="background:#1a4d4a;">
+                <button type="button" class="btn btn-sm btn-danger text-white border-0 fw-bold" data-bs-toggle="modal" data-bs-target="#manualObModal">
                     <i class="fas fa-plus-circle me-1"></i> Manual OB
                 </button>
             </div>
@@ -35,7 +35,7 @@
         <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
 
-        <div class="row g-3 mb-3" th:if="${obMonthStats != null}">
+        <div class="row g-3 mb-4" th:if="${obMonthStats != null}">
             <div class="col-6 col-md-3">
                 <div class="eac-att-stat h-100" style="background:linear-gradient(135deg,#c9a227,#8f7318);">
                     <h3 th:text="${#numbers.formatDecimal(obMonthStats.pending, 0, 'COMMA', 0, 'POINT')}">0</h3>
@@ -62,17 +62,17 @@
             </div>
         </div>
 
-        <form method="get" th:action="@{/hr/official-business}" class="eac-empl-filters p-3 shadow-sm row g-2 align-items-end" style="background:linear-gradient(180deg,#0d6e6a 0%,#0a5250 100%);border-radius:6px 6px 0 0;border:1px solid #0a5250;">
+        <form method="get" th:action="@{/hr/official-business}" class="eac-empl-filters p-3 shadow-sm row g-2 align-items-end mb-0">
             <div class="col-12 col-md-4 col-lg-3">
-                <label class="form-label text-white-50 small mb-0">Date from</label>
+                <label class="form-label text-muted small mb-0">Date from</label>
                 <input type="date" name="dateFrom" class="form-control form-control-sm" th:value="${dateFrom}">
             </div>
             <div class="col-12 col-md-4 col-lg-3">
-                <label class="form-label text-white-50 small mb-0">Date to</label>
+                <label class="form-label text-muted small mb-0">Date to</label>
                 <input type="date" name="dateTo" class="form-control form-control-sm" th:value="${dateTo}">
             </div>
             <div class="col-6 col-md-4 col-lg-2" th:if="${allBranches != null and !#lists.isEmpty(allBranches)}">
-                <label class="form-label text-white-50 small mb-0 d-none d-md-block">&nbsp;</label>
+                <label class="form-label text-muted small mb-0 d-none d-md-block">&nbsp;</label>
                 <select class="form-select form-select-sm" id="eacObFBranch" title="Branch">
                     <option value="">All branches</option>
                     <option th:each="b : ${allBranches}" th:value="${b}" th:text="${'Campus ' + b}">1</option>
@@ -91,7 +91,7 @@
                 </select>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <label class="form-label text-white-50 small mb-0">Status</label>
+                <label class="form-label text-muted small mb-0">Status</label>
                 <select class="form-select form-select-sm" id="eacObFSt">
                     <option value="">All</option>
                     <option value="Pending">Pending</option>
@@ -100,7 +100,7 @@
                 </select>
             </div>
             <div class="col-12 col-md-auto d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-sm btn-light">Apply</button>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
             </div>
         </form>
 
@@ -183,7 +183,7 @@
                 <div id="eacObInfo">—</div>
                 <div class="d-flex gap-1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="eacObPrev">«</button>
-                    <span class="badge rounded-pill align-self-center" style="background:#1a4d4a" id="eacObNo">1</span>
+                    <span class="badge rounded-pill align-self-center" id="eacObNo">1</span>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="eacObNext">»</button>
                 </div>
             </div>
@@ -194,7 +194,7 @@
 <div class="modal fade" id="manualObModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form th:action="@{/hr/official-business/manual}" method="post" enctype="multipart/form-data" class="modal-content">
-            <div class="modal-header text-white" style="background:linear-gradient(135deg,#1a4d4a,#0d6e6a);">
+            <div class="modal-header eac-modal-header text-white">
                 <h5 class="modal-title fw-bold">Manual official business</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -241,7 +241,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-sm text-white border-0 fw-bold" style="background:#1a4d4a;">Save</button>
+                <button type="submit" class="btn btn-sm btn-danger text-white border-0 fw-bold">Save</button>
             </div>
         </form>
     </div>

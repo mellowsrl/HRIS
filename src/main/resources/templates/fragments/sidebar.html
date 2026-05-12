@@ -2,113 +2,176 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
-    <nav th:fragment="sidebar(activePage)" id="sidebar" class="sidebar">
-        <h3 class="text-center">EAC System</h3>
-        <ul class="nav flex-column mt-3 small">
+<nav th:fragment="sidebar(activePage)" id="sidebar" class="sidebar eac-sidebar">
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
-                <a href="/hr/dashboard" class="d-block text-white text-decoration-none py-2 px-2 rounded-2 mb-1 eac-sidebar-top-link"
-                   th:classappend="${activePage == 'dashboard'} ? 'eac-sidebar-top-link--active' : 'opacity-90'">HR dashboard</a>
-            </li>
+    <!-- Brand -->
+    <div class="eac-sidebar-brand">
+        <img th:src="@{/image/logo.png}" alt="EAC" class="eac-sidebar-logo">
+        <div>
+            <span class="eac-sidebar-brand-name">EAC System</span>
+            <span class="eac-sidebar-brand-sub">HR &amp; Workforce</span>
+        </div>
+    </div>
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
-                <button type="button" class="sidebar-group-btn text-white text-start w-100 border-0 bg-transparent py-2 d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse" data-bs-target="#sidebarRecruitment" th:attr="aria-expanded=${(activePage == 'jobs' or activePage == 'applicants') ? 'true' : 'false'}">
-                    <span class="fw-bold text-uppercase letter-spacing-1" style="font-size: 0.75rem;">Recruitment</span>
-                    <span class="small">▼</span>
-                </button>
-                <div id="sidebarRecruitment" class="collapse ps-2 pb-2" th:classappend="${(activePage == 'jobs' or activePage == 'applicants') ? ' show' : ''}">
-                    <a href="/hr/jobs" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'jobs'} ? 'fw-bold' : 'opacity-75'">Job Postings</a>
-                    <a href="/hr/applicants" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'applicants'} ? 'fw-bold' : 'opacity-75'">Applicants</a>
-                </div>
-            </li>
+    <ul class="nav flex-column eac-sidebar-nav">
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item mt-2">
-                <button type="button" class="sidebar-group-btn text-white text-start w-100 border-0 bg-transparent py-2 d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse" data-bs-target="#sidebarWorkforce" th:attr="aria-expanded=${(activePage == 'employees' or activePage == 'records' or activePage == 'departments' or activePage == 'auditLog') ? 'true' : 'false'}">
-                    <span class="fw-bold text-uppercase letter-spacing-1" style="font-size: 0.75rem;">Workforce &amp; records</span>
-                    <span class="small">▼</span>
-                </button>
-                <div id="sidebarWorkforce" class="collapse ps-2 pb-2" th:classappend="${(activePage == 'employees' or activePage == 'records' or activePage == 'departments' or activePage == 'auditLog') ? ' show' : ''}">
-                    <a href="/hr/employees" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'employees'} ? 'fw-bold' : 'opacity-75'">Employees</a>
-                    <a href="/hr/departments" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'departments'} ? 'fw-bold' : 'opacity-75'">Departments</a>
-                    <a href="/hr/records" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'records'} ? 'fw-bold' : 'opacity-75'">Government &amp; emergency</a>
-                    <a href="/hr/audit-log" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'auditLog'} ? 'fw-bold' : 'opacity-75'">HR audit log</a>
-                </div>
-            </li>
+        <!-- Dashboard -->
+        <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
+            <a href="/hr/dashboard"
+               class="eac-sidebar-link eac-sidebar-top-link"
+               th:classappend="${activePage == 'dashboard'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-gauge-high"></i></span>
+                <span>Dashboard</span>
+            </a>
+        </li>
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item mt-2">
-                <button type="button" class="sidebar-group-btn text-white text-start w-100 border-0 bg-transparent py-2 d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse" data-bs-target="#sidebarTime" th:attr="aria-expanded=${(activePage == 'biometrics' or activePage == 'attendanceAdmin' or activePage == 'attendance' or activePage == 'overtime' or activePage == 'shiftList' or activePage == 'shiftManagement') ? 'true' : 'false'}">
-                    <span class="fw-bold text-uppercase letter-spacing-1" style="font-size: 0.75rem;">Time &amp; attendance</span>
-                    <span class="small">▼</span>
-                </button>
-                <div id="sidebarTime" class="collapse ps-2 pb-2" th:classappend="${(activePage == 'biometrics' or activePage == 'attendanceAdmin' or activePage == 'attendance' or activePage == 'overtime' or activePage == 'shiftList' or activePage == 'shiftManagement') ? ' show' : ''}">
-                    <a href="/hr/attendance" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'attendanceAdmin'} ? 'fw-bold' : 'opacity-75'">Attendance</a>
-                    <a href="/hr/shift-management" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'shiftManagement' or activePage == 'shiftList'} ? 'fw-bold' : 'opacity-75'">Shift &amp; schedule</a>
-                    <a th:href="@{/hr/overtime}" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'overtime'} ? 'fw-bold' : 'opacity-75'">Overtime</a>
-                    <a href="/hr/biometrics" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'biometrics'} ? 'fw-bold' : 'opacity-75'">Attendance settings</a>
-                </div>
-            </li>
+        <!-- Recruitment -->
+        <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
+            <div class="eac-sidebar-section-label">
+                <i class="fas fa-user-tie"></i> Recruitment
+            </div>
+            <div th:classappend="${(activePage == 'jobs' or activePage == 'applicants')} ? '' : ''">
+                <a href="/hr/applicants" class="eac-sidebar-link"
+                   th:classappend="${activePage == 'applicants'} ? ' eac-sidebar-link--active' : ''">
+                    <span class="eac-sidebar-icon"><i class="fas fa-users"></i></span>
+                    <span>Applicants</span>
+                </a>
+                <a href="/hr/jobs" class="eac-sidebar-link"
+                   th:classappend="${activePage == 'jobs'} ? ' eac-sidebar-link--active' : ''">
+                    <span class="eac-sidebar-icon"><i class="fas fa-briefcase"></i></span>
+                    <span>Job Postings</span>
+                </a>
+            </div>
+        </li>
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item mt-2">
-                <a th:href="@{/hr/official-business}" class="d-block text-white text-decoration-none py-2 px-2 rounded-2 mb-1 eac-sidebar-top-link"
-                   th:classappend="${activePage == 'officialBusiness'} ? 'eac-sidebar-top-link--active' : 'opacity-90'">Official Business</a>
-            </li>
+        <!-- Workforce & Records -->
+        <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
+            <div class="eac-sidebar-section-label">
+                <i class="fas fa-building-user"></i> Workforce
+            </div>
+            <a href="/hr/employees" class="eac-sidebar-link"
+               th:classappend="${activePage == 'employees'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-id-badge"></i></span>
+                <span>Employees</span>
+            </a>
+            <a href="/hr/departments" class="eac-sidebar-link"
+               th:classappend="${activePage == 'departments'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-sitemap"></i></span>
+                <span>Departments</span>
+            </a>
+            <a href="/hr/records" class="eac-sidebar-link"
+               th:classappend="${activePage == 'records'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-id-card"></i></span>
+                <span>Gov't &amp; Emergency</span>
+            </a>
+            <a href="/hr/audit-log" class="eac-sidebar-link"
+               th:classappend="${activePage == 'auditLog'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-scroll"></i></span>
+                <span>Audit Log</span>
+            </a>
+        </li>
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item mt-2">
-                <button type="button" class="sidebar-group-btn text-white text-start w-100 border-0 bg-transparent py-2 d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse" data-bs-target="#sidebarLeave" th:attr="aria-expanded=${(activePage == 'leaves' or activePage == 'history' or activePage == 'holidays' or activePage == 'suspensions' or activePage == 'leaveCreditsReset') ? 'true' : 'false'}">
-                    <span class="fw-bold text-uppercase letter-spacing-1" style="font-size: 0.75rem;">Leave &amp; calendar</span>
-                    <span class="small">▼</span>
-                </button>
-                <div id="sidebarLeave" class="collapse ps-2 pb-2" th:classappend="${(activePage == 'leaves' or activePage == 'history' or activePage == 'holidays' or activePage == 'suspensions' or activePage == 'leaveCreditsReset') ? ' show' : ''}">
-                    <a href="/hr/leaves" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'leaves'} ? 'fw-bold' : 'opacity-75'">Leaves</a>
-                    <a href="/hr/holidays" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'holidays'} ? 'fw-bold' : 'opacity-75'">Official holidays</a>
-                    <a href="/hr/suspensions" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'suspensions'} ? 'fw-bold' : 'opacity-75'">Class suspensions</a>
-                </div>
-            </li>
+        <!-- Time & Attendance -->
+        <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
+            <div class="eac-sidebar-section-label">
+                <i class="fas fa-clock"></i> Time &amp; Attendance
+            </div>
+            <a href="/hr/attendance" class="eac-sidebar-link"
+               th:classappend="${activePage == 'attendanceAdmin'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-clipboard-list"></i></span>
+                <span>Attendance</span>
+            </a>
+            <a href="/hr/shift-management" class="eac-sidebar-link"
+               th:classappend="${(activePage == 'shiftManagement' or activePage == 'shiftList')} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-calendar-week"></i></span>
+                <span>Shift &amp; Schedule</span>
+            </a>
+            <a th:href="@{/hr/overtime}" class="eac-sidebar-link"
+               th:classappend="${activePage == 'overtime'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-business-time"></i></span>
+                <span>Overtime</span>
+            </a>
+            <a th:href="@{/hr/official-business}" class="eac-sidebar-link"
+               th:classappend="${activePage == 'officialBusiness'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-car-side"></i></span>
+                <span>Official Business</span>
+            </a>
+            <a href="/hr/biometrics" class="eac-sidebar-link"
+               th:classappend="${activePage == 'biometrics'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-fingerprint"></i></span>
+                <span>Biometrics</span>
+            </a>
+        </li>
 
-            <li sec:authorize="hasAnyAuthority('ADMIN','HR','FINANCE')" class="nav-item mt-2 border-top border-secondary pt-3">
-                <button type="button" class="sidebar-group-btn text-white text-start w-100 border-0 bg-transparent py-2 d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse" data-bs-target="#sidebarFinance" th:attr="aria-expanded=${(activePage == 'payroll' or activePage == 'salaryAudit' or activePage == 'teachingPay' or activePage == 'payrollPeriods') ? 'true' : 'false'}">
-                    <span class="fw-bold text-uppercase letter-spacing-1" style="font-size: 0.75rem;">Finance</span>
-                    <span class="small">▼</span>
-                </button>
-                <div id="sidebarFinance" class="collapse ps-2 pb-2" th:classappend="${(activePage == 'payroll' or activePage == 'salaryAudit' or activePage == 'teachingPay' or activePage == 'payrollPeriods') ? ' show' : ''}">
-                    <a href="/hr/payroll" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'payroll'} ? 'fw-bold' : 'opacity-75'">Payroll (salary)</a>
-                    <a href="/hr/salary-audit" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'salaryAudit'} ? 'fw-bold' : 'opacity-75'">Salary rules (audit)</a>
-                    <a href="/hr/payroll-periods" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'payrollPeriods'} ? 'fw-bold' : 'opacity-75'">Saved pay periods</a>
-                    <a href="/hr/teaching-pay" class="d-block text-white text-decoration-none py-1"
-                       th:classappend="${activePage == 'teachingPay'} ? 'fw-bold' : 'opacity-75'">Teaching pay</a>
-                </div>
-            </li>
+        <!-- Leave & Calendar -->
+        <li sec:authorize="hasAnyAuthority('ADMIN','HR')" class="nav-item">
+            <div class="eac-sidebar-section-label">
+                <i class="fas fa-calendar-days"></i> Leave &amp; Calendar
+            </div>
+            <a href="/hr/leaves" class="eac-sidebar-link"
+               th:classappend="${activePage == 'leaves'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-plane-departure"></i></span>
+                <span>Leave Requests</span>
+            </a>
+            <a href="/hr/attendance-board" class="eac-sidebar-link"
+               th:classappend="${activePage == 'attendance'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-calendar-alt"></i></span>
+                <span>Calendar</span>
+            </a>
+            <a href="/hr/holidays" class="eac-sidebar-link"
+               th:classappend="${activePage == 'holidays'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-flag"></i></span>
+                <span>Official Holidays</span>
+            </a>
+            <a href="/hr/suspensions" class="eac-sidebar-link"
+               th:classappend="${activePage == 'suspensions'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-circle-pause"></i></span>
+                <span>Class Suspensions</span>
+            </a>
+        </li>
 
-            <li class="nav-item mt-5 pt-4 border-top border-secondary">
-                <a th:href="@{/logout}" class="text-white text-decoration-none opacity-75 d-block text-uppercase small fw-bold">Logout</a>
-            </li>
-        </ul>
-    </nav>
+        <!-- Finance -->
+        <li sec:authorize="hasAnyAuthority('ADMIN','HR','FINANCE')" class="nav-item eac-sidebar-finance-section">
+            <div class="eac-sidebar-section-label">
+                <i class="fas fa-peso-sign"></i> Finance
+            </div>
+            <a href="/hr/payroll" class="eac-sidebar-link"
+               th:classappend="${activePage == 'payroll'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                <span>Payroll</span>
+            </a>
+            <a href="/hr/salary-audit" class="eac-sidebar-link"
+               th:classappend="${activePage == 'salaryAudit'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-scale-balanced"></i></span>
+                <span>Salary Rules</span>
+            </a>
+            <a href="/hr/payroll-periods" class="eac-sidebar-link"
+               th:classappend="${activePage == 'payrollPeriods'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-calendar-check"></i></span>
+                <span>Pay Periods</span>
+            </a>
+            <a href="/hr/teaching-pay" class="eac-sidebar-link"
+               th:classappend="${activePage == 'teachingPay'} ? ' eac-sidebar-link--active' : ''">
+                <span class="eac-sidebar-icon"><i class="fas fa-chalkboard-user"></i></span>
+                <span>Teaching Pay</span>
+            </a>
+        </li>
 
-    <th:block th:fragment="sidebarScripts">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </th:block>
+    </ul>
+
+    <!-- Logout -->
+    <div class="eac-sidebar-footer">
+        <a th:href="@{/logout}" class="eac-sidebar-logout">
+            <i class="fas fa-right-from-bracket"></i>
+            <span>Sign Out</span>
+        </a>
+    </div>
+
+</nav>
+
+<th:block th:fragment="sidebarScripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</th:block>
 
 </body>
 </html>

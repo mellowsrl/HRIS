@@ -1,100 +1,91 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="split-page">
 <head>
-    <th:block th:replace="~{fragments/head :: eacHead('Register — Applicant portal')}"></th:block>
+    <th:block th:replace="~{fragments/head :: eacHead('Create Account')}"></th:block>
 </head>
-<body class="eac-surface eac-auth-shell--centered eac-portal-auth eac-portal-auth--register py-4">
+<body class="split-page">
 
-<div class="eac-portal-auth__bg" aria-hidden="true"></div>
+<div class="split-layout">
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 eac-portal-auth__col eac-portal-auth__brand text-center mb-2">
-            <a th:href="@{/}" class="d-inline-block text-decoration-none" title="EAC home">
-                <img th:src="@{/image/logo.png}" alt="EAC" height="64" class="eac-portal-auth__logo mb-3" width="auto">
-            </a>
-            <p class="eac-portal-auth__eyebrow mb-1">Emilio Aguinaldo College</p>
-            <h1 class="h3 fw-bold text-dark m-0" style="letter-spacing: -0.02em;">Create your account</h1>
-            <p class="text-muted small mt-2 mb-0">One account to view jobs, apply, and track your status.</p>
-        </div>
-    </div>
-
-    <div class="row justify-content-center eac-portal-auth__card-wrap">
-        <div class="col-12 eac-portal-auth__col">
-            <div class="card eac-card-auth eac-portal-auth__card">
-                <div class="card-header eac-card-auth-header">
-                    <h2 class="h5 mb-0">Applicant sign-up</h2>
-                </div>
-                <div class="card-body p-4 p-md-4">
-
-                    <div th:if="${error}" class="alert alert-danger shadow-sm mb-3" role="alert">
-                        <span class="d-block text-center" th:text="${error}">Error</span>
-                    </div>
-
-                    <p class="text-muted small mb-4">
-                        Use a working email&mdash;you&rsquo;ll use it to sign in. We&rsquo;ll send a short welcome message (your password is never sent by email).
-                    </p>
-
-                    <form th:action="@{/register}" th:object="${newUser}" method="post" class="eac-portal-auth__form" id="eacRegForm">
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1" for="regEmail">Email</label>
-                            <div class="eac-portal-auth__input-wrap">
-                                <svg class="eac-portal-auth__input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                                <input type="email" class="form-control form-control-lg" id="regEmail" th:field="*{username}" placeholder="name@gmail.com" autocomplete="email" required autofocus>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label text-muted small fw-bold text-uppercase letter-spacing-1" for="regPw">Password</label>
-                            <div class="eac-portal-auth__input-wrap eac-portal-auth__input-wrap--pw">
-                                <svg class="eac-portal-auth__input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10z"/></svg>
-                                <input type="password" class="form-control form-control-lg eac-pw-input" id="regPw" th:field="*{password}" autocomplete="new-password" minlength="6" required>
-                                <button type="button" class="eac-portal-auth__pw-toggle" data-eac-toggle-pw="regPw" aria-label="Show password" title="Show or hide password">
-                                    <span class="eac-pw-ico-show" aria-hidden="true">&#128065;</span>
-                                </button>
-                            </div>
-                        </div>
-                        <p class="form-text small text-muted mb-4">At least 6 characters. Choose something you can remember&mdash;we don&rsquo;t store it in plain text.</p>
-                        <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold rounded-pill">Create account</button>
-                    </form>
-
-                    <div class="mt-4 text-center eac-portal-auth__footer-link">
-                        <p class="text-muted small mb-2">Already registered?</p>
-                        <a th:href="@{/applicant-login}" class="text-danger fw-bold text-decoration-none">Sign in to applicant portal &rarr;</a>
-                    </div>
-                </div>
+    <!-- LEFT: Brand panel -->
+    <div class="split-left">
+        <div class="sl-brand">
+            <img th:src="@{/image/logo.png}" alt="EAC Logo">
+            <div>
+                <span class="sl-brand-school">Emilio Aguinaldo College</span>
+                <span class="sl-brand-system">Enterprise HR System</span>
             </div>
         </div>
+
+        <div class="sl-hero">
+            <p class="sl-eyebrow">Careers Portal</p>
+            <h1>Start your journey <span>with EAC.</span></h1>
+            <div class="sl-divider"></div>
+            <p class="sl-desc">Create a free account to view open positions, submit applications, and track your hiring status.</p>
+        </div>
+
+        <div class="sl-footer">
+            <a href="https://www.eac.edu.ph/" target="_blank" rel="noopener">eac.edu.ph</a>
+            &nbsp;&middot;&nbsp;<em>Virtus, Excelentia, Servitium</em>
+        </div>
     </div>
 
-    <div class="row justify-content-center mt-3">
-        <div class="col-12 eac-portal-auth__col text-center eac-portal-auth__quick">
-            <a th:href="@{/}" class="d-inline-block">&larr; Main portal</a>
+    <!-- RIGHT: Register form -->
+    <div class="split-right">
+
+        <p class="sr-label">New Applicant</p>
+        <h2 class="sr-heading">Create your account</h2>
+        <p class="sr-subheading">You'll use your email to sign in after registering.</p>
+
+        <div th:if="${error}" class="sr-alert sr-alert-danger" role="alert" th:text="${error}">Error</div>
+
+        <form th:action="@{/register}" th:object="${newUser}" method="post" id="eacRegForm">
+            <div class="sr-form-group">
+                <label class="sr-label-field" for="regEmail">Email</label>
+                <div class="sr-input-wrap">
+                    <svg class="sr-input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <input type="email" class="sr-input" id="regEmail" th:field="*{username}" placeholder="name@example.com" autocomplete="email" required autofocus>
+                </div>
+            </div>
+            <div class="sr-form-group">
+                <label class="sr-label-field" for="regPw">Password</label>
+                <div class="sr-input-wrap">
+                    <svg class="sr-input-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10z"/></svg>
+                    <input type="password" class="sr-input" id="regPw" th:field="*{password}" autocomplete="new-password" minlength="6" required style="padding-right: 2.8rem;">
+                    <button type="button" class="sr-pw-toggle" data-target="regPw" aria-label="Show password">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    </button>
+                </div>
+                <p class="sr-hint">At least 6 characters.</p>
+            </div>
+            <button type="submit" class="sr-btn">Create Account</button>
+        </form>
+
+        <div class="sr-form-footer">
+            <p>Already registered?</p>
+            <a th:href="@{/applicant-login}">Sign in to applicant portal &rarr;</a>
         </div>
+
+        <a th:href="@{/}" class="sr-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            Back to portal
+        </a>
+
+        <p class="sr-footer">&copy; 2026 <a href="https://www.eac.edu.ph/" target="_blank" rel="noopener">Emilio Aguinaldo College</a>. All rights reserved.</p>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript">
-(function () {
-    function ready() {
-        document.body.classList.add('eac-portal-auth--ready');
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { requestAnimationFrame(ready); });
-    } else { requestAnimationFrame(ready); }
-
-    document.querySelectorAll('[data-eac-toggle-pw]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var id = btn.getAttribute('data-eac-toggle-pw');
-            var input = id ? document.getElementById(id) : null;
-            if (!input) return;
-            var show = input.getAttribute('type') === 'password';
-            input.setAttribute('type', show ? 'text' : 'password');
-            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-            btn.setAttribute('title', show ? 'Hide password' : 'Show password');
-        });
+<script>
+document.querySelectorAll('.sr-pw-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var input = document.getElementById(btn.getAttribute('data-target'));
+        if (!input) return;
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
     });
-})();
+});
 </script>
 </body>
 </html>

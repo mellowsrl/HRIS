@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="split-page">
 <head>
-    <th:block th:replace="~{fragments/head :: eacHead('EAC Careers Portal')}"></th:block>
+    <th:block th:replace="~{fragments/head :: eacHead('Staff Access')}"></th:block>
 </head>
 <body class="split-page">
 
@@ -13,15 +13,15 @@
             <img th:src="@{/image/logo.png}" alt="EAC Logo">
             <div>
                 <span class="sl-brand-school">Emilio Aguinaldo College</span>
-                <span class="sl-brand-system">Careers &amp; HR Portal</span>
+                <span class="sl-brand-system">Enterprise HR System</span>
             </div>
         </div>
 
         <div class="sl-hero">
-            <p class="sl-eyebrow">Now Hiring</p>
-            <h1>Find your place <span>at EAC.</span></h1>
+            <p class="sl-eyebrow">Internal Access</p>
+            <h1>Staff &amp; <span>Management Portal</span></h1>
             <div class="sl-divider"></div>
-            <p class="sl-desc">Browse open positions, submit your application, and track your hiring status — all in one place.</p>
+            <p class="sl-desc">This portal is restricted to authorized EAC personnel only. Unauthorized access is prohibited.</p>
         </div>
 
         <div class="sl-footer">
@@ -30,49 +30,48 @@
         </div>
     </div>
 
-    <!-- RIGHT: Applicant actions -->
+    <!-- RIGHT: Staff portal selector -->
     <div class="split-right">
 
-        <p class="sr-label">Applicant Portal</p>
-        <h2 class="sr-heading">Get started</h2>
-        <p class="sr-subheading">Sign in to your account or create one to apply.</p>
+        <p class="sr-label">Authorized Personnel Only</p>
+        <h2 class="sr-heading">Select your role</h2>
+        <p class="sr-subheading">Choose the portal that matches your position.</p>
 
         <div class="portal-list">
 
-            <a href="/applicant-login" class="portal-item" aria-label="Sign in to applicant portal">
-                <div class="portal-icon-wrap pi-applicant">
+            <a href="/employee-login" class="portal-item" aria-label="Employee portal">
+                <div class="portal-icon-wrap pi-employee">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                     </svg>
                 </div>
                 <div class="portal-text">
-                    <strong>Sign In</strong>
-                    <span>Access your applications and status</span>
+                    <strong>Employee</strong>
+                    <span>Attendance, DTR &amp; leave requests</span>
                 </div>
                 <svg class="portal-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </a>
 
-            <a href="/register" class="portal-item" aria-label="Create a new applicant account">
+            <a href="/admin-login" class="portal-item" aria-label="HR and management portal">
                 <div class="portal-icon-wrap pi-hr">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15h8v2H8zm0-4h8v2H8z"/>
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.02 7.02 0 0 0-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.47.47 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.26.42.49.42h4c.25 0 .46-.18.49-.42l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
                     </svg>
                 </div>
                 <div class="portal-text">
-                    <strong>Create Account</strong>
-                    <span>Register to view and apply for open positions</span>
+                    <strong>HR &amp; Management</strong>
+                    <span>Dashboard, payroll &amp; employee records</span>
                 </div>
                 <svg class="portal-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </a>
 
         </div>
 
-        <!-- Discreet staff access — not a featured option -->
         <div style="border-top: 1px solid #ebe8e4; padding-top: 1.25rem; margin-top: 0.25rem;">
-            <p style="font-size: 0.72rem; color: #bbb; margin-bottom: 0.4rem;">EAC employee or administrator?</p>
-            <a href="/staff" style="font-size: 0.78rem; font-weight: 600; color: #aaa; text-decoration: none; transition: color 0.2s;"
+            <p style="font-size: 0.72rem; color: #bbb; margin-bottom: 0.4rem;">Not an EAC employee?</p>
+            <a href="/" style="font-size: 0.78rem; font-weight: 600; color: #aaa; text-decoration: none; transition: color 0.2s;"
                onmouseover="this.style.color='#888'" onmouseout="this.style.color='#aaa'">
-                Staff sign-in &rarr;
+                &larr; Go to applicant portal
             </a>
         </div>
 

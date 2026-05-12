@@ -12,7 +12,7 @@
             <div class="d-flex align-items-start gap-2">
                 <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
                 <div>
-                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c; letter-spacing:-0.5px;">Leaves</h1>
+                    <h1 class="h4 fw-bold m-0" style="color: var(--eac-dark-gray, #2d3436); letter-spacing:-0.5px;">Leaves</h1>
                     <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
                         <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
                         <span>Leaves</span><span class="sep">/</span>
@@ -38,8 +38,8 @@
                 <a class="eac-empl-nav-pill" th:href="@{/hr/leave-credits/reset}">Leave Settings</a>
             </li>
         </ul>
-        <div class="alert alert-light border small text-secondary py-2 px-3 mb-3" style="--bs-alert-border-color: #e0e8e6;" role="status">
-            <i class="fas fa-info-circle me-1" style="color:#0d6e6a;" aria-hidden="true"></i>
+        <div class="alert alert-light border small text-secondary py-2 px-3 mb-3" style="--bs-alert-border-color: #ddd;" role="status">
+            <i class="fas fa-info-circle me-1 text-muted" aria-hidden="true"></i>
             <strong>Where this list comes from:</strong>
             it reads saved <strong>leave applications</strong> in the <span class="font-monospace" style="font-size:0.9em">leave_requests</span> table
             (submissions from the <a th:href="@{/employee/leaves}">employee</a> portal or from HR). A row appears if its leave period
@@ -50,61 +50,48 @@
         <div th:if="${successMessage}" class="alert alert-success fw-bold shadow-sm" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-danger fw-bold shadow-sm" th:text="${errorMessage}"></div>
 
-        <div class="row g-3 mb-3" th:if="${leaveMonthStats != null}">
-            <div class="col-12 col-md-4">
-                <div class="eac-att-stat eac-att-stat--ok h-100 d-flex justify-content-between align-items-center" style="padding:1.25rem 1.5rem;">
-                    <div>
-                        <h3 th:text="${#numbers.formatDecimal(leaveMonthStats.approved, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                        <div class="sub">Approved leaves (this month)</div>
-                    </div>
-                    <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                        <i class="fas fa-user-check text-white" aria-hidden="true"></i>
-                    </div>
+        <div class="row g-3 mb-4" th:if="${leaveMonthStats != null}">
+            <div class="col-6 col-md-4">
+                <div class="eac-att-stat eac-att-stat--ok h-100">
+                    <div class="sub"><i class="fas fa-user-check me-1"></i>Approved leaves (this month)</div>
+                    <h3 th:text="${#numbers.formatDecimal(leaveMonthStats.approved, 0, 'COMMA', 0, 'POINT')}">0</h3>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
-                <div class="eac-att-stat eac-att-stat--abs h-100 d-flex justify-content-between align-items-center" style="padding:1.25rem 1.5rem;">
-                    <div>
-                        <h3 th:text="${#numbers.formatDecimal(leaveMonthStats.rejected, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                        <div class="sub">Rejected leaves</div>
-                    </div>
-                    <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                        <i class="fas fa-user-times text-white" aria-hidden="true"></i>
-                    </div>
+            <div class="col-6 col-md-4">
+                <div class="eac-att-stat eac-att-stat--abs h-100">
+                    <div class="sub"><i class="fas fa-user-times me-1"></i>Rejected leaves</div>
+                    <h3 th:text="${#numbers.formatDecimal(leaveMonthStats.rejected, 0, 'COMMA', 0, 'POINT')}">0</h3>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
-                <div class="eac-att-stat h-100 d-flex justify-content-between align-items-center" style="padding:1.25rem 1.5rem;background:linear-gradient(135deg,#e8a87c,#c56c3d);">
-                    <div>
-                        <h3 th:text="${#numbers.formatDecimal(leaveMonthStats.pending, 0, 'COMMA', 0, 'POINT')}">0</h3>
-                        <div class="sub">Pending requests</div>
-                    </div>
-                    <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                        <i class="fas fa-user-clock text-white" aria-hidden="true"></i>
-                    </div>
+            <div class="col-6 col-md-4">
+                <div class="eac-att-stat eac-att-stat--late h-100">
+                    <div class="sub"><i class="fas fa-user-clock me-1"></i>Pending requests</div>
+                    <h3 th:text="${#numbers.formatDecimal(leaveMonthStats.pending, 0, 'COMMA', 0, 'POINT')}">0</h3>
                 </div>
             </div>
         </div>
 
-        <h6 class="fw-bold py-2 px-3 mb-0 text-white" style="background:linear-gradient(90deg,#0d6e6a,#0a5250);border-radius:6px 6px 0 0;">Leave list</h6>
-        <form method="get" th:action="@{/hr/leaves}" class="eac-empl-filters p-3 row g-2 align-items-end border border-top-0 shadow-sm" style="border-color:#e8ecec !important;background:#0d4a47;">
+        <div class="eac-dept-list-head d-flex align-items-center px-3 py-2" style="border-radius:6px 6px 0 0;">
+            <h6 class="m-0 fw-bold text-white"><i class="fas fa-list me-2"></i>Leave list</h6>
+        </div>
+        <form method="get" th:action="@{/hr/leaves}" class="eac-empl-filters p-3 row g-2 align-items-end mb-0">
             <div class="col-6 col-md-4 col-lg-3">
-                <label class="form-label text-white-50 small mb-0">Date from</label>
+                <label class="form-label text-muted small mb-0">Date from</label>
                 <input type="date" name="dateFrom" class="form-control form-control-sm" th:value="${dateFrom}">
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <label class="form-label text-white-50 small mb-0">Date to</label>
+                <label class="form-label text-muted small mb-0">Date to</label>
                 <input type="date" name="dateTo" class="form-control form-control-sm" th:value="${dateTo}">
             </div>
             <div class="col-6 col-md-4 col-lg-2" th:if="${allLeaveTypes != null}">
-                <label class="form-label text-white-50 small mb-0">Leave type</label>
+                <label class="form-label text-muted small mb-0">Leave type</label>
                 <select class="form-select form-select-sm" id="eacLvFType">
                     <option value="">All leave type</option>
                     <option th:each="t : ${allLeaveTypes}" th:value="${t}" th:text="${t}">—</option>
                 </select>
             </div>
             <div class="col-6 col-md-4 col-lg-2" th:if="${allBranches != null and !#lists.isEmpty(allBranches)}">
-                <label class="form-label text-white-50 small mb-0 d-none d-md-block">&nbsp;</label>
+                <label class="form-label text-muted small mb-0 d-none d-md-block">&nbsp;</label>
                 <select class="form-select form-select-sm" id="eacLvFBranch" title="Branch">
                     <option value="">All branches</option>
                     <option th:each="b : ${allBranches}" th:value="${b}" th:text="${'Campus ' + b}">1</option>
@@ -123,7 +110,7 @@
                 </select>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
-                <label class="form-label text-white-50 small mb-0">Status</label>
+                <label class="form-label text-muted small mb-0">Status</label>
                 <select class="form-select form-select-sm" id="eacLvFSt">
                     <option value="">All status</option>
                     <option value="Pending">Pending</option>
@@ -132,7 +119,7 @@
                 </select>
             </div>
             <div class="col-12 col-md-auto d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-sm btn-light">Apply</button>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
             </div>
         </form>
 
@@ -179,15 +166,20 @@
                             <div class="fw-semibold" th:text="${r.employeeName}">—</div>
                             <div class="small text-muted" th:text="${r.eacId}">—</div>
                         </td>
-                        <td><span class="badge bg-info text-dark" th:text="${r.leaveType}">—</span></td>
+                        <td><span class="badge bg-light text-dark border" th:text="${r.leaveType}">—</span></td>
                         <td th:text="${r.fromDate}">—</td>
                         <td th:text="${r.toDate}">—</td>
                         <td class="fw-bold" th:text="${r.numberOfDays}">0</td>
-                        <td><span class="badge border bg-light text-dark" th:text="${r.status}">—</span></td>
+                        <td>
+                            <span th:if="${r.status == 'Approved'}" class="badge bg-success text-white" th:text="${r.status}">—</span>
+                            <span th:if="${r.status == 'Pending'}"  class="badge bg-warning text-dark"  th:text="${r.status}">—</span>
+                            <span th:if="${r.status == 'Rejected'}" class="badge bg-danger  text-white" th:text="${r.status}">—</span>
+                            <span th:if="${r.status != 'Approved' and r.status != 'Pending' and r.status != 'Rejected'}" class="badge bg-secondary text-white" th:text="${r.status}">—</span>
+                        </td>
                         <td th:text="${r.nextApprover}">—</td>
                         <td class="small" th:text="${r.lastActionBy}">—</td>
                         <td class="text-nowrap">
-                            <a th:if="${#strings.toString(r.status) == 'Pending'}" th:href="@{/hr/leaves/review(id=${r.requestId})}" class="btn btn-sm btn-outline-primary py-0">Review</a>
+                            <a th:if="${#strings.toString(r.status) == 'Pending'}" th:href="@{/hr/leaves/review(id=${r.requestId})}" class="btn btn-sm btn-outline-secondary py-0">Review</a>
                             <th:block th:if="${#strings.toString(r.status) == 'Pending'}">
                                 <form th:action="@{/hr/leaves/approve}" method="post" class="d-inline">
                                     <input type="hidden" name="id" th:value="${r.requestId}"/>
@@ -205,8 +197,12 @@
                             <span th:if="${#strings.toString(r.status) != 'Pending'}" class="text-muted small">—</span>
                         </td>
                     </tr>
-                    <tr th:if="${leaveRows == null or #lists.isEmpty(leaveRows)}">
-                        <td colspan="10" class="text-center text-muted p-4">No data in table for this range.</td>
+                    <tr th:if="${leaveRows == null or #lists.isEmpty(leaveRows)}" class="eac-empty-row">
+                        <td colspan="10" class="eac-empty-cell">
+                            <i class="fas fa-calendar-xmark eac-empty-icon"></i>
+                            <span class="eac-empty-text">No leave requests found for this range.</span>
+                            <span class="eac-empty-text">Try adjusting the date range or status filter.</span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -215,7 +211,7 @@
                 <div id="eacLvInfo">—</div>
                 <div class="d-flex gap-1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="eacLvPrev">‹</button>
-                    <span class="badge rounded-pill align-self-center" style="background:#1a4d4a" id="eacLvNo">1</span>
+                    <span class="badge rounded-pill align-self-center" id="eacLvNo">1</span>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="eacLvNext">›</button>
                 </div>
             </div>
