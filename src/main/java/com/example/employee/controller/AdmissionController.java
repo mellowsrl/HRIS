@@ -127,6 +127,11 @@ public class AdmissionController {
         model.addAttribute("pendingApplicants", service.countApplicantsByStatus("PENDING"));
         model.addAttribute("scheduledApplicants", service.countApplicantsByStatus("ACCEPTED"));
         model.addAttribute("employmentMilestones", service.getEmploymentMilestoneAlerts(60, 45));
+        model.addAttribute("todayStats", service.getTodayAttendanceStats());
+        model.addAttribute("todayBirthdays", service.getTodayBirthdays());
+        model.addAttribute("upcomingBirthdays", service.getUpcomingBirthdays(7));
+        model.addAttribute("pendingLeave", service.countPendingLeaveRequests());
+        model.addAttribute("pendingOT", service.countPendingOvertimeThisMonth());
         return "hr-dashboard";
     }
 
@@ -384,7 +389,10 @@ public class AdmissionController {
             @RequestParam(required = false) String pagibigNumber,
             @RequestParam(required = false) String highestDegree,
             @RequestParam(required = false) String emergencyContactName,
-            @RequestParam(required = false) String emergencyContactPhone) {
+            @RequestParam(required = false) String emergencyContactPhone,
+            @RequestParam(required = false) String emergencyContactRelationship,
+            @RequestParam(required = false) String secondaryEmergencyContactName,
+            @RequestParam(required = false) String secondaryEmergencyContactPhone) {
 
         OfficialEmployee emp = officialEmployeeRepository.findById(id).orElse(null);
         if (emp != null) {
@@ -395,6 +403,9 @@ public class AdmissionController {
             emp.setHighestDegree(blankToNull(highestDegree));
             emp.setEmergencyContactName(blankToNull(emergencyContactName));
             emp.setEmergencyContactPhone(blankToNull(emergencyContactPhone));
+            emp.setEmergencyContactRelationship(blankToNull(emergencyContactRelationship));
+            emp.setSecondaryEmergencyContactName(blankToNull(secondaryEmergencyContactName));
+            emp.setSecondaryEmergencyContactPhone(blankToNull(secondaryEmergencyContactPhone));
             officialEmployeeRepository.save(emp);
             String actor = principal != null ? principal.getName() : "HR";
             service.recordHrAudit(actor, "UPDATE_201_RECORDS", "OfficialEmployee", id, "gov IDs / emergency / education from HR records screen");

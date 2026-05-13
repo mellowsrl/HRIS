@@ -2,181 +2,283 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: eacHead('HR — Shift list')}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="eac-surface min-vh-100">
 <div class="dashboard-wrapper">
     <div th:replace="~{fragments/sidebar :: sidebar(activePage='shiftList')}"></div>
-    <div id="content" class="main-content eac-empl-page">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="d-flex align-items-center gap-3">
-                <button type="button" id="sidebarToggle" class="btn-hamburger">☰</button>
+    <div id="content" class="main-content eac-empl-page" style="background:#f5f7f7;">
+
+        <!-- Page header -->
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+            <div class="d-flex align-items-start gap-2">
+                <button type="button" id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
                 <div>
-                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;">Shift List</h1>
-                    <div class="small text-muted">Shift &amp; Schedule</div>
+                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;letter-spacing:-0.5px;">Shift List</h1>
+                    <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
+                        <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
+                        <span>Shift &amp; Schedule</span>
+                    </nav>
                 </div>
             </div>
             <div class="d-flex gap-2">
-                <button type="button" class="btn btn-sm text-white border-0 fw-bold px-3" data-bs-toggle="modal" data-bs-target="#addShiftModal" style="background:#0d6e6a;">Add Shift</button>
-                <a th:href="@{/hr/shift-management}" class="btn btn-sm btn-outline-secondary fw-bold px-3">Shift Management</a>
+                <button type="button" class="btn btn-sm btn-danger fw-semibold px-3"
+                        data-bs-toggle="modal" data-bs-target="#addShiftModal">
+                    <i class="fas fa-plus me-1" style="font-size:.75rem;"></i>Add Shift
+                </button>
+                <a th:href="@{/hr/shift-management}" class="btn btn-sm btn-outline-secondary fw-semibold px-3">
+                    <i class="fas fa-sliders-h me-1" style="font-size:.75rem;"></i>Shift Management
+                </a>
             </div>
         </div>
 
-        <div class="alert alert-success py-2" th:if="${okMessage != null}" th:text="${okMessage}">Saved.</div>
+        <div class="alert alert-success alert-dismissible fade show py-2 small fw-bold mb-3"
+             th:if="${okMessage != null}" th:text="${okMessage}">Saved.
+            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert"></button>
+        </div>
 
-        <div class="bg-white border rounded shadow-sm">
-            <div class="d-flex justify-content-between align-items-center px-3 py-2 text-white" style="background:#0d4a47;border-radius:6px 6px 0 0;">
-                <strong>Shift List</strong>
-                <div style="min-width:220px;">
-                    <select class="form-select form-select-sm" id="shiftBranchFilter">
+        <div class="card border-0 shadow-sm">
+            <!-- Toolbar -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-bottom" style="background:#fff;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-clock text-muted" style="font-size:.8rem;"></i>
+                    <span class="fw-semibold text-uppercase text-muted" style="font-size:.7rem;letter-spacing:.07em;">Shift Schedule</span>
+                    <span class="badge rounded-pill ms-1" style="font-size:.65rem;background:#e9ecef;color:#495057;"
+                          th:text="${#lists.size(shifts) + ' shifts'}">0 shifts</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <select class="form-select form-select-sm border" id="shiftBranchFilter" style="max-width:150px;font-size:.8rem;">
                         <option value="">All Branches</option>
                         <option value="ALL">All Branches</option>
-                        <option th:each="s : ${shifts}" th:if="${s.branchCode != null and !#strings.isEmpty(s.branchCode) and s.branchCode != 'ALL'}"
+                        <option th:each="s : ${shifts}"
+                                th:if="${s.branchCode != null and !#strings.isEmpty(s.branchCode) and s.branchCode != 'ALL'}"
                                 th:value="${s.branchCode}" th:text="${s.branchCode}">Branch</option>
                     </select>
+                    <div class="input-group input-group-sm" style="max-width:210px;">
+                        <span class="input-group-text bg-white border-end-0 pe-1">
+                            <i class="fas fa-search text-muted" style="font-size:.7rem;"></i>
+                        </span>
+                        <input type="search" id="shiftSearch" class="form-control border-start-0 ps-1" placeholder="Search…" style="font-size:.8rem;">
+                    </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                <div class="small text-muted">Row Per Page <strong>10</strong> Entries</div>
-                <div style="max-width:220px;">
-                    <input type="search" id="shiftSearch" class="form-control form-control-sm" placeholder="Search">
-                </div>
-            </div>
+
+            <!-- Table -->
             <div class="table-responsive">
-            <table class="table table-sm table-hover mb-0" id="shiftTable">
-                <thead class="table-light small text-uppercase">
-                <tr>
-                    <th style="width:2rem;"></th>
-                    <th>Shift Name</th>
-                    <th>Branch</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Break Minutes</th>
-                    <th>Created By</th>
-                    <th>Edited By</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="s : ${shifts}" th:attr="data-branch=${s.branchCode},data-search=${#strings.toLowerCase((s.name != null ? s.name : '') + ' ' + (s.branchCode != null ? s.branchCode : ''))}">
-                    <td><input type="checkbox" class="form-check-input" disabled></td>
-                    <td th:text="${s.name != null ? s.name : '—'}">Shift</td>
-                    <td th:text="${(s.branchCode == null or s.branchCode == 'ALL') ? 'All Branches' : s.branchCode}">All Branches</td>
-                    <td th:text="${s.startTime != null ? s.startTime : '—'}">—</td>
-                    <td th:text="${s.endTime != null ? s.endTime : '—'}">—</td>
-                    <td th:text="${s.breakMinutes != null ? s.breakMinutes : 0}">0</td>
-                    <td th:text="${s.createdBy != null ? s.createdBy : 'system'}">system</td>
-                    <td th:text="${s.updatedBy != null ? s.updatedBy : 'system'}">system</td>
-                    <td>
-                        <div class="d-flex gap-1">
-                            <a class="btn btn-sm btn-outline-secondary py-0 disabled" href="#" tabindex="-1" aria-disabled="true">👁</a>
-                            <a class="btn btn-sm btn-outline-secondary py-0 disabled" href="#" tabindex="-1" aria-disabled="true">✎</a>
-                            <form method="post" th:action="@{/hr/shifts/archive}" th:if="${s.active}">
-                                <input type="hidden" name="id" th:value="${s.id}">
-                                <button class="btn btn-sm btn-outline-danger py-0" type="submit" onclick="return confirm('Archive this shift?');">🗑</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(shifts)}"><td colspan="9" class="text-center text-muted p-3">No shifts yet.</td></tr>
-                </tbody>
-            </table>
+                <table class="table table-hover align-middle mb-0" id="shiftTable" style="font-size:.85rem;">
+                    <thead>
+                    <tr style="background:#f8f9fb;font-size:.65rem;letter-spacing:.06em;color:#6c757d;text-transform:uppercase;border-bottom:1px solid #e9ecef;">
+                        <th class="ps-4 py-3" style="width:2.5rem;"></th>
+                        <th class="py-3 fw-semibold">Shift Name</th>
+                        <th class="py-3 fw-semibold">Branch</th>
+                        <th class="py-3 fw-semibold">Hours</th>
+                        <th class="py-3 fw-semibold">Break</th>
+                        <th class="py-3 fw-semibold">Created By</th>
+                        <th class="py-3 fw-semibold">Last Edited</th>
+                        <th class="pe-4 py-3 fw-semibold">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${shifts}"
+                        style="border-bottom:1px solid #f1f3f5;"
+                        th:attr="data-branch=${s.branchCode},data-search=${#strings.toLowerCase((s.name != null ? s.name : '') + ' ' + (s.branchCode != null ? s.branchCode : ''))}">
+                        <td class="ps-4"><input type="checkbox" class="form-check-input" disabled></td>
+                        <td class="py-3">
+                            <div class="fw-semibold" style="color:#1a2e2c;" th:text="${s.name != null ? s.name : '—'}">Shift</div>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge rounded-pill px-2 py-1"
+                                  style="font-size:.7rem;font-weight:500;background:#f0f1f3;color:#495057;border:1px solid #dee2e6;"
+                                  th:text="${(s.branchCode == null or s.branchCode == 'ALL') ? 'All Branches' : s.branchCode}">All Branches</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="text-muted me-1" style="font-size:.75rem;" th:text="${s.startTime != null ? s.startTime : '—'}">—</span>
+                            <span class="text-muted" style="font-size:.7rem;">→</span>
+                            <span class="text-muted ms-1" style="font-size:.75rem;" th:text="${s.endTime != null ? s.endTime : '—'}">—</span>
+                        </td>
+                        <td class="py-3 text-muted">
+                            <span th:text="${(s.breakMinutes != null and s.breakMinutes > 0) ? s.breakMinutes + ' min' : '—'}">—</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="text-muted" style="font-size:.78rem;" th:text="${s.createdBy != null ? s.createdBy : 'system'}">system</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="text-muted" style="font-size:.78rem;" th:text="${s.updatedBy != null ? s.updatedBy : 'system'}">system</span>
+                        </td>
+                        <td class="pe-4 py-3">
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-secondary py-0 px-2 disabled"
+                                        tabindex="-1" aria-disabled="true" title="View">
+                                    <i class="fas fa-eye" style="font-size:.68rem;"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary py-0 px-2 disabled"
+                                        tabindex="-1" aria-disabled="true" title="Edit">
+                                    <i class="fas fa-pen" style="font-size:.68rem;"></i>
+                                </button>
+                                <form method="post" th:action="@{/hr/shifts/archive}" th:if="${s.active}">
+                                    <input type="hidden" name="id" th:value="${s.id}">
+                                    <button class="btn btn-sm btn-outline-danger py-0 px-2" type="submit"
+                                            title="Archive" onclick="return confirm('Archive this shift?');">
+                                        <i class="fas fa-archive" style="font-size:.68rem;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(shifts)}">
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="fas fa-clock d-block mx-auto mb-2" style="font-size:2rem;opacity:.2;"></i>
+                            <div style="font-size:.85rem;">No shifts have been created yet.</div>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-danger px-3"
+                                        data-bs-toggle="modal" data-bs-target="#addShiftModal">
+                                    <i class="fas fa-plus me-1" style="font-size:.7rem;"></i>Add First Shift
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Add Shift Modal -->
 <div class="modal fade" id="addShiftModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <form method="post" th:action="@{/hr/shifts/save}" class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Create Shift Schedule</h5>
+            <div class="modal-header border-bottom pb-3" style="background:#f8f9fb;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-clock text-muted" style="font-size:.9rem;"></i>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" style="font-size:1rem;">Create Shift Schedule</h5>
+                        <p class="text-muted mb-0 mt-1" style="font-size:.72rem;letter-spacing:.02em;">Define work hours, breaks, and attendance rules.</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="row g-3">
-                    <input type="hidden" name="id">
-                    <div class="col-md-6">
-                        <label class="form-label small">Shift Name *</label>
-                        <input required class="form-control form-control-sm" name="name" placeholder="e.g. Morning Shift">
+            <div class="modal-body px-4 py-3">
+                <input type="hidden" name="id">
+                <input type="hidden" name="active" value="true">
+
+                <!-- Basic info -->
+                <div class="rounded-3 p-3 mb-3" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-info-circle text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Basic Info</span>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Branch *</label>
-                        <input class="form-control form-control-sm" name="branchCode" placeholder="ALL">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Start Time *</label>
-                        <input type="time" required class="form-control form-control-sm" name="startTime">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">End Time *</label>
-                        <input type="time" required class="form-control form-control-sm" name="endTime">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Maximum Allowed Hours *</label>
-                        <input type="number" step="0.25" min="0" required class="form-control form-control-sm" name="maxAllowedHours" placeholder="e.g. 8">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Grace Period (minutes) *</label>
-                        <input type="number" min="0" required class="form-control form-control-sm" name="graceMinutes" placeholder="e.g. 5">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Break Duration (minutes)</label>
-                        <input type="number" min="0" class="form-control form-control-sm" name="breakMinutes" placeholder="e.g. 60">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Allowed Minutes Before Clock In</label>
-                        <input type="number" min="0" class="form-control form-control-sm" name="allowedMinutesBeforeClockIn" placeholder="e.g. 15">
-                        <div class="form-text">Leave blank if no time restriction applies.</div>
-                    </div>
-                    <div class="col-12 d-flex gap-4 small">
-                        <label><input type="checkbox" name="flexibleHours"> Flexible Hours</label>
-                        <label><input type="checkbox" name="allowExtraHours"> Allow Extra Hours</label>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Flexi In Window Start</label>
-                        <input type="time" class="form-control form-control-sm" name="flexiInWindowStart">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Flexi In Window End</label>
-                        <input type="time" class="form-control form-control-sm" name="flexiInWindowEnd">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Required Net Work Minutes</label>
-                        <input type="number" min="0" class="form-control form-control-sm" name="requiredNetWorkMinutes" placeholder="e.g. 480">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">OT Approval Requirement</label>
-                        <select class="form-select form-select-sm" name="requireOtApproval">
-                            <option value="" selected>Default (No)</option>
-                            <option value="true">Require approval</option>
-                            <option value="false">No approval required</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small">Missing Punch Policy</label>
-                        <select class="form-select form-select-sm" name="missingPunchPolicy">
-                            <option value="REVIEW_REQUIRED" selected>Review Required</option>
-                            <option value="AUTO_CLOSE">Auto Close</option>
-                            <option value="IGNORE">Ignore</option>
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="applyStrictNoGraceOt60" id="applyStrictNoGraceOt60">
-                            <label class="form-check-label small" for="applyStrictNoGraceOt60">
-                                Quick policy preset: No grace period + Minimum OT minutes = 60
-                            </label>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Shift Name <span class="text-danger">*</span></label>
+                            <input required class="form-control form-control-sm" name="name" placeholder="e.g. Morning Shift">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Branch</label>
+                            <input class="form-control form-control-sm" name="branchCode" placeholder="ALL">
                         </div>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label small">Notes</label>
-                        <textarea class="form-control form-control-sm" name="notes" rows="3" placeholder="Optional notes..."></textarea>
+                </div>
+
+                <!-- Time settings -->
+                <div class="rounded-3 p-3 mb-3" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-clock text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Time Settings</span>
                     </div>
-                    <input type="hidden" name="active" value="true">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Start Time <span class="text-danger">*</span></label>
+                            <input type="time" required class="form-control form-control-sm" name="startTime">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">End Time <span class="text-danger">*</span></label>
+                            <input type="time" required class="form-control form-control-sm" name="endTime">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Max Allowed Hours <span class="text-danger">*</span></label>
+                            <input type="number" step="0.25" min="0" required class="form-control form-control-sm" name="maxAllowedHours" placeholder="e.g. 8">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Break Duration (min)</label>
+                            <input type="number" min="0" class="form-control form-control-sm" name="breakMinutes" placeholder="e.g. 60">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Grace Period (min) <span class="text-danger">*</span></label>
+                            <input type="number" min="0" required class="form-control form-control-sm" name="graceMinutes" placeholder="e.g. 5">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Min Before Clock-In (min)</label>
+                            <input type="number" min="0" class="form-control form-control-sm" name="allowedMinutesBeforeClockIn" placeholder="e.g. 15">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Required Net Work (min)</label>
+                            <input type="number" min="0" class="form-control form-control-sm" name="requiredNetWorkMinutes" placeholder="e.g. 480">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flexi -->
+                <div class="rounded-3 p-3 mb-3" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-sliders-h text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Flexible &amp; Options</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12 d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="flexibleHours" id="flexibleHours">
+                                <label class="form-check-label small" for="flexibleHours">Flexible Hours</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="allowExtraHours" id="allowExtraHours">
+                                <label class="form-check-label small" for="allowExtraHours">Allow Extra Hours</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Flexi Window Start</label>
+                            <input type="time" class="form-control form-control-sm" name="flexiInWindowStart">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Flexi Window End</label>
+                            <input type="time" class="form-control form-control-sm" name="flexiInWindowEnd">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">OT Approval</label>
+                            <select class="form-select form-select-sm" name="requireOtApproval">
+                                <option value="" selected>Default (No)</option>
+                                <option value="true">Require approval</option>
+                                <option value="false">No approval required</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Missing Punch Policy</label>
+                            <select class="form-select form-select-sm" name="missingPunchPolicy">
+                                <option value="REVIEW_REQUIRED" selected>Review Required</option>
+                                <option value="AUTO_CLOSE">Auto Close</option>
+                                <option value="IGNORE">Ignore</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="applyStrictNoGraceOt60" id="applyStrictNoGraceOt60">
+                                <label class="form-check-label small" for="applyStrictNoGraceOt60">
+                                    Quick preset: No grace period + Minimum OT = 60 min
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="form-label small text-muted mb-1">Notes</label>
+                    <textarea class="form-control form-control-sm" name="notes" rows="2" placeholder="Optional notes…"></textarea>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-sm text-white border-0 fw-bold" style="background:#0d6e6a;">Save Shift</button>
+            <div class="modal-footer border-top" style="background:#f8f9fb;">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sm btn-danger fw-semibold px-4">Save Shift</button>
             </div>
         </form>
     </div>

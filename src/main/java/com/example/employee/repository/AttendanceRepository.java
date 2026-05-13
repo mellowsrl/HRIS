@@ -56,4 +56,13 @@ public interface AttendanceRepository extends JpaRepository<AttendanceLog, Long>
 
     @Query("SELECT COUNT(a) FROM AttendanceLog a WHERE a.date >= :a AND a.date <= :b AND a.otApprovalStatus = 'REJECTED'")
     long countTcmsOvertimeRejectedMonth(@Param("a") LocalDate a, @Param("b") LocalDate b);
+
+    @Query("SELECT COUNT(a) FROM AttendanceLog a WHERE a.date = :date AND COALESCE(a.totalHours, 0) > 0")
+    long countPresentToday(@Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(a) FROM AttendanceLog a WHERE a.date = :date AND COALESCE(a.minutesLate, 0) > 0 AND COALESCE(a.totalHours, 0) > 0")
+    long countLateToday(@Param("date") LocalDate date);
+
+    @Query("SELECT a FROM AttendanceLog a WHERE a.date = :date ORDER BY a.employeeId ASC")
+    List<AttendanceLog> findAllByDate(@Param("date") LocalDate date);
 }

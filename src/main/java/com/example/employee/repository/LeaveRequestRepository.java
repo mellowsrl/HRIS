@@ -31,4 +31,13 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Inte
 
     @Query("SELECT DISTINCT l.leaveType FROM LeaveRequest l WHERE l.leaveType IS NOT NULL AND l.leaveType <> '' ORDER BY l.leaveType")
     List<String> findDistinctLeaveTypes();
+
+    @Query("SELECT COUNT(DISTINCT l.employeeId) FROM LeaveRequest l WHERE l.status = 'APPROVED' AND l.startDate <= :today AND l.endDate >= :today")
+    long countOnLeaveToday(@Param("today") LocalDate today);
+
+    @Query("SELECT l FROM LeaveRequest l WHERE l.status = 'APPROVED' AND l.startDate <= :today AND l.endDate >= :today ORDER BY l.startDate ASC")
+    List<LeaveRequest> findApprovedOnDate(@Param("today") LocalDate today);
+
+    @Query("SELECT COUNT(l) FROM LeaveRequest l WHERE l.status = 'PENDING'")
+    long countPendingLeaveRequests();
 }

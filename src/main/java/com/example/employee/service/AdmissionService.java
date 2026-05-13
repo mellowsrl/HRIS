@@ -741,6 +741,69 @@ public class AdmissionService {
         return new EmployeeListStats(tot, act, ina, newJ);
     }
 
+    // ── Dashboard today stats ────────────────────────────────────────────────
+
+    public record TodayAttendanceStats(long present, long late, long onLeave, long absent,
+                                       int presentPct, int latePct, int onLeavePct, int absentPct) {}
+
+    public TodayAttendanceStats getTodayAttendanceStats() {
+        LocalDate today = LocalDate.now();
+        long present = attendanceRepository.countPresentToday(today);
+        long late    = attendanceRepository.countLateToday(today);
+        long onLeave = leaveRequestRepository.countOnLeaveToday(today);
+        List<OfficialEmployee> allActive = new ArrayList<>();
+        officialEmployeeRepository.findByStatus("Active").forEach(allActive::add);
+        long totalActive = Math.max(allActive.size(), 1);
+        long absent = Math.max(0, totalActive - present - onLeave);
+        int presentPct  = (int) Math.round(100.0 * present  / totalActive);
+        int latePct     = (int) Math.round(100.0 * late     / totalActive);
+        int onLeavePct  = (int) Math.round(100.0 * onLeave  / totalActive);
+        int absentPct   = Math.max(0, 100 - presentPct - onLeavePct);
+        return new TodayAttendanceStats(present, late, onLeave, absent, presentPct, latePct, onLeavePct, absentPct);
+    }
+
+    public record BirthdayEntry(String name, String department, LocalDate birthDate, int daysUntil) {}
+
+    public List<BirthdayEntry> getTodayBirthdays() {
+        LocalDate today = LocalDate.now();
+        return officialEmployeeRepository
+            .findActiveByBirthMonthDay(today.getMonthValue(), today.getDayOfMonth())
+            .stream()
+            .map(e -> new BirthdayEntry(
+                e.getFirstName() + " " + e.getLastName(),
+                e.getDepartment(),
+                e.getBirthDate(),
+                0))
+            .collect(Collectors.toList());
+    }
+
+    public List<BirthdayEntry> getUpcomingBirthdays(int days) {
+        LocalDate today = LocalDate.now();
+        List<BirthdayEntry> result = new ArrayList<>();
+        for (int i = 1; i <= days; i++) {
+            LocalDate d = today.plusDays(i);
+            officialEmployeeRepository
+                .findActiveByBirthMonthDay(d.getMonthValue(), d.getDayOfMonth())
+                .forEach(e -> result.add(new BirthdayEntry(
+                    e.getFirstName() + " " + e.getLastName(),
+                    e.getDepartment(),
+                    e.getBirthDate(),
+                    (int) ChronoUnit.DAYS.between(today, d))));
+        }
+        result.sort(Comparator.comparingInt(BirthdayEntry::daysUntil).thenComparing(BirthdayEntry::name));
+        return result;
+    }
+
+    public long countPendingLeaveRequests() {
+        return leaveRequestRepository.countPendingLeaveRequests();
+    }
+
+    public long countPendingOvertimeThisMonth() {
+        LocalDate start = LocalDate.now().withDayOfMonth(1);
+        LocalDate end   = start.plusMonths(1).minusDays(1);
+        return attendanceRepository.countTcmsOvertimePendingMonth(start, end);
+    }
+
     /**
      * Non-active (archived) personnel: any status not equal to "Active" (e.g. HIRED, PENDING, REJECTED, Inactive).
      */

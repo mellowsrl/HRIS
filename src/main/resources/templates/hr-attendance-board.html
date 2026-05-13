@@ -3,69 +3,66 @@
 <head>
     <th:block th:replace="~{fragments/head :: eacHead('HR — Attendance board')}"></th:block>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ==========================================
-           PREMIUM PASTEL CALENDAR THEME
-           ========================================== */
         :root {
-            --fc-border-color: #e9ecef; /* Extra soft grid lines */
+            --fc-border-color: #e9ecef;
             --fc-button-text-color: #fff;
-            --fc-button-bg-color: #212529; 
-            --fc-button-border-color: #212529;
-            --fc-button-hover-bg-color: #424649;
-            --fc-button-hover-border-color: #373b3e;
-            --fc-button-active-bg-color: #424649;
+            --fc-button-bg-color: #1a2e2c;
+            --fc-button-border-color: #1a2e2c;
+            --fc-button-hover-bg-color: #2d4a47;
+            --fc-button-hover-border-color: #2d4a47;
+            --fc-button-active-bg-color: #2d4a47;
         }
-
         .fc-col-header-cell {
-            background-color: #ffffff !important;
-            border-bottom: 2px solid #212529 !important; 
+            background-color: #f8f9fb !important;
+            border-bottom: 2px solid #1a2e2c !important;
         }
-
         .fc-col-header-cell-cushion {
-            color: #212529 !important; 
+            color: #1a2e2c !important;
             text-transform: uppercase;
-            font-weight: 800;
-            font-size: 0.8rem;
+            font-weight: 700;
+            font-size: 0.72rem;
             letter-spacing: 1px;
             text-decoration: none !important;
-            padding: 12px 0 !important;
+            padding: 10px 0 !important;
         }
-
         .fc-daygrid-day-number {
             color: #6c757d !important;
-            font-weight: 700;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 0.82rem;
             text-decoration: none !important;
-            padding: 8px 10px !important;
+            padding: 6px 8px !important;
         }
-
+        /* Today highlight — visible soft amber */
         .fc-daygrid-day.fc-day-today {
-            background-color: #f8f9fa !important; /* Very clean, subtle today highlight */
+            background-color: #fffbeb !important;
         }
-
-        /* Modern, Soft Event Chips */
-        .fc-event { 
-            cursor: pointer; 
-            border: none !important; 
-            border-radius: 6px !important; /* Rounder edges */
-            padding: 4px 6px !important; 
-            font-weight: 700 !important; 
-            font-size: 0.75rem !important;
-            margin: 2px 6px !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04) !important; /* Soft depth */
+        .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+            color: #b45309 !important;
+            font-weight: 800 !important;
+        }
+        .fc-event {
+            cursor: pointer;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 2px 5px !important;
+            font-weight: 600 !important;
+            font-size: 0.7rem !important;
+            margin: 1px 4px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
             transition: transform 0.1s ease-in-out;
         }
-        
-        .fc-event:hover {
-            transform: scale(1.02);
-            opacity: 0.9;
+        .fc-event:hover { transform: scale(1.02); opacity: 0.9; }
+        .stat-card {
+            border-radius: 10px;
+            border-left: 4px solid;
+            transition: transform 0.15s;
+            background-color: #fff;
         }
-
-        /* Flash Card Hover Effects */
-        .stat-card { border-radius: 12px; border-left: 5px solid; transition: transform 0.2s; background-color: #fff;}
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important; }
-        .legend-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 .4rem .8rem rgba(0,0,0,.07) !important; }
+        .legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 7px; vertical-align: middle; flex-shrink: 0; }
+        .rate-ring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="eac-surface min-vh-100">
@@ -73,105 +70,150 @@
 <div class="dashboard-wrapper">
     <div th:replace="~{fragments/sidebar :: sidebar(activePage='attendance')}"></div>
 
-    <div id="content" class="main-content bg-light">
-        
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom flex-wrap gap-2">
-            <div class="d-flex align-items-center">
-                <button id="sidebarToggle" class="btn-hamburger me-3">☰</button>
+    <div id="content" class="main-content eac-empl-page" style="background:#f5f7f7;">
+
+        <!-- Page header -->
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+            <div class="d-flex align-items-start gap-2">
+                <button id="sidebarToggle" class="btn-hamburger me-0 mt-1">☰</button>
                 <div>
-                    <h2 class="text-danger fw-bold m-0" style="letter-spacing: -1px;">Attendance Board</h2>
-                    <p class="text-muted m-0 small fw-bold text-uppercase letter-spacing-1">Visual DTR & Monthly Tracking</p>
+                    <h1 class="h4 fw-bold m-0" style="color:#1a2e2c;letter-spacing:-0.5px;">Attendance Board</h1>
+                    <nav class="eac-empl-breadcrumb mt-1" aria-label="Breadcrumb">
+                        <a th:href="@{/hr/dashboard}">Home</a><span class="sep">/</span>
+                        <span>Attendance</span>
+                    </nav>
                 </div>
             </div>
-            <form method="get" th:action="@{/hr/attendance-board}" class="d-flex align-items-center gap-2">
-                <input type="search" name="search" class="form-control form-control-sm" style="min-width: 220px;" th:value="${searchKeyword}" placeholder="ID, name, email, department...">
-                <button type="submit" class="btn btn-sm btn-dark">Search</button>
-            </form>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: 14px;">
-                    <label class="fw-bold small text-muted text-uppercase mb-2">Select Employee</label>
-                    <select id="employeeSelect" class="form-select form-select-lg fw-bold shadow-sm border-0 bg-light" onchange="loadEmployeeData()">
+        <div class="row g-3">
+
+            <!-- ── Left panel ── -->
+            <div class="col-lg-3">
+
+                <!-- Employee selector -->
+                <div class="card border-0 shadow-sm p-3 mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fas fa-user text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Select Employee</span>
+                    </div>
+                    <select id="employeeSelect" class="form-select form-select-sm" onchange="loadEmployeeData()" style="font-size:.85rem;">
                         <option value="" disabled selected>-- Choose Personnel --</option>
-                        <option th:each="emp : ${employees}" 
-                                th:value="${emp.id}" 
-                                th:text="${emp.customEmployeeId + ' - ' + emp.firstName + ' ' + emp.lastName}"
+                        <option th:each="emp : ${employees}"
+                                th:value="${emp.id}"
+                                th:text="${emp.customEmployeeId + ' — ' + emp.firstName + ' ' + emp.lastName}"
                                 th:data-dept="${emp.department}"
-                                th:data-shift="${emp.expectedShift}">
+                                th:data-shift="${emp.expectedShift}"
+                                th:data-name="${emp.firstName + ' ' + emp.lastName}">
                         </option>
                     </select>
-                    
-                    <div id="employeeProfile" class="mt-4 d-none">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 shadow-sm" style="width: 55px; height: 55px;" id="profileInitials"></div>
-                            <div class="ms-3">
-                                <h5 class="fw-bold text-dark m-0" id="profileName">Name</h5>
-                                <div class="small text-danger fw-bold text-uppercase letter-spacing-1" id="profileDept">Department</div>
+
+                    <!-- Profile card (shown after selection) -->
+                    <div id="employeeProfile" class="mt-3 d-none">
+                        <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:#f8f9fb;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                 style="width:42px;height:42px;background:#1a2e2c;color:#fff;font-size:.9rem;"
+                                 id="profileInitials"></div>
+                            <div>
+                                <div class="fw-semibold" style="color:#1a2e2c;font-size:.875rem;" id="profileName">—</div>
+                                <div class="text-muted mt-1" style="font-size:.72rem;" id="profileDept">—</div>
                             </div>
                         </div>
-                        <div class="bg-light p-2 rounded shadow-sm border text-center small fw-bold text-secondary">
-                            Expected Shift: <span class="text-dark" id="profileShift">--</span>
+                        <div class="mt-2 px-2 py-1 rounded-3 d-flex align-items-center gap-2" style="background:#f0f1f3;">
+                            <i class="fas fa-clock text-muted" style="font-size:.65rem;"></i>
+                            <span class="text-muted" style="font-size:.72rem;">Expected shift:</span>
+                            <span class="fw-semibold" style="font-size:.75rem;color:#1a2e2c;" id="profileShift">—</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card p-3 shadow-sm border-0 mb-4" style="border-radius: 14px; background-color: #f8f9fa;">
-                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-dark text-uppercase small letter-spacing-1 px-2">Monthly Overview</h6>
+                <!-- Monthly stats -->
+                <div class="card border-0 shadow-sm p-3 mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-chart-bar text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Monthly Overview</span>
+                        <span class="text-muted ms-auto" style="font-size:.68rem;" id="statsMonthLabel">—</span>
+                    </div>
+
+                    <!-- Attendance rate bar -->
+                    <div class="mb-3 p-2 rounded-3" style="background:#f8f9fb;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;">Attendance Rate</span>
+                            <span class="fw-bold" style="font-size:.9rem;color:#1a2e2c;" id="statRate">—</span>
+                        </div>
+                        <div class="progress" style="height:6px;border-radius:99px;background:#e9ecef;">
+                            <div id="statRateBar" class="progress-bar" role="progressbar"
+                                 style="width:0%;background:#1a7a3e;border-radius:99px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="text-muted" style="font-size:.63rem;" id="statWorkingDays">— working days</span>
+                            <span class="text-muted" style="font-size:.63rem;" id="statTotalHours">— hrs total</span>
+                        </div>
+                    </div>
+
+                    <!-- 5 stat tiles -->
                     <div class="row g-2">
                         <div class="col-6">
-                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #198754;">
-                                <div class="small text-muted fw-bold text-uppercase">Present</div>
-                                <h3 class="fw-bold text-success m-0" id="statPresent">0</h3>
+                            <div class="stat-card p-2 shadow-sm" style="border-left-color:#198754;">
+                                <div class="text-muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;">Present</div>
+                                <div class="fw-bold mt-1" style="color:#198754;font-size:1.25rem;line-height:1;" id="statPresent">0</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #dc3545;">
-                                <div class="small text-muted fw-bold text-uppercase">Absent</div>
-                                <h3 class="fw-bold text-danger m-0" id="statAbsent">0</h3>
+                            <div class="stat-card p-2 shadow-sm" style="border-left-color:#dc3545;">
+                                <div class="text-muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;">Absent</div>
+                                <div class="fw-bold mt-1" style="color:#dc3545;font-size:1.25rem;line-height:1;" id="statAbsent">0</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #ffc107;">
-                                <div class="small text-muted fw-bold text-uppercase">Late/Short</div>
-                                <h3 class="fw-bold text-warning m-0" id="statLate">0</h3>
+                            <div class="stat-card p-2 shadow-sm" style="border-left-color:#f59e0b;">
+                                <div class="text-muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;">Late / Short</div>
+                                <div class="fw-bold mt-1" style="color:#f59e0b;font-size:1.25rem;line-height:1;" id="statLate">0</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card p-3 shadow-sm" style="border-left-color: #0d6efd;">
-                                <div class="small text-muted fw-bold text-uppercase">Leaves</div>
-                                <h3 class="fw-bold text-primary m-0" id="statLeave">0</h3>
+                            <div class="stat-card p-2 shadow-sm" style="border-left-color:#0d6efd;">
+                                <div class="text-muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;">Leaves</div>
+                                <div class="fw-bold mt-1" style="color:#0d6efd;font-size:1.25rem;line-height:1;" id="statLeave">0</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="stat-card p-2 shadow-sm" style="border-left-color:#7c3aed;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="text-muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;">Overtime (hrs)</div>
+                                    <div class="fw-bold" style="color:#7c3aed;font-size:1.1rem;line-height:1;" id="statOT">0.0</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card p-4 shadow-sm border-0" style="border-radius: 14px;">
-                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-dark text-uppercase small letter-spacing-1">Color Legend</h6>
-                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
-                        <span class="legend-dot" style="background-color: #d1e7dd; border: 1px solid #0f5132;"></span> Complete Shift (8+ hrs)
+                <!-- Color legend -->
+                <div class="card border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-circle-half-stroke text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Color Legend</span>
                     </div>
-                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
-                        <span class="legend-dot" style="background-color: #fff3cd; border: 1px solid #664d03;"></span> Late / Undertime
-                    </div>
-                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
-                        <span class="legend-dot" style="background-color: #f8d7da; border: 1px solid #842029;"></span> Absent / No Data
-                    </div>
-                    <div class="small fw-bold text-secondary mb-2 d-flex align-items-center">
-                        <span class="legend-dot" style="background-color: #e2e3e5; border: 1px solid #41464b;"></span> Rest Day / Holiday
-                    </div>
-                    <div class="small fw-bold text-secondary mt-3 pt-3 border-top">
-                        <div class="d-flex align-items-center mb-1">
-                            <span class="legend-dot" style="background-color: #cfe2ff; border: 1px solid #0a58ca;"></span> Approved Leaves
+                    <div style="font-size:.78rem;" class="d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center"><span class="legend-dot" style="background:#d1e7dd;border:1px solid #0f5132;"></span>Complete Shift (8+ hrs)</div>
+                        <div class="d-flex align-items-center"><span class="legend-dot" style="background:#fff3cd;border:1px solid #664d03;"></span>Late / Undertime</div>
+                        <div class="d-flex align-items-center"><span class="legend-dot" style="background:#f8d7da;border:1px solid #842029;"></span>Absent / No Data</div>
+                        <div class="d-flex align-items-center"><span class="legend-dot" style="background:#ffe4b5;border:1px solid #c2770a;"></span>No Time-Out Recorded</div>
+                        <div class="d-flex align-items-center"><span class="legend-dot" style="background:#e2e3e5;border:1px solid #41464b;"></span>Rest Day / Holiday</div>
+                        <div class="d-flex align-items-center mt-1 pt-2 border-top">
+                            <span class="legend-dot" style="background:#cfe2ff;border:1px solid #0a58ca;"></span>
+                            <div>
+                                <div>Approved Leave</div>
+                                <div class="text-muted" style="font-size:.68rem;">VL, SL, ML, PL, SPL, BL, SIL, STDL</div>
+                            </div>
                         </div>
-                        <span class="text-muted fw-normal d-block ms-4" style="font-size: 0.75rem;">VL, SL, ML, PL, SPL, BL, SIL, STDL</span>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-8">
-                <div class="card p-4 shadow-sm border-0 h-100 bg-white" style="border-radius: 14px;">
+            <!-- ── Calendar panel ── -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm p-3 bg-white h-100">
                     <div id="calendar"></div>
                 </div>
             </div>
@@ -179,32 +221,59 @@
     </div>
 </div>
 
+<!-- ── Day detail modal ── -->
 <div class="modal fade" id="eventModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
-      <div class="modal-header bg-dark text-white border-0 py-3">
-        <h6 class="modal-title fw-bold m-0 text-uppercase letter-spacing-1" id="modalDate">Date</h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-center p-4 bg-light">
-        <h4 id="modalStatus" class="fw-bold mb-3">Status</h4>
-        <div class="bg-white p-3 rounded shadow-sm border">
-            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                <span class="text-muted small fw-bold text-uppercase">Time In:</span>
-                <span class="text-dark fw-bold" id="modalIn">--:--</span>
+    <div class="modal-dialog modal-dialog-centered" style="max-width:340px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:14px;overflow:hidden;">
+            <div class="modal-header border-0 py-3 px-4" style="background:#f8f9fb;">
+                <div>
+                    <div class="text-muted" style="font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;">Attendance Detail</div>
+                    <h6 class="modal-title fw-bold m-0 mt-1" style="color:#1a2e2c;" id="modalDate">—</h6>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                <span class="text-muted small fw-bold text-uppercase">Time Out:</span>
-                <span class="text-dark fw-bold" id="modalOut">--:--</span>
-            </div>
-            <div class="d-flex justify-content-between pt-1">
-                <span class="text-muted small fw-bold text-uppercase">Credited:</span>
-                <span class="text-dark fw-bold" id="modalHours">0.00 hrs</span>
+            <div class="modal-body px-4 py-3">
+                <!-- Status badge -->
+                <div class="text-center mb-3">
+                    <span id="modalStatusBadge" class="badge rounded-pill px-3 py-2" style="font-size:.8rem;">—</span>
+                </div>
+                <!-- Time grid -->
+                <div class="rounded-3 p-3" style="background:#f8f9fb;">
+                    <div class="row g-2" style="font-size:.8rem;">
+                        <div class="col-6">
+                            <div class="text-muted" style="font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;">Time In</div>
+                            <div class="fw-semibold mt-1" style="color:#1a2e2c;" id="modalIn">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted" style="font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;">Time Out</div>
+                            <div class="fw-semibold mt-1" style="color:#1a2e2c;" id="modalOut">—</div>
+                        </div>
+                        <div class="col-6 mt-1">
+                            <div class="text-muted" style="font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;">Hours Credited</div>
+                            <div class="fw-semibold mt-1" style="color:#1a2e2c;" id="modalHours">—</div>
+                        </div>
+                        <div class="col-6 mt-1">
+                            <div class="text-muted" style="font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;">Late (min)</div>
+                            <div class="fw-semibold mt-1" id="modalLate">—</div>
+                        </div>
+                        <div class="col-6 mt-1">
+                            <div class="text-muted" style="font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;">Undertime (hrs)</div>
+                            <div class="fw-semibold mt-1" id="modalUndertime">—</div>
+                        </div>
+                        <div class="col-6 mt-1">
+                            <div class="text-muted" style="font-size:.63rem;text-transform:uppercase;letter-spacing:.05em;">OT Reported</div>
+                            <div class="fw-semibold mt-1" id="modalOT">—</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- OT approval status (only if OT present) -->
+                <div id="modalOTApprovalRow" class="d-none mt-2 rounded-3 px-3 py-2 d-flex justify-content-between align-items-center" style="background:#f3e8ff;">
+                    <span class="text-muted" style="font-size:.72rem;">OT Approval</span>
+                    <span id="modalOTApproval" class="badge rounded-pill" style="font-size:.7rem;">—</span>
+                </div>
             </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -213,7 +282,6 @@
     let globalLogs = [];
     let globalHolidays = [];
 
-    // API returns AttendanceLog JSON: date, totalHours, timeIn, timeOut (not logDate/hoursWorked/status).
     function toCalendarDateString(raw) {
         if (raw == null) return null;
         if (typeof raw === 'string') return raw.length >= 10 ? raw.substring(0, 10) : raw;
@@ -234,7 +302,7 @@
     }
 
     function formatTimeForUi(t) {
-        if (t == null || t === '') return '--:--';
+        if (t == null || t === '') return null;
         if (typeof t === 'string') {
             const m = t.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/);
             if (m) {
@@ -248,14 +316,16 @@
         return String(t);
     }
 
-    /** TCMS col 9 — VL, SL, Vacation Leave, etc. */
     function isTcmsLeave(leave) {
         if (leave == null) return false;
         const s = (leave + '').trim();
         if (s === '' || /^none$/i.test(s)) return false;
         const u = s.toUpperCase();
-        return u.includes('VL') || u.includes('SL') || u.includes('ML') || u.includes('PL') || u.includes('SPL') || u.includes('BL') || u.includes('SIL') || u.includes('STDL') || u.includes('STD')
-            || u.includes('LEAVE') || u.includes('PAID_') || u.includes('VACATION') || u.includes('SICK') || u.includes('MATERNITY') || u.includes('PATERNITY') || u.includes('BEREAV') || u.includes('STL') || u.includes('SERVICE') || u.includes('SOLO') || u.includes('TERMINAL');
+        return u.includes('VL') || u.includes('SL') || u.includes('ML') || u.includes('PL') || u.includes('SPL') ||
+               u.includes('BL') || u.includes('SIL') || u.includes('STDL') || u.includes('STD') || u.includes('LEAVE') ||
+               u.includes('PAID_') || u.includes('VACATION') || u.includes('SICK') || u.includes('MATERNITY') ||
+               u.includes('PATERNITY') || u.includes('BEREAV') || u.includes('STL') || u.includes('SERVICE') ||
+               u.includes('SOLO') || u.includes('TERMINAL');
     }
 
     function normalizeDayTypeForMatch(s) {
@@ -263,7 +333,6 @@
         return (s + '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
-    /** TCMS col 11 — Restday, Rest, RDO, day off, etc. (must stay in sync with AdmissionService.readTcmsDayTypeField / isTcmsRestOrHolidayDayType). */
     function isTcmsRestDay(dayType) {
         const d = normalizeDayTypeForMatch(dayType).toLowerCase();
         if (!d) return false;
@@ -304,22 +373,25 @@
                 { dayType: log.dayType, tcmsLeaveType: log.tcmsLeaveType, timeIn: log.timeIn, timeOut: log.timeOut, status: log.status },
                 hoursWorked
             ),
-            timeIn: formatTimeForUi(log.timeIn),
-            timeOut: formatTimeForUi(log.timeOut)
+            timeIn:  formatTimeForUi(log.timeIn),
+            timeOut: formatTimeForUi(log.timeOut),
+            minutesLate:    log.minutesLate    != null ? Number(log.minutesLate)    : null,
+            undertimeHours: log.undertimeHours != null ? Number(log.undertimeHours) : null,
+            overtimeReported: log.overtimeReported != null ? Number(log.overtimeReported) : null,
+            otApprovalStatus: log.otApprovalStatus || null
         };
     }
 
-    // --- PASTEL COLOR PALETTE ---
     const COLORS = {
-        PRESENT_BG: '#d1e7dd', PRESENT_TEXT: '#0f5132', // Soft Green
-        ABSENT_BG: '#f8d7da', ABSENT_TEXT: '#842029',   // Soft Red
-        LATE_BG: '#fff3cd', LATE_TEXT: '#664d03',       // Soft Yellow
-        LEAVE_BG: '#cfe2ff', LEAVE_TEXT: '#0a58ca',     // Soft Blue
-        REST_BG: '#e2e3e5', REST_TEXT: '#41464b',       // Soft Gray
-        ERROR_BG: '#f8d7da', ERROR_TEXT: '#842029'      // Soft Orange/Red
+        PRESENT_BG: '#d1e7dd', PRESENT_TEXT: '#0f5132',
+        ABSENT_BG:  '#f8d7da', ABSENT_TEXT:  '#842029',
+        LATE_BG:    '#fff3cd', LATE_TEXT:    '#664d03',
+        LEAVE_BG:   '#cfe2ff', LEAVE_TEXT:   '#0a58ca',
+        REST_BG:    '#e2e3e5', REST_TEXT:    '#41464b',
+        INVALID_BG: '#ffe4b5', INVALID_TEXT: '#92400e'
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('sidebarToggle').addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('hidden');
             document.getElementById('content').classList.toggle('expanded');
@@ -328,29 +400,64 @@
         var calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth'
-            },
-            height: 750,
-            firstDay: 1, 
-            eventClick: function(info) {
-                document.getElementById('modalDate').innerText = info.event.startStr;
-                document.getElementById('modalStatus').innerText = info.event.title;
-                
-                // Map the pastel background back to a bootstrap text color for the modal
-                let modalColorClass = getTextColorClass(info.event.backgroundColor);
-                document.getElementById('modalStatus').className = "fw-bold mb-3 " + modalColorClass;
-                
-                document.getElementById('modalIn').innerText = info.event.extendedProps.timeIn || '--:--';
-                document.getElementById('modalOut').innerText = info.event.extendedProps.timeOut || '--:--';
-                var hrs = info.event.extendedProps.hours;
-        document.getElementById('modalHours').innerText = (hrs != null && hrs !== '' ? hrs : '0') + ' hrs';
-                
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
+            height: 700,
+            firstDay: 1,
+            eventClick: function (info) {
+                const p = info.event.extendedProps;
+                const rawStatus = (p.rawStatus || info.event.title || '').toUpperCase();
+
+                /* Date label */
+                var d = new Date(info.event.startStr + 'T12:00:00');
+                document.getElementById('modalDate').innerText =
+                    d.toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+                /* Status badge */
+                var badge = document.getElementById('modalStatusBadge');
+                badge.textContent = info.event.title;
+                badge.style.cssText = 'font-size:.8rem;background:' + info.event.backgroundColor
+                    + ';color:' + info.event.textColor + ';border:1px solid ' + info.event.textColor + '33;';
+
+                /* Time fields */
+                document.getElementById('modalIn').innerText  = p.timeIn  || '—';
+                document.getElementById('modalOut').innerText = p.timeOut || '—';
+                document.getElementById('modalHours').innerText = (p.hours != null && p.hours !== '') ? p.hours + ' hrs' : '—';
+
+                /* Late */
+                var lateEl = document.getElementById('modalLate');
+                lateEl.innerText = (p.minutesLate != null && p.minutesLate > 0) ? p.minutesLate + ' min' : '0';
+                lateEl.style.color = (p.minutesLate > 0) ? '#f59e0b' : '#1a2e2c';
+
+                /* Undertime */
+                var utEl = document.getElementById('modalUndertime');
+                utEl.innerText = (p.undertimeHours != null && p.undertimeHours > 0) ? p.undertimeHours.toFixed(2) + ' h' : '0';
+                utEl.style.color = (p.undertimeHours > 0) ? '#f59e0b' : '#1a2e2c';
+
+                /* OT */
+                var otEl = document.getElementById('modalOT');
+                otEl.innerText = (p.overtimeReported != null && p.overtimeReported > 0) ? p.overtimeReported.toFixed(2) + ' hrs' : '—';
+                otEl.style.color = (p.overtimeReported > 0) ? '#7c3aed' : '#6c757d';
+
+                /* OT Approval row */
+                var otRow = document.getElementById('modalOTApprovalRow');
+                var otApprBadge = document.getElementById('modalOTApproval');
+                if (p.overtimeReported > 0 && p.otApprovalStatus) {
+                    otRow.classList.remove('d-none');
+                    otApprBadge.textContent = p.otApprovalStatus;
+                    otApprBadge.style.background = p.otApprovalStatus === 'APPROVED' ? '#d1e7dd'
+                                                 : p.otApprovalStatus === 'PENDING'  ? '#fff3cd'
+                                                 : '#e2e3e5';
+                    otApprBadge.style.color = p.otApprovalStatus === 'APPROVED' ? '#0f5132'
+                                            : p.otApprovalStatus === 'PENDING'  ? '#664d03'
+                                            : '#41464b';
+                } else {
+                    otRow.classList.add('d-none');
+                }
+
                 new bootstrap.Modal(document.getElementById('eventModal')).show();
             },
-            datesSet: function(info) {
+            datesSet: function (info) {
+                updateStatsLabel(info.start);
                 calculateStats(info.start, info.end);
             }
         });
@@ -360,106 +467,99 @@
             .then(res => res.json())
             .then(data => {
                 globalHolidays = data.map(h => ({
-                    title: 'Holiday: ' + h.name,
+                    title: '🎌 ' + h.name,
                     start: h.date,
                     backgroundColor: COLORS.REST_BG,
                     textColor: COLORS.REST_TEXT,
                     allDay: true,
-                    extendedProps: { timeIn: null, timeOut: null, hours: 0 }
+                    extendedProps: { timeIn: null, timeOut: null, hours: 0, minutesLate: 0, undertimeHours: 0, overtimeReported: 0 }
                 }));
                 calendar.addEventSource(globalHolidays);
-            });
+            }).catch(() => {});
     });
+
+    function updateStatsLabel(viewStart) {
+        var el = document.getElementById('statsMonthLabel');
+        if (el) {
+            el.textContent = viewStart.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+        }
+    }
 
     function loadEmployeeData() {
         const select = document.getElementById('employeeSelect');
         const empId = select.value;
-        const selectedOption = select.options[select.selectedIndex];
+        const opt = select.options[select.selectedIndex];
+        const name = opt.getAttribute('data-name') || opt.text.split(' — ')[1] || '';
 
         document.getElementById('employeeProfile').classList.remove('d-none');
-        let name = selectedOption.text.split(' - ')[1];
         document.getElementById('profileName').innerText = name;
-        document.getElementById('profileInitials').innerText = name.charAt(0);
-        document.getElementById('profileDept').innerText = selectedOption.getAttribute('data-dept');
-        document.getElementById('profileShift').innerText = selectedOption.getAttribute('data-shift');
+        document.getElementById('profileInitials').innerText = name.substring(0, 2).toUpperCase();
+        document.getElementById('profileDept').innerText = opt.getAttribute('data-dept') || '—';
+        document.getElementById('profileShift').innerText = opt.getAttribute('data-shift') || '—';
 
         fetch('/api/attendance/logs?employeeId=' + encodeURIComponent(empId), { credentials: 'same-origin' })
-            .then(res => {
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                return res.json();
-            })
+            .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
             .then(data => {
                 const raw = Array.isArray(data) ? data : [];
                 globalLogs = raw.map(normalizeAttendanceApiRow);
                 calendar.removeAllEventSources();
                 calendar.addEventSource(globalHolidays);
 
-                let events = globalLogs.filter(function (log) { return log.logDate; }).map(function (log) {
-                    var bgColor = COLORS.ABSENT_BG;
-                    var txtColor = COLORS.ABSENT_TEXT;
-                    var hw = Number(log.hoursWorked) || 0;
-                    var title = 'No data';
-                    var statusUpper = '';
+                let events = globalLogs.filter(l => l.logDate).map(log => {
+                    let bgColor = COLORS.ABSENT_BG, txtColor = COLORS.ABSENT_TEXT;
+                    let title = 'Absent';
+                    const hw = Number(log.hoursWorked) || 0;
+                    const hLabel = hw > 0 ? ' · ' + hw.toFixed(1) + 'h' : '';
 
                     if (isTcmsHolidayDay(log.dayType)) {
-                        bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT;
-                        title = 'Holiday (day off)';
-                        statusUpper = 'HOLIDAY';
+                        bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT; title = 'Holiday';
                     } else if (isTcmsRestDay(log.dayType)) {
-                        bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT;
-                        title = 'Rest day';
-                        statusUpper = 'REST';
+                        bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT; title = 'Rest day';
                     } else if (isTcmsLeave(log.tcmsLeaveType)) {
                         bgColor = COLORS.LEAVE_BG; txtColor = COLORS.LEAVE_TEXT;
-                        title = 'Approved leave (' + (log.tcmsLeaveType || '').trim() + ')';
-                        statusUpper = (log.tcmsLeaveType + '').toUpperCase();
+                        title = (log.tcmsLeaveType || 'Leave').trim().toUpperCase();
                     } else {
-                        title = log.status || 'ABSENT';
-                        statusUpper = (title + '').toUpperCase();
-                        if (statusUpper.includes('VL') || statusUpper.includes('SL') || statusUpper.includes('ML') || statusUpper.includes('PL') ||
-                            statusUpper.includes('SPL') || statusUpper.includes('BL') || statusUpper.includes('SIL') || statusUpper.includes('STDL') || statusUpper.includes('PAID_') || statusUpper.includes('LEAVE')) {
-                            bgColor = COLORS.LEAVE_BG; txtColor = COLORS.LEAVE_TEXT;
-                            title = 'Approved leave';
-                        } else if (statusUpper.includes('REST')) {
-                            bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT;
-                            title = 'Rest day';
+                        const su = (log.status || '').toUpperCase();
+                        if (su.includes('VL')||su.includes('SL')||su.includes('ML')||su.includes('PL')||
+                            su.includes('SPL')||su.includes('BL')||su.includes('SIL')||su.includes('STDL')||
+                            su.includes('PAID_')||su.includes('LEAVE')) {
+                            bgColor = COLORS.LEAVE_BG; txtColor = COLORS.LEAVE_TEXT; title = 'Approved Leave';
+                        } else if (su.includes('REST')) {
+                            bgColor = COLORS.REST_BG; txtColor = COLORS.REST_TEXT; title = 'Rest day';
+                        } else if (su === 'INVALID_SHIFT' || (log.timeIn && !log.timeOut)) {
+                            bgColor = COLORS.INVALID_BG; txtColor = COLORS.INVALID_TEXT; title = 'No time-out' + hLabel;
                         } else if (hw >= 8.0) {
-                            bgColor = COLORS.PRESENT_BG; txtColor = COLORS.PRESENT_TEXT;
-                            title = 'Complete shift (8+ hrs)';
+                            bgColor = COLORS.PRESENT_BG; txtColor = COLORS.PRESENT_TEXT; title = 'Present' + hLabel;
                         } else if (hw > 0 && hw < 8.0) {
                             bgColor = COLORS.LATE_BG; txtColor = COLORS.LATE_TEXT;
-                            title = 'Late / Short (' + hw.toFixed(1) + 'h)';
-                        } else if (statusUpper === 'INVALID_SHIFT') {
-                            bgColor = COLORS.ERROR_BG; txtColor = COLORS.ERROR_TEXT;
-                            title = 'No time-out';
+                            title = (log.minutesLate > 0 ? 'Late' : 'Short') + hLabel;
                         } else {
-                            title = 'Absent / No data';
+                            title = 'Absent';
                         }
                     }
-
                     return {
                         title: title,
                         start: log.logDate,
-                        backgroundColor: bgColor,
-                        borderColor: bgColor,
-                        textColor: txtColor,
+                        backgroundColor: bgColor, borderColor: bgColor, textColor: txtColor,
                         allDay: true,
                         extendedProps: {
-                            timeIn: log.timeIn,
-                            timeOut: log.timeOut,
-                            hours: hw.toFixed(2),
-                            rawStatus: statusUpper,
-                            dayType: log.dayType,
-                            tcmsLeaveType: log.tcmsLeaveType
+                            timeIn: log.timeIn, timeOut: log.timeOut,
+                            hours: hw.toFixed(2), rawStatus: (log.status || '').toUpperCase(),
+                            dayType: log.dayType, tcmsLeaveType: log.tcmsLeaveType,
+                            minutesLate: log.minutesLate || 0,
+                            undertimeHours: log.undertimeHours || 0,
+                            overtimeReported: log.overtimeReported || 0,
+                            otApprovalStatus: log.otApprovalStatus || null
                         }
                     };
                 });
 
                 calendar.addEventSource(events);
-                let view = calendar.view;
+                const view = calendar.view;
+                updateStatsLabel(view.activeStart);
                 calculateStats(view.activeStart, view.activeEnd);
             })
-            .catch(function (err) {
+            .catch(err => {
                 console.error('Attendance fetch failed', err);
                 globalLogs = [];
                 calendar.removeAllEventSources();
@@ -474,56 +574,52 @@
     }
 
     function calculateStats(viewStart, viewEnd) {
-        if (!globalLogs || globalLogs.length === 0) return;
-
         let present = 0, absent = 0, late = 0, leaves = 0;
+        let totalHours = 0, totalOT = 0, workingDays = 0;
 
-        globalLogs.forEach(function (log) {
+        globalLogs.forEach(log => {
             if (!log.logDate) return;
-            var logDate = parseLocalYmd(log.logDate);
-            if (logDate >= viewStart && logDate < viewEnd) {
-                var hw = Number(log.hoursWorked) || 0;
+            const logDate = parseLocalYmd(log.logDate);
+            if (logDate < viewStart || logDate >= viewEnd) return;
 
-                if (isTcmsHolidayDay(log.dayType) || isTcmsRestDay(log.dayType)) {
-                    return;
-                }
-                if (isTcmsLeave(log.tcmsLeaveType)) {
-                    leaves++;
-                    return;
-                }
+            if (isTcmsHolidayDay(log.dayType) || isTcmsRestDay(log.dayType)) return;
 
-                var statusUpper = (log.status || '').toUpperCase();
-                var isLeave = statusUpper.includes('VL') || statusUpper.includes('SL') ||
-                    statusUpper.includes('ML') || statusUpper.includes('PL') || statusUpper.includes('SPL') || statusUpper.includes('BL') ||
-                    statusUpper.includes('SIL') || statusUpper.includes('STDL') || statusUpper.includes('PAID_') || statusUpper.includes('LEAVE');
+            workingDays++;
+            const hw = Number(log.hoursWorked) || 0;
+            totalHours += hw;
+            if (log.overtimeReported) totalOT += Number(log.overtimeReported) || 0;
 
-                if (isLeave) {
-                    leaves++;
-                } else if (statusUpper.includes('REST')) {
-                    // legacy status only
-                } else if (hw >= 8.0) {
-                    present++;
-                } else if (hw > 0 && hw < 8.0) {
-                    late++;
-                    present++;
-                } else {
-                    absent++;
-                }
-            }
+            if (isTcmsLeave(log.tcmsLeaveType)) { leaves++; return; }
+
+            const su = (log.status || '').toUpperCase();
+            const isLeave = su.includes('VL')||su.includes('SL')||su.includes('ML')||su.includes('PL')||
+                            su.includes('SPL')||su.includes('BL')||su.includes('SIL')||su.includes('STDL')||
+                            su.includes('PAID_')||su.includes('LEAVE');
+            if (isLeave) { leaves++; }
+            else if (su.includes('REST')) { /* skip */ }
+            else if (hw >= 8.0) { present++; }
+            else if (hw > 0 && hw < 8.0) { late++; present++; }
+            else { absent++; }
         });
 
-        document.getElementById('statPresent').innerText = present;
-        document.getElementById('statAbsent').innerText = absent;
-        document.getElementById('statLate').innerText = late;
-        document.getElementById('statLeave').innerText = leaves;
-    }
+        const attended = present + late;
+        const denominator = attended + absent;
+        const rate = denominator > 0 ? Math.round((attended / denominator) * 100) : 0;
 
-    function getTextColorClass(bgColor) {
-        if(bgColor === COLORS.PRESENT_BG) return 'text-success';
-        if(bgColor === COLORS.LATE_BG) return 'text-warning';
-        if(bgColor === COLORS.LEAVE_BG) return 'text-primary';
-        if(bgColor === COLORS.REST_BG) return 'text-secondary';
-        return 'text-danger';
+        document.getElementById('statPresent').innerText = present;
+        document.getElementById('statAbsent').innerText  = absent;
+        document.getElementById('statLate').innerText    = late;
+        document.getElementById('statLeave').innerText   = leaves;
+        document.getElementById('statOT').innerText      = totalOT.toFixed(1);
+        document.getElementById('statRate').innerText    = (denominator > 0) ? rate + '%' : '—';
+        document.getElementById('statWorkingDays').innerText = workingDays + ' working day' + (workingDays !== 1 ? 's' : '');
+        document.getElementById('statTotalHours').innerText  = totalHours.toFixed(1) + ' hrs total';
+
+        const bar = document.getElementById('statRateBar');
+        if (bar) {
+            bar.style.width = rate + '%';
+            bar.style.background = rate >= 90 ? '#1a7a3e' : rate >= 75 ? '#f59e0b' : '#dc3545';
+        }
     }
 </script>
 </body>

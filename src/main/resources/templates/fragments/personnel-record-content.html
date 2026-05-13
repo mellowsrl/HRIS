@@ -2,72 +2,213 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <th:block th:fragment="content">
-        <div class="row g-4">
+        <div class="row g-3">
+
+            <!-- Identity & Contact -->
             <div class="col-md-6">
-                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Identity &amp; contact</h6>
-                <table class="table table-sm table-borderless mb-0">
-                    <tr><td class="text-muted">Employee ID</td><td class="fw-bold" th:text="${employee.customEmployeeId}"></td></tr>
-                    <tr><td class="text-muted">Name</td><td class="fw-bold" th:text="${employee.firstName + ' ' + employee.lastName}"></td></tr>
-                    <tr><td class="text-muted">Email</td><td th:text="${employee.email}"></td></tr>
-                    <tr><td class="text-muted">Phone</td><td th:text="${employee.phone != null and !#strings.isEmpty(employee.phone) ? employee.phone : '—'}"></td></tr>
-                    <tr><td class="text-muted">Gender</td><td th:text="${employee.gender != null ? employee.gender : '—'}"></td></tr>
-                    <tr><td class="text-muted">Civil status</td><td th:text="${employee.civilStatus != null ? employee.civilStatus : '—'}"></td></tr>
-                    <tr><td class="text-muted">Birth date</td><td th:text="${employee.birthDate != null ? #temporals.format(employee.birthDate, 'MMM d, yyyy') : '—'}"></td></tr>
-                    <tr><td class="text-muted">Birth place</td><td th:text="${employee.birthPlace != null ? employee.birthPlace : '—'}"></td></tr>
-                    <tr><td class="text-muted">Nationality</td><td th:text="${employee.nationality != null ? employee.nationality : '—'}"></td></tr>
-                    <tr><td class="text-muted">Present address</td><td style="white-space:pre-wrap" th:text="${employee.presentAddress != null ? employee.presentAddress : '—'}"></td></tr>
-                    <tr><td class="text-muted">Permanent address</td><td style="white-space:pre-wrap" th:text="${employee.permanentAddress != null ? employee.permanentAddress : '—'}"></td></tr>
-                </table>
-            </div>
-            <div class="col-md-6">
-                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Employment</h6>
-                <table class="table table-sm table-borderless mb-0">
-                    <tr><td class="text-muted">Department</td><td class="fw-bold" th:text="${employee.department}"></td></tr>
-                    <tr><td class="text-muted">Position</td><td th:text="${employee.position != null ? employee.position : '—'}"></td></tr>
-                    <tr><td class="text-muted">Status</td><td th:text="${employee.status}"></td></tr>
-                    <tr><td class="text-muted">Employment type</td><td th:text="${employee.employmentType != null ? employee.employmentType : '—'}"></td></tr>
-                    <tr><td class="text-muted">Payment</td><td th:text="${employee.paymentType != null ? employee.paymentType : '—'}"></td></tr>
-                    <tr><td class="text-muted">Expected shift</td><td th:text="${employee.expectedShift != null ? employee.expectedShift : '—'}"></td></tr>
-                    <tr><td class="text-muted">Date hired</td><td th:text="${employee.dateHired != null ? #temporals.format(employee.dateHired, 'MMM d, yyyy') : '—'}"></td></tr>
-                    <tr><td class="text-muted">Probation ends</td><td th:text="${employee.probationEndDate != null ? #temporals.format(employee.probationEndDate, 'MMM d, yyyy') : '—'}"></td></tr>
-                    <tr><td class="text-muted">Contract ends</td><td th:text="${employee.contractEndDate != null ? #temporals.format(employee.contractEndDate, 'MMM d, yyyy') : '—'}"></td></tr>
-                    <tr><td class="text-muted">Separation / last day</td><td th:text="${employee.separationDate != null ? #temporals.format(employee.separationDate, 'MMM d, yyyy') : '—'}"></td></tr>
-                    <tr th:if="${employee.separationNote != null and !#strings.isEmpty(employee.separationNote)}">
-                        <td class="text-muted">Separation note</td>
-                        <td style="white-space:pre-wrap" th:text="${employee.separationNote}">—</td>
-                    </tr>
-                    <tr th:if="${recordMode == 'hr'}"><td class="text-muted">Biometric ID</td><td th:text="${employee.biometricId != null ? employee.biometricId : '—'}"></td></tr>
-                </table>
-            </div>
-            <div class="col-12">
-                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Government IDs</h6>
-                <div class="row">
-                    <div class="col-md-3 small"><span class="text-muted">SSS</span><div class="fw-bold" th:text="${employee.sssNumber != null and !#strings.isEmpty(employee.sssNumber) ? employee.sssNumber : '—'}"></div></div>
-                    <div class="col-md-3 small"><span class="text-muted">TIN</span><div class="fw-bold" th:text="${employee.tinNumber != null and !#strings.isEmpty(employee.tinNumber) ? employee.tinNumber : '—'}"></div></div>
-                    <div class="col-md-3 small"><span class="text-muted">PhilHealth</span><div class="fw-bold" th:text="${employee.philhealthNumber != null and !#strings.isEmpty(employee.philhealthNumber) ? employee.philhealthNumber : '—'}"></div></div>
-                    <div class="col-md-3 small"><span class="text-muted">Pag-IBIG</span><div class="fw-bold" th:text="${employee.pagibigNumber != null and !#strings.isEmpty(employee.pagibigNumber) ? employee.pagibigNumber : '—'}"></div></div>
+                <div class="rounded-3 p-3 h-100" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-user text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Identity &amp; Contact</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Employee ID</div>
+                            <div class="fw-semibold" th:text="${employee.customEmployeeId}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Full Name</div>
+                            <div class="fw-semibold" th:text="${employee.firstName + ' ' + employee.lastName}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Email</div>
+                            <div th:text="${employee.email != null and !#strings.isEmpty(employee.email) ? employee.email : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Phone</div>
+                            <div th:text="${employee.phone != null and !#strings.isEmpty(employee.phone) ? employee.phone : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Gender</div>
+                            <div th:text="${employee.gender != null ? employee.gender : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Civil Status</div>
+                            <div th:text="${employee.civilStatus != null ? employee.civilStatus : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Birth Date</div>
+                            <div th:text="${employee.birthDate != null ? #temporals.format(employee.birthDate, 'MMM d, yyyy') : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Birth Place</div>
+                            <div th:text="${employee.birthPlace != null ? employee.birthPlace : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Nationality</div>
+                            <div th:text="${employee.nationality != null ? employee.nationality : '—'}">—</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Present Address</div>
+                            <div style="white-space:pre-wrap;" th:text="${employee.presentAddress != null ? employee.presentAddress : '—'}">—</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Permanent Address</div>
+                            <div style="white-space:pre-wrap;" th:text="${employee.permanentAddress != null ? employee.permanentAddress : '—'}">—</div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Employment -->
             <div class="col-md-6">
-                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Education &amp; experience</h6>
-                <table class="table table-sm table-borderless">
-                    <tr><td class="text-muted">Highest degree</td><td th:text="${employee.highestDegree != null ? employee.highestDegree : '—'}"></td></tr>
-                    <tr><td class="text-muted">Years experience</td><td th:text="${employee.yearsExperience}"></td></tr>
-                    <tr><td class="text-muted">Previous employer</td><td th:text="${employee.previousEmployer != null ? employee.previousEmployer : '—'}"></td></tr>
-                </table>
-                <div class="text-muted small text-uppercase fw-bold">Experience (summary)</div>
-                <p class="small mb-0" style="white-space: pre-wrap;" th:text="${employee.experienceText != null and !#strings.isEmpty(employee.experienceText) ? employee.experienceText : '—'}"></p>
+                <div class="rounded-3 p-3 h-100" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-briefcase text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Employment</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Department</div>
+                            <div class="fw-semibold" th:text="${employee.department != null ? employee.department : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Position</div>
+                            <div th:text="${employee.position != null ? employee.position : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Status</div>
+                            <span class="badge rounded-pill"
+                                  th:classappend="${employee.status == 'Active'} ? 'bg-success' : 'bg-secondary'"
+                                  th:text="${employee.status != null ? employee.status : '—'}">—</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Employment Type</div>
+                            <div th:text="${employee.employmentType != null ? employee.employmentType : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Payment</div>
+                            <div th:text="${employee.paymentType != null ? employee.paymentType : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Expected Shift</div>
+                            <div th:text="${employee.expectedShift != null ? employee.expectedShift : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Date Hired</div>
+                            <div th:text="${employee.dateHired != null ? #temporals.format(employee.dateHired, 'MMM d, yyyy') : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Probation Ends</div>
+                            <div th:text="${employee.probationEndDate != null ? #temporals.format(employee.probationEndDate, 'MMM d, yyyy') : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Contract Ends</div>
+                            <div th:text="${employee.contractEndDate != null ? #temporals.format(employee.contractEndDate, 'MMM d, yyyy') : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Separation / Last Day</div>
+                            <div th:text="${employee.separationDate != null ? #temporals.format(employee.separationDate, 'MMM d, yyyy') : '—'}">—</div>
+                        </div>
+                        <div class="col-12" th:if="${employee.separationNote != null and !#strings.isEmpty(employee.separationNote)}">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Separation Note</div>
+                            <div style="white-space:pre-wrap;" th:text="${employee.separationNote}">—</div>
+                        </div>
+                        <div class="col-6" th:if="${recordMode == 'hr'}">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Biometric ID</div>
+                            <div th:text="${employee.biometricId != null ? employee.biometricId : '—'}">—</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Government IDs -->
+            <div class="col-12">
+                <div class="rounded-3 p-3" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-id-badge text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Government IDs</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="rounded-3 border px-3 py-2" style="min-width:130px;background:#fff;">
+                            <div class="text-muted mb-1" style="font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;">SSS</div>
+                            <div class="fw-semibold" th:text="${employee.sssNumber != null and !#strings.isEmpty(employee.sssNumber) ? employee.sssNumber : '—'}">—</div>
+                        </div>
+                        <div class="rounded-3 border px-3 py-2" style="min-width:130px;background:#fff;">
+                            <div class="text-muted mb-1" style="font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;">TIN</div>
+                            <div class="fw-semibold" th:text="${employee.tinNumber != null and !#strings.isEmpty(employee.tinNumber) ? employee.tinNumber : '—'}">—</div>
+                        </div>
+                        <div class="rounded-3 border px-3 py-2" style="min-width:130px;background:#fff;">
+                            <div class="text-muted mb-1" style="font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;">PhilHealth</div>
+                            <div class="fw-semibold" th:text="${employee.philhealthNumber != null and !#strings.isEmpty(employee.philhealthNumber) ? employee.philhealthNumber : '—'}">—</div>
+                        </div>
+                        <div class="rounded-3 border px-3 py-2" style="min-width:130px;background:#fff;">
+                            <div class="text-muted mb-1" style="font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;">Pag-IBIG</div>
+                            <div class="fw-semibold" th:text="${employee.pagibigNumber != null and !#strings.isEmpty(employee.pagibigNumber) ? employee.pagibigNumber : '—'}">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education & Experience + Emergency Contact -->
             <div class="col-md-6">
-                <h6 class="text-danger text-uppercase small fw-bold border-bottom pb-2">Emergency contact</h6>
-                <table class="table table-sm table-borderless mb-0">
-                    <tr><td class="text-muted">Name</td><td class="fw-bold" th:text="${employee.emergencyContactName != null ? employee.emergencyContactName : '—'}"></td></tr>
-                    <tr><td class="text-muted">Phone</td><td th:text="${employee.emergencyContactPhone != null ? employee.emergencyContactPhone : '—'}"></td></tr>
-                    <tr><td class="text-muted">Relationship</td><td th:text="${employee.emergencyContactRelationship != null ? employee.emergencyContactRelationship : '—'}"></td></tr>
-                    <tr><td class="text-muted">Secondary contact</td><td th:text="${employee.secondaryEmergencyContactName != null ? employee.secondaryEmergencyContactName : '—'}"></td></tr>
-                    <tr><td class="text-muted">Secondary phone</td><td th:text="${employee.secondaryEmergencyContactPhone != null ? employee.secondaryEmergencyContactPhone : '—'}"></td></tr>
-                </table>
+                <div class="rounded-3 p-3 h-100" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-graduation-cap text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Education &amp; Experience</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Highest Degree</div>
+                            <div th:text="${employee.highestDegree != null ? employee.highestDegree : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Years Experience</div>
+                            <div th:text="${employee.yearsExperience != null ? employee.yearsExperience : '—'}">—</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Previous Employer</div>
+                            <div th:text="${employee.previousEmployer != null ? employee.previousEmployer : '—'}">—</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Experience Summary</div>
+                            <p class="mb-0 small" style="white-space:pre-wrap;" th:text="${employee.experienceText != null and !#strings.isEmpty(employee.experienceText) ? employee.experienceText : '—'}">—</p>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100" style="background:#f8f9fb;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-phone-alt text-muted" style="font-size:.75rem;"></i>
+                        <span class="fw-semibold text-uppercase text-muted" style="font-size:.65rem;letter-spacing:.07em;">Emergency Contact</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Name</div>
+                            <div class="fw-semibold" th:text="${employee.emergencyContactName != null ? employee.emergencyContactName : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Phone</div>
+                            <div th:text="${employee.emergencyContactPhone != null ? employee.emergencyContactPhone : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Relationship</div>
+                            <div th:text="${employee.emergencyContactRelationship != null ? employee.emergencyContactRelationship : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Secondary Contact</div>
+                            <div th:text="${employee.secondaryEmergencyContactName != null ? employee.secondaryEmergencyContactName : '—'}">—</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted mb-1" style="font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;">Secondary Phone</div>
+                            <div th:text="${employee.secondaryEmergencyContactPhone != null ? employee.secondaryEmergencyContactPhone : '—'}">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </th:block>
 </body>

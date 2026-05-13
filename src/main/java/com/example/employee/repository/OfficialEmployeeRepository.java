@@ -35,4 +35,10 @@ public interface OfficialEmployeeRepository extends JpaRepository<OfficialEmploy
           )
         """)
     long countActiveByDepartmentCode(@Param("code") String code, @Param("status") String status);
+
+    @Query("SELECT e FROM OfficialEmployee e WHERE e.status = 'Active' AND e.birthDate IS NOT NULL AND FUNCTION('MONTH', e.birthDate) = :month AND FUNCTION('DAY', e.birthDate) = :day ORDER BY e.firstName ASC")
+    java.util.List<OfficialEmployee> findActiveByBirthMonthDay(@Param("month") int month, @Param("day") int day);
+
+    @Query("SELECT e FROM OfficialEmployee e WHERE e.status = 'Active' AND e.birthDate IS NOT NULL AND FUNCTION('MONTH', e.birthDate) = :month AND FUNCTION('DAY', e.birthDate) BETWEEN :dayStart AND :dayEnd ORDER BY FUNCTION('DAY', e.birthDate) ASC, e.firstName ASC")
+    java.util.List<OfficialEmployee> findActiveByBirthMonthDayRange(@Param("month") int month, @Param("dayStart") int dayStart, @Param("dayEnd") int dayEnd);
 }
